@@ -1,0 +1,37 @@
+package com.cleevio.vexl.integration.twilio.service;
+
+import com.cleevio.vexl.integration.twilio.config.TwilioConfig;
+import com.cleevio.vexl.module.sms.service.SmsService;
+import com.cleevio.vexl.module.user.entity.UserVerification;
+import com.twilio.exception.ApiException;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+@Service
+@Slf4j
+@AllArgsConstructor
+public class TwilioService implements SmsService {
+
+    private final TwilioConfig twilioConfig;
+
+    @Override
+    public void sendMessage(UserVerification verification, String phoneNumber) {
+        try {
+            Message.creator(
+                            new PhoneNumber(phoneNumber),
+                            new PhoneNumber(twilioConfig.getPhone()),
+                            verification.getVerificationCode())
+                    .create();
+        } catch (ApiException ex) {
+
+            if (ex.getCode() == 21211 || ex.getCode() == 21614) {
+                //todo throw custom exception
+            }
+
+            throw ex;
+        }
+    }
+}
