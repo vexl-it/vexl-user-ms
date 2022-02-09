@@ -3,13 +3,16 @@ package com.cleevio.vexl.module.user.controller;
 import com.cleevio.vexl.common.dto.ErrorResponse;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
+import com.cleevio.vexl.module.user.dto.request.SignatureRequest;
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.dto.request.UsernameAvailableRequest;
 import com.cleevio.vexl.module.user.dto.response.CodeConfirmResponse;
 import com.cleevio.vexl.module.user.dto.response.PhoneConfirmResponse;
 import com.cleevio.vexl.module.user.dto.response.PublicKeyResponse;
+import com.cleevio.vexl.module.user.dto.response.SignatureResponse;
 import com.cleevio.vexl.module.user.dto.response.UserResponse;
 import com.cleevio.vexl.module.user.dto.response.UsernameAvailableResponse;
+import com.cleevio.vexl.module.user.service.SignatureService;
 import com.cleevio.vexl.module.user.service.UserService;
 import com.cleevio.vexl.module.user.service.UserVerificationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,6 +32,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 
 @Tag(name = "User")
 @RestController
@@ -38,6 +45,7 @@ public class UserController {
 
     private final UserService userService;
     private final UserVerificationService userVerificationService;
+    private final SignatureService signatureService;
 
     @PostMapping("/confirm/phone")
     @ApiResponses({
@@ -134,6 +142,19 @@ public class UserController {
     @Operation(summary = "Export all known user's data")
     UserResponse exportKnownData(@PathVariable long id) {
         return new UserResponse(this.userService.find(id));
+    }
+
+    @GetMapping("/signature")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "500 (101202)", description = "Cannot write file", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409 (101101)", description = "User already exists", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "400 (101103)", description = "Avatar has invalid format", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @Operation(summary = "Create signature for an user")
+    SignatureResponse createSignature(@Valid @RequestBody SignatureRequest signatureRequest)
+            throws NoSuchAlgorithmException, InvalidKeyException, IOException, SignatureException {
+        return this.signatureService.createSignature(signatureRequest);
     }
 
 
