@@ -3,7 +3,7 @@ package com.cleevio.vexl.module.user.service;
 import com.cleevio.vexl.module.sms.service.SmsService;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
-import com.cleevio.vexl.module.user.dto.response.CodeConfirmResponse;
+import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
 import com.cleevio.vexl.module.user.entity.UserVerification;
 import com.cleevio.vexl.utils.PhoneUtils;
 import com.cleevio.vexl.utils.RandomSecurityUtils;
@@ -13,6 +13,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 
 @Service
@@ -22,6 +27,7 @@ public class UserVerificationService {
 
     private final SmsService smsService;
     private final UserVerificationRepository userVerificationRepository;
+    private final SignatureService signatureService;
 
     @Value("#{new Integer('${verification.phone.digits:Length}')}")
     private Integer phoneDigitsLength;
@@ -35,6 +41,7 @@ public class UserVerificationService {
         UserVerification userVerification = UserVerification.builder()
                 .verificationCode(codeToSend)
                 .expirationAt(Instant.now().plusSeconds(this.expirationTime))
+                .phoneNumber(phoneConfirmRequest.getPhoneNumber())
                 .build();
 
         smsService.sendMessage(userVerification,
@@ -44,21 +51,26 @@ public class UserVerificationService {
     }
 
     @Transactional
-    public CodeConfirmResponse requestConfirmCode(CodeConfirmRequest codeConfirmRequest) {
-        userVerificationRepository.deleteExpiredVerifications(Instant.now());
+    public ConfirmCodeResponse requestConfirmCodeAndGenerateCert(CodeConfirmRequest codeConfirmRequest)
+            throws NoSuchAlgorithmException, IOException, SignatureException, InvalidKeySpecException, InvalidKeyException {
 
-        UserVerification userVerification = userVerificationRepository.findValidUserVerificationByIdAndCode(
+        UserVerification userVerification = this.userVerificationRepository.findValidUserVerificationByIdAndCode(
                 codeConfirmRequest.getId(),
                 codeConfirmRequest.getCode(),
                 Instant.now()
         );
 
         if (userVerification == null) {
-            return new CodeConfirmResponse(false, "The code is already expired.");
+            return ConfirmCodeResponse
+                    .builder()
+                    .valid(false)
+                    .build();
         }
 
-        userVerificationRepository.deleteVerificationById(userVerification.getId());
+        ConfirmCodeResponse confirmCodeResponse = this.signatureService.createSignature(codeConfirmRequest, userVerification.getPhoneNumber());
 
-        return new CodeConfirmResponse(true, "The code is correct.");
+        this.userVerificationRepository.deleteVerificationById(userVerification.getId());
+
+        return confirmCodeResponse;
     }
 }

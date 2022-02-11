@@ -26,6 +26,9 @@ public class UserVerification {
     @Column(name = "verification_code")
     private String verificationCode;
 
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
     @Column(name = "expiration_at")
     private Instant expirationAt;
 

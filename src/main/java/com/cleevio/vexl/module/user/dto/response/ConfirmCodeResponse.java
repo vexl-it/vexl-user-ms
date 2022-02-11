@@ -5,10 +5,10 @@ import lombok.Data;
 
 @Data
 @Builder
-public class SignatureResponse {
+public class ConfirmCodeResponse {
 
-    byte[] publicKeyPhoneHashConcatenation;
-    byte[] signature;
+    String publicKeyPhoneHash;
+    String signature;
     boolean valid;
 
 }
