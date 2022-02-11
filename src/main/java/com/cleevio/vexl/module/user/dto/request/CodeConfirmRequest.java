@@ -15,4 +15,8 @@ public class CodeConfirmRequest {
     @NotNull
     @Schema(required = true)
     private String code;
+
+    @NotNull
+    @Schema(required = true)
+    private String userPublicKey;
 }

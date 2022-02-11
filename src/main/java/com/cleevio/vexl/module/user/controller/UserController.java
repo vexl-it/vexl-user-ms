@@ -3,13 +3,11 @@ package com.cleevio.vexl.module.user.controller;
 import com.cleevio.vexl.common.dto.ErrorResponse;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
-import com.cleevio.vexl.module.user.dto.request.SignatureRequest;
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.dto.request.UsernameAvailableRequest;
-import com.cleevio.vexl.module.user.dto.response.CodeConfirmResponse;
 import com.cleevio.vexl.module.user.dto.response.PhoneConfirmResponse;
 import com.cleevio.vexl.module.user.dto.response.PublicKeyResponse;
-import com.cleevio.vexl.module.user.dto.response.SignatureResponse;
+import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
 import com.cleevio.vexl.module.user.dto.response.UserResponse;
 import com.cleevio.vexl.module.user.dto.response.UsernameAvailableResponse;
 import com.cleevio.vexl.module.user.service.SignatureService;
@@ -36,6 +34,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 
 @Tag(name = "User")
 @RestController
@@ -66,9 +65,10 @@ public class UserController {
             @ApiResponse(responseCode = "409 (101101)", description = "User already exists", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "400 (101103)", description = "Avatar has invalid format", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @Operation(summary = "Code number confirmation")
-    CodeConfirmResponse requestConfirmCode(@Valid @RequestBody CodeConfirmRequest codeConfirmRequest) {
-        return this.userVerificationService.requestConfirmCode(codeConfirmRequest);
+    @Operation(summary = "Code number confirmation, if valid, generate certificate")
+    ConfirmCodeResponse requestConfirmCodeAndGenerateCertificate(@Valid @RequestBody CodeConfirmRequest codeConfirmRequest)
+            throws NoSuchAlgorithmException, IOException, SignatureException, InvalidKeySpecException, InvalidKeyException {
+        return this.userVerificationService.requestConfirmCodeAndGenerateCert(codeConfirmRequest);
     }
 
     @PostMapping("/username/available")
@@ -144,18 +144,33 @@ public class UserController {
         return new UserResponse(this.userService.find(id));
     }
 
-    @GetMapping("/signature")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "500 (101202)", description = "Cannot write file", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "409 (101101)", description = "User already exists", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "400 (101103)", description = "Avatar has invalid format", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @Operation(summary = "Create signature for an user")
-    SignatureResponse createSignature(@Valid @RequestBody SignatureRequest signatureRequest)
-            throws NoSuchAlgorithmException, InvalidKeyException, IOException, SignatureException {
-        return this.signatureService.createSignature(signatureRequest);
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    @GetMapping("/signature")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200"),
+//            @ApiResponse(responseCode = "500 (101202)", description = "Cannot write file", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+//            @ApiResponse(responseCode = "409 (101101)", description = "User already exists", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+//            @ApiResponse(responseCode = "400 (101103)", description = "Avatar has invalid format", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+//    })
+//    @Operation(summary = "Create signature for an user")
+//    ConfirmCodeResponse createSignature(@Valid @RequestBody SignatureRequest signatureRequest)
+//            throws NoSuchAlgorithmException, InvalidKeyException, IOException, SignatureException, InvalidKeySpecException {
+//        return this.signatureService.createSignature(signatureRequest);
+//    }
 
 
 /**
