@@ -1,8 +1,11 @@
 package com.cleevio.vexl.common.security.filter;
 
 import com.cleevio.vexl.common.security.AuthenticationHolder;
+import com.cleevio.vexl.module.user.dto.UserDetailsImp;
 import com.cleevio.vexl.module.user.service.SignatureService;
+import com.cleevio.vexl.module.user.service.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -18,25 +21,39 @@ import java.security.spec.InvalidKeySpecException;
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final SignatureService signatureService;
+    private final UserService userService;
 
-    public SecurityFilter(SignatureService signatureService) {
+    public SecurityFilter(SignatureService signatureService,
+                          UserService userService) {
         this.signatureService = signatureService;
+        this.userService = userService;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String publicKeyPhoneHash = request.getHeader("pkphonehash");
+        String publicKey = request.getHeader("public-key");
+        String phoneHash = request.getHeader("phone-hash");
         String signature = request.getHeader("signature");
 
-        if (signature == null && publicKeyPhoneHash == null) {
+        if (signature == null || publicKey == null || phoneHash == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            if (signatureService.isValid(publicKeyPhoneHash, signature)) {
-                AuthenticationHolder authentication = new AuthenticationHolder("username");
+            if (signatureService.isValid(publicKey, phoneHash, signature)) {
+                AuthenticationHolder authentication = userService
+                        .findByPublicKey(publicKey)
+                        .map(UserDetailsImp::new)
+                        .map(user -> {
+                            AuthenticationHolder authenticationHolder = new AuthenticationHolder(user);
+                            authenticationHolder.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                            return authenticationHolder;
+                        })
+                        .orElse(null);
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
                 SecurityContextHolder.clearContext();

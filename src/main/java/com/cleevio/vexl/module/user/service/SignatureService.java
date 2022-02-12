@@ -2,27 +2,20 @@ package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
+import com.cleevio.vexl.module.user.utils.EncryptionUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 
 
 @Service
@@ -43,13 +36,16 @@ public class SignatureService {
                 signatureRequest.getUserPublicKey());
 
         Signature signature = Signature.getInstance(EdDSA);
-        signature.initSign(createPrivateKey(privateKey));
+        signature.initSign(EncryptionUtils.createPrivateKey(privateKey, EdDSA));
 
-        byte[] publicKeyPhoneHashConcatenation = concatenateHashes(
-                decodeBase64String(signatureRequest.getUserPublicKey()),
-                createHash(phoneNumber, SHA256)
+        byte[] phoneHashByte = EncryptionUtils.createHash(phoneNumber, SHA256);
+
+        signature.update(
+                concatenateHashes(
+                        EncryptionUtils.decodeBase64String(signatureRequest.getUserPublicKey()),
+                        phoneHashByte
+                )
         );
-        signature.update(publicKeyPhoneHashConcatenation);
 
         byte[] digitalSignature = signature.sign();
 
@@ -57,15 +53,11 @@ public class SignatureService {
 
         return ConfirmCodeResponse
                 .builder()
-                .publicKeyPhoneHash(encodeToBase64String(publicKeyPhoneHashConcatenation))
-                .signature(encodeToBase64String(digitalSignature))
+                .publicKey(signatureRequest.getUserPublicKey())
+                .phoneHash(EncryptionUtils.encodeToBase64String(phoneHashByte))
+                .signature(EncryptionUtils.encodeToBase64String(digitalSignature))
                 .valid(true)
                 .build();
-    }
-
-
-    private String encodeToBase64String(byte[] bytes) {
-        return Base64.getEncoder().encodeToString(bytes);
     }
 
     private byte[] concatenateHashes(byte[] publicKey, byte[] phoneHash) throws IOException {
@@ -76,40 +68,18 @@ public class SignatureService {
         return outputStream.toByteArray();
     }
 
-    private byte[] createHash(String phoneNumber, String hashFunction)
-            throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance(hashFunction);
-        return digest.digest(phoneNumber.getBytes(StandardCharsets.UTF_8));
+    public boolean isValid(String publicKey, String phoneHash, String digitalSignature)
+            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
+        byte[] concatenateHashes = concatenateHashes(EncryptionUtils.decodeBase64String(publicKey), EncryptionUtils.decodeBase64String(phoneHash));
+        return isValid(EncryptionUtils.encodeToBase64String(concatenateHashes), digitalSignature);
     }
-
-    private KeyPair retrieveKeyPair() throws NoSuchAlgorithmException {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance(EdDSA);
-        return kpg.generateKeyPair();
-    }
-
-    private PrivateKey createPrivateKey(String base64PrivateKey)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
-        byte[] decodedPrivateBytes = Base64.getDecoder().decode(base64PrivateKey);
-        return KeyFactory.getInstance(EdDSA).generatePrivate(new PKCS8EncodedKeySpec(decodedPrivateBytes));
-    }
-
-    private PublicKey createPublicKey(String base64PublicKey)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
-        byte[] decodedPublicBytes = Base64.getDecoder().decode(base64PublicKey);
-        return KeyFactory.getInstance(EdDSA).generatePublic(new X509EncodedKeySpec(decodedPublicBytes));
-    }
-
 
     public boolean isValid(String concatenateHashes, String digitalSignature)
             throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException {
         Signature signature = Signature.getInstance(EdDSA);
-        signature.initVerify(createPublicKey(publicKey));
-        signature.update(decodeBase64String(concatenateHashes));
-        return signature.verify(decodeBase64String(digitalSignature));
-    }
-
-    private byte[] decodeBase64String(String value) {
-        return Base64.getDecoder().decode(value);
+        signature.initVerify(EncryptionUtils.createPublicKey(publicKey, EdDSA));
+        signature.update(EncryptionUtils.decodeBase64String(concatenateHashes));
+        return signature.verify(EncryptionUtils.decodeBase64String(digitalSignature));
     }
 
 }

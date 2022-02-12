@@ -69,11 +69,11 @@ public class UserService {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    public Optional<User> findByUsername(String username) {
+    public Optional<User> findByPublicKey(String username) {
         log.info("Retrieving user {}",
                 username);
 
-        return userRepository.findByUsername(username);
+        return userRepository.findByPublicKey(username);
     }
 
 /**
