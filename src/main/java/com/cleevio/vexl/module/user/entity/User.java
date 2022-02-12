@@ -37,4 +37,10 @@ public class User {
 	@Column(name = "public_key")
 	private String publicKey;
 
+	public User(User user) {
+		this.id = user.getId();
+		this.username = user.getUsername();
+		this.avatar = user.getAvatar();
+		this.publicKey = user.getPublicKey();
+	}
 }

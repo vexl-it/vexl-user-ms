@@ -7,7 +7,8 @@ import lombok.Data;
 @Builder
 public class ConfirmCodeResponse {
 
-    String publicKeyPhoneHash;
+    String publicKey;
+    String phoneHash;
     String signature;
     boolean valid;
 

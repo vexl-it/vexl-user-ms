@@ -15,5 +15,5 @@ interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExec
     @Query("select u.publicKey from User u where u.id = :userId ")
     Optional<String> retrievePublicKeyByUserId(long userId);
 
-    Optional<User> findByUsername(String username);
+    Optional<User> findByPublicKey(String publicKey);
 }
