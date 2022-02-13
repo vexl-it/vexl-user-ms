@@ -28,6 +28,7 @@ public class UserVerificationService {
     private final SmsService smsService;
     private final UserVerificationRepository userVerificationRepository;
     private final SignatureService signatureService;
+    private final UserService userService;
 
     @Value("#{new Integer('${verification.phone.digits:Length}')}")
     private Integer phoneDigitsLength;
@@ -44,8 +45,8 @@ public class UserVerificationService {
                 .phoneNumber(phoneConfirmRequest.getPhoneNumber())
                 .build();
 
-        smsService.sendMessage(userVerification,
-                PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.getPhoneNumber()));
+//        smsService.sendMessage(userVerification,
+//                PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.getPhoneNumber()));
 
         return this.userVerificationRepository.save(userVerification);
     }
@@ -68,7 +69,7 @@ public class UserVerificationService {
         }
 
         ConfirmCodeResponse confirmCodeResponse = this.signatureService.createSignature(codeConfirmRequest, userVerification.getPhoneNumber());
-
+        this.userService.prepareUserWithPublicKey(confirmCodeResponse.getPublicKey());
         this.userVerificationRepository.deleteVerificationById(userVerification.getId());
 
         return confirmCodeResponse;

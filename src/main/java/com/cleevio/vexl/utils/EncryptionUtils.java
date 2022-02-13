@@ -1,4 +1,4 @@
-package com.cleevio.vexl.module.user.utils;
+package com.cleevio.vexl.utils;
 
 import lombok.experimental.UtilityClass;
 
