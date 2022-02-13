@@ -2,7 +2,7 @@ package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
-import com.cleevio.vexl.module.user.utils.EncryptionUtils;
+import com.cleevio.vexl.utils.EncryptionUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
@@ -41,7 +39,7 @@ public class SignatureService {
         byte[] phoneHashByte = EncryptionUtils.createHash(phoneNumber, SHA256);
 
         signature.update(
-                concatenateHashes(
+                joinBytes(
                         EncryptionUtils.decodeBase64String(signatureRequest.getUserPublicKey()),
                         phoneHashByte
                 )
@@ -60,7 +58,7 @@ public class SignatureService {
                 .build();
     }
 
-    private byte[] concatenateHashes(byte[] publicKey, byte[] phoneHash) throws IOException {
+    private byte[] joinBytes(byte[] publicKey, byte[] phoneHash) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outputStream.write(publicKey);
         outputStream.write(phoneHash);
@@ -68,17 +66,17 @@ public class SignatureService {
         return outputStream.toByteArray();
     }
 
-    public boolean isValid(String publicKey, String phoneHash, String digitalSignature)
+    public boolean isSignatureValid(String publicKey, String phoneHash, String digitalSignature)
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
-        byte[] concatenateHashes = concatenateHashes(EncryptionUtils.decodeBase64String(publicKey), EncryptionUtils.decodeBase64String(phoneHash));
-        return isValid(EncryptionUtils.encodeToBase64String(concatenateHashes), digitalSignature);
+        byte[] valueForSign = joinBytes(EncryptionUtils.decodeBase64String(publicKey), EncryptionUtils.decodeBase64String(phoneHash));
+        return isSignatureValid(valueForSign, digitalSignature);
     }
 
-    public boolean isValid(String concatenateHashes, String digitalSignature)
+    public boolean isSignatureValid(byte[] valueForSign, String digitalSignature)
             throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException {
         Signature signature = Signature.getInstance(EdDSA);
         signature.initVerify(EncryptionUtils.createPublicKey(publicKey, EdDSA));
-        signature.update(EncryptionUtils.decodeBase64String(concatenateHashes));
+        signature.update(valueForSign);
         return signature.verify(EncryptionUtils.decodeBase64String(digitalSignature));
     }
 

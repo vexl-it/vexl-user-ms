@@ -1,7 +1,6 @@
 package com.cleevio.vexl.common.security.filter;
 
 import com.cleevio.vexl.common.security.AuthenticationHolder;
-import com.cleevio.vexl.module.user.dto.UserDetailsImp;
 import com.cleevio.vexl.module.user.service.SignatureService;
 import com.cleevio.vexl.module.user.service.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,10 +41,9 @@ public class SecurityFilter extends OncePerRequestFilter {
         }
 
         try {
-            if (signatureService.isValid(publicKey, phoneHash, signature)) {
+            if (signatureService.isSignatureValid(publicKey, phoneHash, signature)) {
                 AuthenticationHolder authentication = userService
                         .findByPublicKey(publicKey)
-                        .map(UserDetailsImp::new)
                         .map(user -> {
                             AuthenticationHolder authenticationHolder = new AuthenticationHolder(user);
                             authenticationHolder.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

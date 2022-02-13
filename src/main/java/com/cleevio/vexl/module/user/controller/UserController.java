@@ -6,11 +6,10 @@ import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.dto.request.UsernameAvailableRequest;
 import com.cleevio.vexl.module.user.dto.response.PhoneConfirmResponse;
-import com.cleevio.vexl.module.user.dto.response.PublicKeyResponse;
 import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
 import com.cleevio.vexl.module.user.dto.response.UserResponse;
 import com.cleevio.vexl.module.user.dto.response.UsernameAvailableResponse;
-import com.cleevio.vexl.module.user.service.SignatureService;
+import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.service.UserService;
 import com.cleevio.vexl.module.user.service.UserVerificationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,9 +19,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,7 +43,6 @@ public class UserController {
 
     private final UserService userService;
     private final UserVerificationService userVerificationService;
-    private final SignatureService signatureService;
 
     @PostMapping("/confirm/phone")
     @ApiResponses({
@@ -80,7 +78,7 @@ public class UserController {
     })
     @Operation(summary = "Is username available")
     UsernameAvailableResponse usernameAvailable(@Valid @RequestBody UsernameAvailableRequest usernameAvailableRequest) {
-        return new UsernameAvailableResponse(this.userService.isUsernameAvailable(usernameAvailableRequest.getUsername()));
+        return new UsernameAvailableResponse(this.userService.existsUserByUsername(usernameAvailableRequest.getUsername()));
     }
 
     @PostMapping
@@ -91,11 +89,24 @@ public class UserController {
             @ApiResponse(responseCode = "400 (101103)", description = "Avatar has invalid format", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @Operation(summary = "Register as a new user")
-    UserResponse register(@Valid @RequestBody UserCreateRequest userCreateRequest) {
-        return new UserResponse(this.userService.create(userCreateRequest));
+    UserResponse register(@Valid @RequestBody UserCreateRequest userCreateRequest,
+                          @AuthenticationPrincipal User user) {
+        return new UserResponse(this.userService.create(user, userCreateRequest));
     }
 
-    @PutMapping("/{id}")
+    @GetMapping("/me")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "500 (101202)", description = "Cannot write file", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409 (101101)", description = "User already exists", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "400 (101103)", description = "Avatar has invalid format", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @Operation(summary = "Get an user")
+    UserResponse getMe(@AuthenticationPrincipal User user) {
+        return new UserResponse(user);
+    }
+
+    @PutMapping("/me")
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "500 (101202)", description = "Cannot write file", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -103,12 +114,12 @@ public class UserController {
             @ApiResponse(responseCode = "400 (101103)", description = "Avatar has invalid format", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @Operation(summary = "Update an user")
-    UserResponse update(@PathVariable long id,
-                        @Valid @RequestBody UserCreateRequest userCreateRequest) {
-        return new UserResponse(this.userService.update(id, userCreateRequest));
+    UserResponse updateMe(@Valid @RequestBody UserCreateRequest userCreateRequest,
+                          @AuthenticationPrincipal User user) {
+        return new UserResponse(this.userService.update(user, userCreateRequest));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/me")
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "500 (101202)", description = "Cannot write file", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -116,31 +127,8 @@ public class UserController {
             @ApiResponse(responseCode = "400 (101103)", description = "Avatar has invalid format", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @Operation(summary = "Remove an user")
-    void remove(@PathVariable long id) {
-        this.userService.remove(id);
+    void removeMe(@AuthenticationPrincipal User user) {
+        this.userService.remove(user);
     }
 
-    @GetMapping("/{id}/publickey")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "500 (101202)", description = "Cannot write file", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "409 (101101)", description = "User already exists", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "400 (101103)", description = "Avatar has invalid format", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @Operation(summary = "Get a user's public key")
-    PublicKeyResponse retrievePublicKey(@PathVariable long id) {
-        return new PublicKeyResponse(this.userService.retrievePublicKeyByUserId(id));
-    }
-
-    @GetMapping("/{id}/data")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "500 (101202)", description = "Cannot write file", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "409 (101101)", description = "User already exists", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "400 (101103)", description = "Avatar has invalid format", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @Operation(summary = "Export all known user's data")
-    UserResponse exportKnownData(@PathVariable long id) {
-        return new UserResponse(this.userService.find(id));
-    }
 }

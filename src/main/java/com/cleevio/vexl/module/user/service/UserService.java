@@ -2,12 +2,12 @@ package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.entity.User;
-import com.cleevio.vexl.module.user.exception.PublicKeyNotFoundException;
 import com.cleevio.vexl.module.user.exception.UserCreationException;
 import com.cleevio.vexl.module.user.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -18,8 +18,9 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public User create(UserCreateRequest userCreateRequest) {
-        if (!isUsernameAvailable(userCreateRequest.getUsername())) {
+    @Transactional(rollbackFor = Exception.class)
+    public User create(User user, UserCreateRequest userCreateRequest) {
+        if (existsUserByUsername(userCreateRequest.getUsername())) {
             throw new UserCreationException(
                     String.format(
                             "Username %s is not available. Username must be unique.",
@@ -28,21 +29,37 @@ public class UserService {
             );
         }
 
-        User user = User.builder()
-                .avatar(userCreateRequest.getAvatar())
-                .username(userCreateRequest.getUsername())
-                .publicKey(userCreateRequest.getPublicKey())
-                .build();
+        user.setAvatar(userCreateRequest.getAvatar());
+        user.setUsername(userCreateRequest.getUsername());
 
         return this.userRepository.save(user);
     }
 
-    public boolean isUsernameAvailable(String username) {
-        return this.userRepository.isUsernameAvailable(username);
+    @Transactional(rollbackFor = Exception.class)
+    public void prepareUserWithPublicKey(String publicKey) {
+
+        if (this.userRepository.existsUserByPublicKey(publicKey)) {
+            throw new UserCreationException(
+                    String.format(
+                            "User with public_key %s already exists",
+                            publicKey
+                    )
+            );
+        }
+
+        User user = User.builder()
+                .publicKey(publicKey)
+                .build();
+
+        this.userRepository.save(user);
     }
 
-    public User update(long id, UserCreateRequest userCreateRequest) {
-        User user = this.find(id);
+    public boolean existsUserByUsername(String username) {
+        return this.userRepository.existsUserByUsername(username);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public User update(User user, UserCreateRequest userCreateRequest) {
 
         if (userCreateRequest.getUsername() != null) {
             user.setUsername(userCreateRequest.getUsername());
@@ -55,13 +72,8 @@ public class UserService {
         return this.userRepository.save(user);
     }
 
-    public void remove(long id) {
-        this.userRepository.deleteById(id);
-    }
-
-    public String retrievePublicKeyByUserId(long id) {
-        return this.userRepository.retrievePublicKeyByUserId(id)
-                .orElseThrow(PublicKeyNotFoundException::new);
+    public void remove(User user) {
+        this.userRepository.delete(user);
     }
 
     public User find(long id) {
@@ -69,11 +81,11 @@ public class UserService {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    public Optional<User> findByPublicKey(String username) {
-        log.info("Retrieving user {}",
-                username);
+    public Optional<User> findByPublicKey(String publicKey) {
+        log.info("Retrieving user with public key {}",
+                publicKey);
 
-        return userRepository.findByPublicKey(username);
+        return userRepository.findByPublicKey(publicKey);
     }
 
 /**
