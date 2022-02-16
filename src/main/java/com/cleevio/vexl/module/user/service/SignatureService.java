@@ -2,6 +2,7 @@ package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
+import com.cleevio.vexl.module.user.exception.DigitalSignatureException;
 import com.cleevio.vexl.utils.EncryptionUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,17 +68,26 @@ public class SignatureService {
     }
 
     public boolean isSignatureValid(String publicKey, String phoneHash, String digitalSignature)
-            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, InvalidKeyException {
+            throws DigitalSignatureException, IOException {
         byte[] valueForSign = joinBytes(EncryptionUtils.decodeBase64String(publicKey), EncryptionUtils.decodeBase64String(phoneHash));
         return isSignatureValid(valueForSign, digitalSignature);
     }
 
     public boolean isSignatureValid(byte[] valueForSign, String digitalSignature)
-            throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException {
-        Signature signature = Signature.getInstance(EdDSA);
-        signature.initVerify(EncryptionUtils.createPublicKey(publicKey, EdDSA));
-        signature.update(valueForSign);
-        return signature.verify(EncryptionUtils.decodeBase64String(digitalSignature));
+            throws DigitalSignatureException {
+        try {
+            Signature signature = Signature.getInstance(EdDSA);
+            signature.initVerify(EncryptionUtils.createPublicKey(publicKey, EdDSA));
+            signature.update(valueForSign);
+            return signature.verify(EncryptionUtils.decodeBase64String(digitalSignature));
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException e) {
+            String errorMessage = String.format("Error occurred while verifying signature {}, error {}",
+                    digitalSignature,
+                    e.getMessage());
+            log.error(errorMessage);
+            throw new DigitalSignatureException(errorMessage, e);
+        }
+
     }
 
 }

@@ -1,6 +1,7 @@
 package com.cleevio.vexl.common.security.filter;
 
 import com.cleevio.vexl.common.security.AuthenticationHolder;
+import com.cleevio.vexl.module.user.exception.DigitalSignatureException;
 import com.cleevio.vexl.module.user.service.SignatureService;
 import com.cleevio.vexl.module.user.service.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,10 +13,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
 
 public class SecurityFilter extends OncePerRequestFilter {
 
@@ -56,7 +53,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             } else {
                 SecurityContextHolder.clearContext();
             }
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException e) {
+        } catch (DigitalSignatureException e) {
             SecurityContextHolder.clearContext();
             //todo handleError
         }
