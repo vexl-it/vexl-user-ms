@@ -5,6 +5,7 @@ import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
 import com.cleevio.vexl.module.user.entity.UserVerification;
+import com.cleevio.vexl.module.user.exception.UserCreationException;
 import com.cleevio.vexl.utils.PhoneUtils;
 import com.cleevio.vexl.utils.RandomSecurityUtils;
 import lombok.AllArgsConstructor;
@@ -45,15 +46,15 @@ public class UserVerificationService {
                 .phoneNumber(phoneConfirmRequest.getPhoneNumber())
                 .build();
 
-//        smsService.sendMessage(userVerification,
-//                PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.getPhoneNumber()));
+        smsService.sendMessage(userVerification,
+                PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.getPhoneNumber()));
 
         return this.userVerificationRepository.save(userVerification);
     }
 
     @Transactional
     public ConfirmCodeResponse requestConfirmCodeAndGenerateCert(CodeConfirmRequest codeConfirmRequest)
-            throws NoSuchAlgorithmException, IOException, SignatureException, InvalidKeySpecException, InvalidKeyException {
+            throws NoSuchAlgorithmException, IOException, SignatureException, InvalidKeySpecException, InvalidKeyException, UserCreationException {
 
         UserVerification userVerification = this.userVerificationRepository.findValidUserVerificationByIdAndCode(
                 codeConfirmRequest.getId(),
