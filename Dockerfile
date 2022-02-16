@@ -7,7 +7,7 @@ ARG KUBE_DOMAIN
 VOLUME /tmp
 ADD target/vexl-0.0.1-SNAPSHOT.jar application.jar
 
-RUN echo -e "\
+RUN echo "\
 java \
 -Dserver.use-forward-headers=true \
 -Dspring.profiles.active=dev \
