@@ -1,11 +1,21 @@
 package com.cleevio.vexl.module.user.exception;
 
-public class UserNotFoundException extends RuntimeException {
+import com.cleevio.vexl.common.exception.ApiException;
+import com.cleevio.vexl.common.exception.ErrorType;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public UserNotFoundException() {
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class UserNotFoundException extends ApiException {
+
+    @Override
+    protected ApiException.Module getModule() {
+        return ApiException.Module.USER;
     }
 
-    public UserNotFoundException(String message) {
-        super(message);
+    @Override
+    protected ErrorType getErrorType() {
+        return UserErrorType.USER_NOT_FOUND;
     }
+
 }
