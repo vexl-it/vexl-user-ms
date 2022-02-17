@@ -9,9 +9,8 @@ import javax.validation.constraints.Pattern;
 @Data
 public class PhoneConfirmRequest {
 
-    //pattern according industry-standard notation specified by ITU-T E.123
     @Pattern(regexp = "^\\+(?:[0-9] ?){6,14}[0-9]$")
     @NotBlank
-    @Schema(required = true)
+    @Schema(required = true, description = "Phone must be valid according industry-standard notation pattern specified by ITU-T E.123")
     private String phoneNumber;
 }
