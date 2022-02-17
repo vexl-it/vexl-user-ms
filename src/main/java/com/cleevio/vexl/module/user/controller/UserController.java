@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -68,7 +69,11 @@ public class UserController {
     }
 
     @PostMapping("/username/available")
-    @SecurityRequirement(name = "signature")
+    @SecurityRequirements({
+            @SecurityRequirement(name = "public-key"),
+            @SecurityRequirement(name = "phone-hash"),
+            @SecurityRequirement(name = "signature"),
+    })
     @ApiResponse(responseCode = "200")
     @Operation(summary = "Is username available")
     UsernameAvailableResponse usernameAvailable(@Valid @RequestBody UsernameAvailableRequest usernameAvailableRequest) {
@@ -76,7 +81,11 @@ public class UserController {
     }
 
     @PostMapping
-    @SecurityRequirement(name = "signature")
+    @SecurityRequirements({
+            @SecurityRequirement(name = "public-key"),
+            @SecurityRequirement(name = "phone-hash"),
+            @SecurityRequirement(name = "signature"),
+    })
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "201", description = "User has been created"),
@@ -90,7 +99,11 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    @SecurityRequirement(name = "signature")
+    @SecurityRequirements({
+            @SecurityRequirement(name = "public-key"),
+            @SecurityRequirement(name = "phone-hash"),
+            @SecurityRequirement(name = "signature"),
+    })
     @ApiResponse(responseCode = "200")
     @Operation(summary = "Get an user")
     UserResponse getMe(@Parameter(hidden = true) @AuthenticationPrincipal User user) {
@@ -98,7 +111,11 @@ public class UserController {
     }
 
     @PutMapping("/me")
-    @SecurityRequirement(name = "signature")
+    @SecurityRequirements({
+            @SecurityRequirement(name = "public-key"),
+            @SecurityRequirement(name = "phone-hash"),
+            @SecurityRequirement(name = "signature"),
+    })
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "409 (101101)", description = "User already exists", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -111,7 +128,11 @@ public class UserController {
     }
 
     @DeleteMapping("/me")
-    @SecurityRequirement(name = "signature")
+    @SecurityRequirements({
+            @SecurityRequirement(name = "public-key"),
+            @SecurityRequirement(name = "phone-hash"),
+            @SecurityRequirement(name = "signature"),
+    })
     @ApiResponse(responseCode = "200")
     @Operation(summary = "Remove an user")
     void removeMe(@Parameter(hidden = true) @AuthenticationPrincipal User user) {
