@@ -1,15 +1,22 @@
 package com.cleevio.vexl.module.user.dto.response;
 
-import lombok.Builder;
+import com.cleevio.vexl.module.user.entity.UserVerification;
 import lombok.Data;
 
 @Data
-@Builder
 public class ConfirmCodeResponse {
 
-    String publicKey;
-    String phoneHash;
-    String signature;
-    boolean valid;
+    private final String challenge;
 
+    private final boolean phoneVerified;
+
+    public ConfirmCodeResponse(UserVerification challengeVerification) {
+        if (challengeVerification == null) {
+            this.challenge = null;
+            this.phoneVerified = false;
+        } else {
+            this.challenge = challengeVerification.getChallenge();
+            this.phoneVerified = challengeVerification.isPhoneVerified();
+        }
+    }
 }
