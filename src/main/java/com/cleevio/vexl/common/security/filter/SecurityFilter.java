@@ -1,6 +1,7 @@
 package com.cleevio.vexl.common.security.filter;
 
 import com.cleevio.vexl.common.security.AuthenticationHolder;
+import com.cleevio.vexl.module.user.enums.AlgorithmEnum;
 import com.cleevio.vexl.module.user.exception.DigitalSignatureException;
 import com.cleevio.vexl.module.user.service.SignatureService;
 import com.cleevio.vexl.module.user.service.UserService;
@@ -38,7 +39,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         }
 
         try {
-            if (signatureService.isSignatureValid(publicKey, phoneHash, signature)) {
+            if (signatureService.isSignatureValid(publicKey, phoneHash, signature, AlgorithmEnum.EdDSA.getValue(), AlgorithmEnum.EdDSA.getValue())) {
                 AuthenticationHolder authentication = userService
                         .findByPublicKey(publicKey)
                         .map(user -> {

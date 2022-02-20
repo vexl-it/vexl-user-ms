@@ -22,10 +22,15 @@ public class EncryptionUtils {
         return Base64.getDecoder().decode(value);
     }
 
-    public byte[] createHash(String phoneNumber, String hashFunction)
+    public byte[] createHash(String valueForEncryption, String hashFunction)
             throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance(hashFunction);
-        return digest.digest(phoneNumber.getBytes(StandardCharsets.UTF_8));
+        return digest.digest(valueForEncryption.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String createHashInBase64String(String valueForEncryption, String hashFunction)
+            throws NoSuchAlgorithmException {
+        return encodeToBase64String(createHash(valueForEncryption, hashFunction));
     }
 
     public String encodeToBase64String(byte[] bytes) {

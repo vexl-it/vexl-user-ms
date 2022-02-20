@@ -5,8 +5,8 @@ import com.cleevio.vexl.common.exception.ErrorType;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.CONFLICT)
-public class UserCreationException extends ApiException {
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class VerificationNotFoundException extends ApiException {
 
 	@Override
 	protected ApiException.Module getModule() {
@@ -15,6 +15,6 @@ public class UserCreationException extends ApiException {
 
 	@Override
 	protected ErrorType getErrorType() {
-		return UserErrorType.USER_DUPLICATE;
+		return UserErrorType.VERIFICATION_NOT_FOUND;
 	}
 }
