@@ -15,7 +15,4 @@ public class UserCreateRequest {
     @Schema(description = "Base64 encoded file data including header. i.e.: data:image/png;base64,iVBORw0KGgo")
     private String avatar;
 
-    @NotBlank
-    @Schema(required = true)
-    private String publicKey;
 }

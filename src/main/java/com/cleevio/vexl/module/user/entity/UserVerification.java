@@ -5,11 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import java.time.Instant;
 
 @Entity(name = "user_verification")
@@ -24,12 +27,26 @@ public class UserVerification {
     private Long id;
 
     @Column(name = "verification_code")
+    @Nullable
     private String verificationCode;
 
     @Column(name = "phone_number")
+    @Nullable
     private String phoneNumber;
 
     @Column(name = "expiration_at")
+    @Nullable
     private Instant expirationAt;
+
+    @Column
+    @Nullable
+    private String challenge;
+
+    @Column(name = "phone_verified")
+    private boolean phoneVerified;
+
+	@JoinColumn(name = "user_id", referencedColumnName = "id")
+	@OneToOne
+    private User user;
 
 }
