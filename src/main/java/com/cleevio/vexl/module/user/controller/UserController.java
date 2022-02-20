@@ -75,7 +75,7 @@ public class UserController {
         return this.userVerificationService.requestConfirmCodeAndGenerateCodeChallenge(codeConfirmRequest);
     }
 
-    @PutMapping("/confirm/challenge")
+    @PostMapping("/confirm/challenge")
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "404 (100103)", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
