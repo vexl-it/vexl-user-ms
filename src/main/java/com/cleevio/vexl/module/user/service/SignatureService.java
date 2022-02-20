@@ -1,11 +1,13 @@
 package com.cleevio.vexl.module.user.service;
 
-import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
-import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
+import com.cleevio.vexl.module.user.dto.response.SignatureResponse;
+import com.cleevio.vexl.module.user.entity.User;
+import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
 import com.cleevio.vexl.module.user.exception.DigitalSignatureException;
 import com.cleevio.vexl.utils.EncryptionUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -22,41 +24,47 @@ import java.security.spec.InvalidKeySpecException;
 @AllArgsConstructor
 public class SignatureService {
 
-    private static final String EdDSA = "Ed25519";
-    private static final String SHA256 = "SHA-256";
+    @Value("${signature.user.publickey}")
+    private final String publicKey;
 
     //TODO private_key will be in keystore and public_key will be in properties
-    private static final String publicKey = "MCowBQYDK2VwAyEAUrB4CUnNldgBuC7vuhhCdfuAGzy6YSA5RnkCABa29DE=";
     private static final String privateKey = "MC4CAQAwBQYDK2VwBCIEIIp2wWL1uO8lt+lOXfbI+6Ge0pUCSegkiC7GNRgmG9Lk";
 
-    public ConfirmCodeResponse createSignature(CodeConfirmRequest signatureRequest, String phoneNumber)
-            throws NoSuchAlgorithmException, InvalidKeyException, IOException, SignatureException, InvalidKeySpecException {
+    public SignatureResponse createSignature(User user, String algorithm)
+            throws DigitalSignatureException, VerificationNotFoundException {
+
         log.info("Creating digital signature for {}",
-                signatureRequest.getUserPublicKey());
+                user.getPublicKey());
 
-        Signature signature = Signature.getInstance(EdDSA);
-        signature.initSign(EncryptionUtils.createPrivateKey(privateKey, EdDSA));
+        try {
+            Signature signature = Signature.getInstance(algorithm);
+            signature.initSign(EncryptionUtils.createPrivateKey(privateKey, algorithm));
 
-        byte[] phoneHashByte = EncryptionUtils.createHash(phoneNumber, SHA256);
+            if (user.getUserVerification() == null || user.getUserVerification().getPhoneNumber() == null) {
+                throw new VerificationNotFoundException();
+            }
 
-        signature.update(
-                joinBytes(
-                        EncryptionUtils.decodeBase64String(signatureRequest.getUserPublicKey()),
-                        phoneHashByte
-                )
-        );
+            String phoneHash = user.getUserVerification().getPhoneNumber();
 
-        byte[] digitalSignature = signature.sign();
+            signature.update(
+                    joinBytes(
+                            EncryptionUtils.decodeBase64String(user.getPublicKey()),
+                            EncryptionUtils.decodeBase64String(phoneHash)
+                    )
+            );
 
-        log.info("Digital signature is done.");
+            byte[] digitalSignature = signature.sign();
 
-        return ConfirmCodeResponse
-                .builder()
-                .publicKey(signatureRequest.getUserPublicKey())
-                .phoneHash(EncryptionUtils.encodeToBase64String(phoneHashByte))
-                .signature(EncryptionUtils.encodeToBase64String(digitalSignature))
-                .valid(true)
-                .build();
+            log.info("Digital signature is done.");
+
+            return new SignatureResponse(phoneHash,
+                    EncryptionUtils.encodeToBase64String(digitalSignature),
+                    true);
+
+        } catch (NoSuchAlgorithmException | InvalidKeyException | IOException | InvalidKeySpecException | SignatureException e) {
+            log.error("Error occurred while creating signature.");
+            throw new DigitalSignatureException();
+        }
     }
 
     private byte[] joinBytes(byte[] publicKey, byte[] phoneHash) throws IOException {
@@ -67,25 +75,24 @@ public class SignatureService {
         return outputStream.toByteArray();
     }
 
-    public boolean isSignatureValid(String publicKey, String phoneHash, String digitalSignature)
+    public boolean isSignatureValid(String publicKey, String phoneHash, String digitalSignature, String signatureAlgorithm, String publicKeyAlgorithm)
             throws DigitalSignatureException, IOException {
         byte[] valueForSign = joinBytes(EncryptionUtils.decodeBase64String(publicKey), EncryptionUtils.decodeBase64String(phoneHash));
-        return isSignatureValid(valueForSign, digitalSignature);
+        return isSignatureValid(valueForSign, digitalSignature, this.publicKey, signatureAlgorithm, publicKeyAlgorithm);
     }
 
-    public boolean isSignatureValid(byte[] valueForSign, String digitalSignature)
+    public boolean isSignatureValid(byte[] valueForSign, String digitalSignature, String publicKey, String signatureAlgorithm, String publicKeyAlgorithm)
             throws DigitalSignatureException {
         try {
-            Signature signature = Signature.getInstance(EdDSA);
-            signature.initVerify(EncryptionUtils.createPublicKey(publicKey, EdDSA));
+            Signature signature = Signature.getInstance(signatureAlgorithm);
+            signature.initVerify(EncryptionUtils.createPublicKey(publicKey, publicKeyAlgorithm));
             signature.update(valueForSign);
             return signature.verify(EncryptionUtils.decodeBase64String(digitalSignature));
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException e) {
-            String errorMessage = String.format("Error occurred while verifying signature {}, error {}",
+            log.error("Error occurred while verifying signature {}, error {}",
                     digitalSignature,
                     e.getMessage());
-            log.error(errorMessage);
-            throw new DigitalSignatureException(errorMessage, e);
+            throw new DigitalSignatureException();
         }
 
     }

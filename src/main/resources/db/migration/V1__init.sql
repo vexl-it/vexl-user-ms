@@ -7,7 +7,10 @@ CREATE TABLE users (
 
 CREATE TABLE user_verification (
   id BIGSERIAL primary key NOT NULL,
-  verification_code varchar(255) NOT NULL,
-  phone_number varchar(255) NOT NULL,
-  expiration_at timestamp NOT NULL
+  verification_code varchar(255) DEFAULT NULL,
+  phone_number varchar(255) DEFAULT NULL,
+  expiration_at timestamp DEFAULT NULL,
+  challenge varchar(255) DEFAULT NULL,
+  phone_verified boolean DEFAULT FALSE,
+  user_id BIGINT DEFAULT NULL
 );

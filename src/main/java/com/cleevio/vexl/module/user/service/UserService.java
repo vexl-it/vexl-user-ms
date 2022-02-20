@@ -2,7 +2,7 @@ package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.entity.User;
-import com.cleevio.vexl.module.user.exception.UserCreationException;
+import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,13 +20,13 @@ public class UserService {
 
     @Transactional(rollbackFor = Exception.class)
     public User create(User user, UserCreateRequest userCreateRequest)
-            throws UserCreationException {
+            throws UserAlreadyExistsException {
         if (existsUserByUsername(userCreateRequest.getUsername())) {
             log.error(String.format(
                     "Username %s is not available. Username must be unique.",
                     userCreateRequest.getUsername())
             );
-            throw new UserCreationException();
+            throw new UserAlreadyExistsException();
         }
 
         user.setAvatar(userCreateRequest.getAvatar());
@@ -36,18 +36,18 @@ public class UserService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void prepareUserWithPublicKey(String publicKey)
-            throws UserCreationException {
+    public User prepareUser(String publicKey)
+            throws UserAlreadyExistsException {
 
         if (this.userRepository.existsUserByPublicKey(publicKey)) {
-            throw new UserCreationException();
+            throw new UserAlreadyExistsException();
         }
 
         User user = User.builder()
                 .publicKey(publicKey)
                 .build();
 
-        this.userRepository.save(user);
+        return this.userRepository.save(user);
     }
 
     public boolean existsUserByUsername(String username) {
@@ -56,7 +56,7 @@ public class UserService {
 
     @Transactional(rollbackFor = Exception.class)
     public User update(User user, UserCreateRequest userCreateRequest)
-            throws UserCreationException {
+            throws UserAlreadyExistsException {
 
         if (userCreateRequest.getUsername() != null) {
             if (existsUserByUsername(userCreateRequest.getUsername())) {
@@ -64,7 +64,7 @@ public class UserService {
                         "Username %s is not available. Username must be unique.",
                         userCreateRequest.getUsername())
                 );
-                throw new UserCreationException();
+                throw new UserAlreadyExistsException();
             }
             user.setUsername(userCreateRequest.getUsername());
         }
@@ -90,7 +90,7 @@ public class UserService {
         log.info("Retrieving user with public key {}",
                 publicKey);
 
-        return userRepository.findByPublicKey(publicKey);
+        return this.userRepository.findByPublicKey(publicKey);
     }
 
 }
