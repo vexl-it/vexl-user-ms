@@ -3,6 +3,7 @@ package com.cleevio.vexl.common.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
@@ -13,6 +14,7 @@ import java.util.Collections;
 import java.util.TimeZone;
 
 @Configuration
+@EnableScheduling
 @ComponentScan(basePackages = "com.cleevio")
 public class AppConfig {
 
