@@ -85,4 +85,8 @@ public class UserVerificationService {
 
         return new ConfirmCodeResponse(this.userVerificationRepository.save(userVerification));
     }
+
+    public void deleteExpiredVerifications() {
+        this.userVerificationRepository.deleteExpiredVerifications(Instant.now().plusSeconds(this.expirationTime));
+    }
 }
