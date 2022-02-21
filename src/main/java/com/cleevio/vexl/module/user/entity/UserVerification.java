@@ -32,7 +32,7 @@ public class UserVerification {
 
     @Column(name = "phone_number")
     @Nullable
-    private String phoneNumber;
+    private byte[] phoneNumber;
 
     @Column(name = "expiration_at")
     @Nullable

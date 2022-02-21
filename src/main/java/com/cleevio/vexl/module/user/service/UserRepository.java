@@ -10,7 +10,7 @@ interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExec
 
     boolean existsUserByUsername(String username);
 
-    Optional<User> findByPublicKey(String publicKey);
+    Optional<User> findByPublicKey(byte[] publicKey);
 
-    boolean existsUserByPublicKey(String publicKey);
+    boolean existsUserByPublicKey(byte[] publicKey);
 }

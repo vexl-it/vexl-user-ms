@@ -1,6 +1,7 @@
 package com.cleevio.vexl.module.user.dto.response;
 
 import com.cleevio.vexl.module.user.entity.User;
+import com.cleevio.vexl.utils.EncryptionUtils;
 import lombok.Data;
 
 @Data
@@ -15,6 +16,6 @@ public class UserResponse {
         this.userId = user.getId();
         this.username = user.getUsername();
         this.avatar = user.getAvatar();
-        this.publicKey = user.getPublicKey();
+        this.publicKey = EncryptionUtils.encodeToBase64String(user.getPublicKey());
     }
 }

@@ -31,25 +31,32 @@ public class SignatureService {
     private static final String privateKey = "MC4CAQAwBQYDK2VwBCIEIIp2wWL1uO8lt+lOXfbI+6Ge0pUCSegkiC7GNRgmG9Lk";
 
     public SignatureResponse createSignature(User user, String algorithm)
-            throws DigitalSignatureException, VerificationNotFoundException {
-
+            throws VerificationNotFoundException, DigitalSignatureException {
         log.info("Creating digital signature for {}",
                 user.getPublicKey());
+
+        if (user.getUserVerification() == null || user.getUserVerification().getPhoneNumber() == null) {
+            throw new VerificationNotFoundException();
+        }
+
+        return createSignature(
+                user.getPublicKey(),
+                user.getUserVerification().getPhoneNumber(),
+                algorithm
+        );
+    }
+
+    public SignatureResponse createSignature(byte[] publicKey, byte[] hash, String algorithm)
+            throws DigitalSignatureException {
 
         try {
             Signature signature = Signature.getInstance(algorithm);
             signature.initSign(EncryptionUtils.createPrivateKey(privateKey, algorithm));
 
-            if (user.getUserVerification() == null || user.getUserVerification().getPhoneNumber() == null) {
-                throw new VerificationNotFoundException();
-            }
-
-            String phoneHash = user.getUserVerification().getPhoneNumber();
-
             signature.update(
                     joinBytes(
-                            EncryptionUtils.decodeBase64String(user.getPublicKey()),
-                            EncryptionUtils.decodeBase64String(phoneHash)
+                            publicKey,
+                            hash
                     )
             );
 
@@ -57,9 +64,11 @@ public class SignatureService {
 
             log.info("Digital signature is done.");
 
-            return new SignatureResponse(phoneHash,
+            return new SignatureResponse(
+                    EncryptionUtils.encodeToBase64String(hash),
                     EncryptionUtils.encodeToBase64String(digitalSignature),
-                    true);
+                    true
+            );
 
         } catch (NoSuchAlgorithmException | InvalidKeyException | IOException | InvalidKeySpecException | SignatureException e) {
             log.error("Error occurred while creating signature.");
@@ -78,10 +87,10 @@ public class SignatureService {
     public boolean isSignatureValid(String publicKey, String phoneHash, String digitalSignature, String signatureAlgorithm, String publicKeyAlgorithm)
             throws DigitalSignatureException, IOException {
         byte[] valueForSign = joinBytes(EncryptionUtils.decodeBase64String(publicKey), EncryptionUtils.decodeBase64String(phoneHash));
-        return isSignatureValid(valueForSign, digitalSignature, this.publicKey, signatureAlgorithm, publicKeyAlgorithm);
+        return isSignatureValid(valueForSign, digitalSignature, EncryptionUtils.decodeBase64String(this.publicKey), signatureAlgorithm, publicKeyAlgorithm);
     }
 
-    public boolean isSignatureValid(byte[] valueForSign, String digitalSignature, String publicKey, String signatureAlgorithm, String publicKeyAlgorithm)
+    public boolean isSignatureValid(byte[] valueForSign, String digitalSignature, byte[] publicKey, String signatureAlgorithm, String publicKeyAlgorithm)
             throws DigitalSignatureException {
         try {
             Signature signature = Signature.getInstance(signatureAlgorithm);

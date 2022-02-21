@@ -9,6 +9,6 @@ import javax.validation.constraints.NotBlank;
 public class UsernameAvailableRequest {
 
     @NotBlank
-    @Schema(required = true)
+    @Schema(required = true, description = "Username in String format")
     private String username;
 }

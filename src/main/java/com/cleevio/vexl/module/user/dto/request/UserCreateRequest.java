@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 public class UserCreateRequest {
 
     @NotBlank
-    @Schema(required = true)
+    @Schema(required = true, description = "Username in String format")
     private String username;
 
     @Schema(description = "Base64 encoded file data including header. i.e.: data:image/png;base64,iVBORw0KGgo")

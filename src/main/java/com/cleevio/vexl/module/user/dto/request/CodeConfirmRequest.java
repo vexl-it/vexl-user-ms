@@ -17,6 +17,6 @@ public class CodeConfirmRequest {
     private String code;
 
     @NotNull
-    @Schema(required = true)
+    @Schema(required = true, description = "Base64 encoded user's public_key")
     private String userPublicKey;
 }

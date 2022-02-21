@@ -1,7 +1,10 @@
 package com.cleevio.vexl.utils;
 
+import com.cleevio.vexl.module.user.enums.AlgorithmEnum;
 import lombok.experimental.UtilityClass;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -37,10 +40,9 @@ public class EncryptionUtils {
         return Base64.getEncoder().encodeToString(bytes);
     }
 
-    public PublicKey createPublicKey(String base64PublicKey, String algorithm)
+    public PublicKey createPublicKey(byte[] publicKey, String algorithm)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
-        byte[] decodedPublicBytes = Base64.getDecoder().decode(base64PublicKey);
-        return KeyFactory.getInstance(algorithm).generatePublic(new X509EncodedKeySpec(decodedPublicBytes));
+        return KeyFactory.getInstance(algorithm).generatePublic(new X509EncodedKeySpec(publicKey));
     }
 
     public PrivateKey createPrivateKey(String base64PrivateKey, String algorithm)
@@ -52,5 +54,18 @@ public class EncryptionUtils {
     public KeyPair retrieveKeyPair(String algorithm) throws NoSuchAlgorithmException {
         KeyPairGenerator kpg = KeyPairGenerator.getInstance(algorithm);
         return kpg.generateKeyPair();
+    }
+
+    public byte[] calculateHmacSha256(byte[] secretKey, byte[] message) {
+        byte[] hmacSha256;
+        try {
+            Mac mac = Mac.getInstance(AlgorithmEnum.HMACSHA256.getValue());
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, AlgorithmEnum.HMACSHA256.getValue());
+            mac.init(secretKeySpec);
+            hmacSha256 = mac.doFinal(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to calculate hmac-sha256", e);
+        }
+        return hmacSha256;
     }
 }
