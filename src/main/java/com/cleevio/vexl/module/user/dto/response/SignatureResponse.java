@@ -7,12 +7,12 @@ import lombok.Data;
 @AllArgsConstructor
 public class SignatureResponse {
 
-    public final String phoneHash;
+    public final String hash;
     public final String signature;
     public final boolean challengeValid;
 
     public SignatureResponse(boolean challengeValid) {
-        this.phoneHash = null;
+        this.hash = null;
         this.signature = null;
         this.challengeValid = challengeValid;
     }

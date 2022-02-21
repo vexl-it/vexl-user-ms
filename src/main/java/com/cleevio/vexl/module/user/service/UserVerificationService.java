@@ -5,7 +5,6 @@ import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
 import com.cleevio.vexl.module.user.entity.UserVerification;
-import com.cleevio.vexl.module.user.enums.AlgorithmEnum;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.utils.EncryptionUtils;
 import com.cleevio.vexl.utils.PhoneUtils;
@@ -16,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 
@@ -35,13 +35,17 @@ public class UserVerificationService {
     @Value("#{new Integer('${verification.phone.expiration.time:ExpirationTime}')}")
     private Integer expirationTime;
 
-    public UserVerification requestConfirmPhone(PhoneConfirmRequest phoneConfirmRequest)
-            throws NoSuchAlgorithmException {
+    public UserVerification requestConfirmPhone(PhoneConfirmRequest phoneConfirmRequest, byte[] phoneAlgorithmSecret) {
         final String codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.phoneDigitsLength);
 
-        UserVerification userVerification = createUserVerification(
-                codeToSend,
-                EncryptionUtils.createHashInBase64String(phoneConfirmRequest.getPhoneNumber(), AlgorithmEnum.SHA256.getValue()));
+        UserVerification userVerification =
+                createUserVerification(
+                        codeToSend,
+                        EncryptionUtils.calculateHmacSha256(
+                                phoneAlgorithmSecret,
+                                phoneConfirmRequest.getPhoneNumber().getBytes(StandardCharsets.UTF_8)
+                        )
+                );
 
         smsService.sendMessage(userVerification,
                 PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.getPhoneNumber()));
@@ -49,7 +53,7 @@ public class UserVerificationService {
         return this.userVerificationRepository.save(userVerification);
     }
 
-    private UserVerification createUserVerification(String codeToSend, String phoneNumber) {
+    private UserVerification createUserVerification(String codeToSend, byte[] phoneNumber) {
         return UserVerification.builder()
                 .verificationCode(codeToSend)
                 .expirationAt(Instant.now().plusSeconds(this.expirationTime))

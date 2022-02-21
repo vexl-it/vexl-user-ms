@@ -40,7 +40,7 @@ public class User {
     private String avatar;
 
     @Column(name = "public_key")
-    private String publicKey;
+    private byte[] publicKey;
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private UserVerification userVerification;

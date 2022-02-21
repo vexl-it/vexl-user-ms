@@ -43,7 +43,6 @@ public class BaseControllerTest {
     public void setup() {
         Mockito.when(user.getId()).thenReturn(1L);
         Mockito.when(user.getUsername()).thenReturn("Cermak");
-        Mockito.when(user.getPublicKey()).thenReturn("bd1f51asa1sd51sad55a91ds9as");
 
         Mockito.when(userVerification.getId()).thenReturn(1L);
         Mockito.when(userVerification.getVerificationCode()).thenReturn("456");

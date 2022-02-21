@@ -4,6 +4,7 @@ import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserNotFoundException;
+import com.cleevio.vexl.utils.EncryptionUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,12 +40,14 @@ public class UserService {
     public User prepareUser(String publicKey)
             throws UserAlreadyExistsException {
 
-        if (this.userRepository.existsUserByPublicKey(publicKey)) {
+        byte[] publicKeyByte = EncryptionUtils.decodeBase64String(publicKey);
+
+        if (this.userRepository.existsUserByPublicKey(publicKeyByte)) {
             throw new UserAlreadyExistsException();
         }
 
         User user = User.builder()
-                .publicKey(publicKey)
+                .publicKey(publicKeyByte)
                 .build();
 
         return this.userRepository.save(user);
@@ -90,7 +93,7 @@ public class UserService {
         log.info("Retrieving user with public key {}",
                 publicKey);
 
-        return this.userRepository.findByPublicKey(publicKey);
+        return this.userRepository.findByPublicKey(EncryptionUtils.decodeBase64String(publicKey));
     }
 
 }
