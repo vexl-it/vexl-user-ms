@@ -63,14 +63,14 @@ public class UserController {
     @Value("${hmac.secret.key}")
     private final String secretKey;
 
-    @PostMapping("/confirm/phone")
+    @PostMapping("/confirmation/phone")
     @ApiResponse(responseCode = "200")
     @Operation(summary = "Phone number confirmation")
     PhoneConfirmResponse requestConfirmPhone(@Valid @RequestBody PhoneConfirmRequest phoneConfirmRequest) {
         return new PhoneConfirmResponse(this.userVerificationService.requestConfirmPhone(phoneConfirmRequest, this.secretKey.getBytes(StandardCharsets.UTF_8)));
     }
 
-    @PostMapping("/confirm/code")
+    @PostMapping("/confirmation/code")
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "409 (100101)", description = "User already exists", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -81,7 +81,7 @@ public class UserController {
         return this.userVerificationService.requestConfirmCodeAndGenerateCodeChallenge(codeConfirmRequest);
     }
 
-    @PostMapping("/confirm/challenge")
+    @PostMapping("/confirmation/challenge")
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "404 (100103)", description = "User not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -126,7 +126,7 @@ public class UserController {
         );
     }
 
-    @PostMapping("/username/available")
+    @PostMapping("/username/availability")
     @SecurityRequirements({
             @SecurityRequirement(name = "public-key"),
             @SecurityRequirement(name = "phone-hash"),
