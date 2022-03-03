@@ -18,6 +18,7 @@ import java.util.TimeZone;
 @ComponentScan(basePackages = "com.cleevio")
 public class AppConfig {
 
+
 	@Bean
 	public CorsFilter corsFilter() {
 		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -32,7 +33,7 @@ public class AppConfig {
 
 	@PostConstruct
 	void started() {
-		TimeZone.setDefault(TimeZone.getTimeZone("utc"));
+		TimeZone.setDefault(TimeZone.getTimeZone("CET"));
 	}
 
 	@Bean

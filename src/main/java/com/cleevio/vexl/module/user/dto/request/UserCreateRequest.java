@@ -10,9 +10,9 @@ public class UserCreateRequest {
 
     @NotBlank
     @Schema(required = true, description = "Username in String format")
-    private String username;
+    private final String username;
 
     @Schema(description = "Base64 encoded file data including header. i.e.: data:image/png;base64,iVBORw0KGgo")
-    private String avatar;
+    private final String avatar;
 
 }

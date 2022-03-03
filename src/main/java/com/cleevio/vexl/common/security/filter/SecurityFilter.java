@@ -22,6 +22,10 @@ import java.util.Collections;
 
 public class SecurityFilter extends OncePerRequestFilter {
 
+    public static final String HEADER_PUBLIC_KEY = "public-key";
+    public static final String HEADER_PHONE_HASH = "phone-hash";
+    public static final String HEADER_SIGNATURE = "signature";
+
     private final SignatureService signatureService;
     private final UserService userService;
 
@@ -35,9 +39,9 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String requestURI = request.getRequestURI();
 
-        String publicKey = request.getHeader("public-key");
-        String phoneHash = request.getHeader("phone-hash");
-        String signature = request.getHeader("signature");
+        String publicKey = request.getHeader(HEADER_PUBLIC_KEY);
+        String phoneHash = request.getHeader(HEADER_PHONE_HASH);
+        String signature = request.getHeader(HEADER_SIGNATURE);
 
         if (signature == null || publicKey == null || phoneHash == null || !requestURI.contains("/api/v1")) {
             filterChain.doFilter(request, response);
@@ -72,7 +76,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         httpResponse.setStatus(code);
 
-        ErrorResponse error = new ErrorResponse(Collections.singleton(s), "0", Collections.emptyMap());
+        ErrorResponse error = new ErrorResponse(Collections.singleton(s), "0");
         OutputStream out = response.getOutputStream();
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(out, error);
