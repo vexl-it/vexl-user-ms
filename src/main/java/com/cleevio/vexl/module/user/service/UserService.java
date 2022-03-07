@@ -96,4 +96,8 @@ public class UserService {
         return this.userRepository.findByPublicKey(EncryptionUtils.decodeBase64String(publicKey));
     }
 
+    public User save(User user) {
+        return this.userRepository.save(user);
+    }
+
 }
