@@ -15,4 +15,10 @@ public class UserCreateRequest {
     @Schema(description = "Base64 encoded file data including header. i.e.: data:image/png;base64,iVBORw0KGgo")
     private final String avatar;
 
+    public static UserCreateRequest of(String username, String avatar) {
+        return new UserCreateRequest(
+                username,
+                avatar);
+    }
+
 }
