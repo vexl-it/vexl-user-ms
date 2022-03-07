@@ -61,9 +61,6 @@ public abstract class BaseIntegrationTest {
     @Mock
     protected User user;
 
-    @Mock
-    protected UserVerification userVerification;
-
     @Autowired
     protected ObjectMapper objectMapper;
 
@@ -90,6 +87,7 @@ public abstract class BaseIntegrationTest {
                 .expirationAt(Instant.now().plusSeconds(30000))
                 .phoneNumber("+420852852825".getBytes(StandardCharsets.UTF_8))
                 .challenge("challenge")
+                .phoneVerified(true)
                 .build();
     }
 

@@ -83,12 +83,14 @@ public class UserService {
         this.userRepository.delete(user);
     }
 
+    @Transactional(readOnly = true)
     public User find(long id)
             throws UserNotFoundException {
         return this.userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
     public Optional<User> findByPublicKey(String publicKey) {
         log.info("Retrieving user with public key {}",
                 publicKey);
