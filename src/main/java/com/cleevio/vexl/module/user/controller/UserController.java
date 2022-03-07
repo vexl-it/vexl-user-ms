@@ -135,7 +135,7 @@ public class UserController {
     @ApiResponse(responseCode = "200")
     @Operation(summary = "Is username available")
     UsernameAvailableResponse usernameAvailable(@Valid @RequestBody UsernameAvailableRequest usernameAvailableRequest) {
-        return new UsernameAvailableResponse(this.userService.existsUserByUsername(usernameAvailableRequest.getUsername()));
+        return new UsernameAvailableResponse(!this.userService.existsUserByUsername(usernameAvailableRequest.getUsername()));
     }
 
     @PostMapping
