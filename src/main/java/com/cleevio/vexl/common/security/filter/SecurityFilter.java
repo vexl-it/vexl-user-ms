@@ -51,7 +51,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         try {
             if (signatureService.isSignatureValid(publicKey, phoneHash, signature, AlgorithmEnum.EdDSA.getValue(), AlgorithmEnum.EdDSA.getValue())) {
                 AuthenticationHolder authentication = userService
-                        .findByPublicKey(publicKey)
+                        .findByBase64PublicKey(publicKey)
                         .map(user -> {
                             AuthenticationHolder authenticationHolder = new AuthenticationHolder(user);
                             authenticationHolder.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

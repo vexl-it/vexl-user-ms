@@ -39,6 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/v1/user/confirmation/phone").anonymous()
                 .antMatchers(HttpMethod.POST, "/api/v1/user/confirmation/code").anonymous()
                 .antMatchers(HttpMethod.POST, "/api/v1/user/confirmation/challenge").anonymous()
+                .antMatchers(HttpMethod.GET, "/api/v1/temp/**").permitAll()
                 .anyRequest().authenticated();
     }
 }

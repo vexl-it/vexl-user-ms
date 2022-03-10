@@ -8,11 +8,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserErrorType implements ErrorType {
 
-    USER_DUPLICATE("101", "User already exists"),
-	USER_NOT_FOUND("103", "User not found"),
-	VERIFICATION_NOT_FOUND("104", "User does not have verification"),
-	SIGNATURE_ERROR("105", "Error occured during creating signature");
-
+    USER_DUPLICATE("101", "User already exists."),
+	USER_NOT_FOUND("103", "User not found."),
+	VERIFICATION_NOT_FOUND("104", "Verification not found. It can mean verification is already expired."),
+	SIGNATURE_ERROR("105", "Error occured during creating signature."),
+	CHALLENGE_ERROR("106", "Error occured during genereting challenge."),
+	INVALID_PK_HASH("108", "Server could not create message for signature. Public key or hash is invalid."),
+	USERNAME_NOT_AVAILABLE("109", "Username is not available. Choose different username.");
 
 	/**
 	 * Error custom code

@@ -55,20 +55,20 @@ public class UserVerificationServiceTest {
     private static final String PHONE = "+420752653958";
     private final static String PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEzIdBL0Q/P+OEk84pJTaEIwro2mY9Y3JihBzNlMn5jTxVtzyi0MEepbgu57Z5nBZG6kNo0D8FTrY0Oe/2niL13w==";
 
-
-    @Value("${hmac.secret.key:Vexl}")
+    @Value("${hmac.secret.key}")
     private String secretKey;
 
     @BeforeEach
     public void setup() {
-        this.verificationService = new UserVerificationService(smsService, verificationRepository, challengeService, userService, phoneDigitsLength, expirationTime);
+        this.verificationService = new UserVerificationService(smsService, verificationRepository, challengeService, userService, phoneDigitsLength, expirationTime, secretKey);
     }
 
     @Test
     void createTest() {
         PhoneConfirmRequest phoneConfirmRequest = new PhoneConfirmRequest();
         phoneConfirmRequest.setPhoneNumber(PHONE);
-        verificationService.requestConfirmPhone(phoneConfirmRequest, this.secretKey.getBytes(StandardCharsets.UTF_8));
+        Mockito.when(this.verificationRepository.save(any())).thenReturn(verification);
+        verificationService.requestConfirmPhone(phoneConfirmRequest);
         Mockito.verify(verificationRepository).save(any());
     }
 

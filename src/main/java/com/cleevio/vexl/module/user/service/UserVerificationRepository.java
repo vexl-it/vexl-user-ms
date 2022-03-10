@@ -7,11 +7,12 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.Instant;
+import java.util.Optional;
 
 interface UserVerificationRepository extends JpaRepository<UserVerification, Long>, JpaSpecificationExecutor<UserVerification> {
 
     @Query("select uv from user_verification uv where uv.expirationAt > :now AND uv.id = :id AND uv.verificationCode = :code ")
-    UserVerification findValidUserVerificationByIdAndCode(Long id, String code, Instant now);
+    Optional<UserVerification> findValidUserVerificationByIdAndCode(Long id, String code, Instant now);
 
     @Modifying
     @Query("delete from user_verification uv where uv.expirationAt < :now ")
