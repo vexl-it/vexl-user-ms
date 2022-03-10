@@ -37,12 +37,12 @@ public class ConfirmCodePostTest extends BaseIntegrationTest {
     public void confirmCodeValidPostTest() throws Exception {
 
         Mockito.when(userVerificationService.requestConfirmCodeAndGenerateCodeChallenge(any(CodeConfirmRequest.class)))
-                .thenReturn(new ConfirmCodeResponse(this.getVerification(this.getUser())));
+                .thenReturn(this.getVerification(this.getUser()));
 
         CodeConfirmRequest codeConfirmRequest = new CodeConfirmRequest();
         codeConfirmRequest.setId(1L);
         codeConfirmRequest.setCode("123987");
-        codeConfirmRequest.setUserPublicKey(PUBLIC_KEY);
+        codeConfirmRequest.setUserPublicKey(PUBLIC_KEY.getBytes());
 
         mvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -59,15 +59,13 @@ public class ConfirmCodePostTest extends BaseIntegrationTest {
         userVerification.setVerificationCode(null);
         userVerification.setPhoneVerified(false);
 
-        ConfirmCodeResponse confirmCodeResponse = new ConfirmCodeResponse(userVerification);
-
         Mockito.when(userVerificationService.requestConfirmCodeAndGenerateCodeChallenge(any(CodeConfirmRequest.class)))
-                .thenReturn(confirmCodeResponse);
+                .thenReturn(userVerification);
 
         CodeConfirmRequest codeConfirmRequest = new CodeConfirmRequest();
         codeConfirmRequest.setId(1L);
         codeConfirmRequest.setCode("123987");
-        codeConfirmRequest.setUserPublicKey(PUBLIC_KEY);
+        codeConfirmRequest.setUserPublicKey(PUBLIC_KEY.getBytes());
 
         mvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)

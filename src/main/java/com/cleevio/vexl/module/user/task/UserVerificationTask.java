@@ -7,6 +7,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Task for deleting expired verifications.
+ * Every 10 minutes we check if there is some expired verification in USER_VERIFICATION table, if so, we delete it.
+ */
 @Slf4j
 @Component
 @AllArgsConstructor

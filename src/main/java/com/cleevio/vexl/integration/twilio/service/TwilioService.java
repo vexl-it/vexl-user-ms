@@ -19,6 +19,8 @@ public class TwilioService implements SmsService {
 
     @Override
     public void sendMessage(UserVerification verification, String phoneNumber) {
+        log.info("Sending sms.");
+
         try {
             Message.creator(
                             new PhoneNumber(phoneNumber),

@@ -65,6 +65,7 @@ public class BaseControllerTest {
 
         Mockito.when(userService.existsUserByUsername(any())).thenReturn(false);
         Mockito.when(userService.findByPublicKey(any())).thenReturn(Optional.of(user));
+        Mockito.when(userService.findByBase64PublicKey((any()))).thenReturn(Optional.of(user));
 
         Mockito.when(signatureService.isSignatureValid(any(String.class), any(), any(), any(), any())).thenReturn(true);
 

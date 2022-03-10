@@ -5,11 +5,13 @@ import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserNotFoundException;
+import com.cleevio.vexl.module.user.exception.UsernameNotAvailable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,8 +37,9 @@ public class UserServiceTest {
     }
 
     @Test
-    void createTest() throws UserAlreadyExistsException {
+    void createTest() throws UsernameNotAvailable {
         Mockito.when(userService.existsUserByUsername(user.getUsername())).thenReturn(false);
+        Mockito.when(userRepository.save(user)).thenReturn(user);
         userService.create(user, UserCreateRequest.of(user.getUsername(), user.getAvatar()));
         Mockito.verify(userRepository).save(user);
     }
@@ -59,7 +62,7 @@ public class UserServiceTest {
     @Test
     void prepareUserTest() throws UserAlreadyExistsException {
         Mockito.when(userService.existsUserByUsername(user.getUsername())).thenReturn(false);
-        userService.prepareUser(PUBLIC_KEY);
+        userService.prepareUser(PUBLIC_KEY.getBytes(StandardCharsets.UTF_8));
         Mockito.verify(userRepository).save(any());
     }
 }

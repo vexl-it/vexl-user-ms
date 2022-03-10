@@ -31,7 +31,7 @@ public class ConfirmPhonePostTest extends BaseIntegrationTest {
     @Test
     public void postTest() throws Exception {
 
-        Mockito.when(userVerificationService.requestConfirmPhone(any(PhoneConfirmRequest.class), any(byte[].class)))
+        Mockito.when(userVerificationService.requestConfirmPhone(any(PhoneConfirmRequest.class)))
                 .thenReturn(this.getVerification(this.getUser()));
 
         PhoneConfirmRequest phoneConfirmRequest = new PhoneConfirmRequest();

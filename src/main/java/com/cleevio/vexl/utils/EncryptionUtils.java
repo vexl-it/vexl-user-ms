@@ -2,6 +2,7 @@ package com.cleevio.vexl.utils;
 
 import com.cleevio.vexl.module.user.enums.AlgorithmEnum;
 import lombok.experimental.UtilityClass;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -56,13 +57,13 @@ public class EncryptionUtils {
         return kpg.generateKeyPair();
     }
 
-    public byte[] calculateHmacSha256(byte[] secretKey, byte[] message) {
+    public byte[] calculateHmacSha256(String message, String secretKey) {
         byte[] hmacSha256;
         try {
             Mac mac = Mac.getInstance(AlgorithmEnum.HMACSHA256.getValue());
-            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, AlgorithmEnum.HMACSHA256.getValue());
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), AlgorithmEnum.HMACSHA256.getValue());
             mac.init(secretKeySpec);
-            hmacSha256 = mac.doFinal(message);
+            hmacSha256 = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             throw new RuntimeException("Failed to calculate hmac-sha256", e);
         }

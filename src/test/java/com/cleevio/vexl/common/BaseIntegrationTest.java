@@ -74,7 +74,8 @@ public abstract class BaseIntegrationTest {
         this.userService.save(getUser());
 
         Mockito.when(signatureService.isSignatureValid(any(String.class), any(), any(), any(), any())).thenReturn(true);
-        Mockito.when(userService.findByPublicKey(any(String.class))).thenReturn(Optional.of(getUser()));
+        Mockito.when(userService.findByPublicKey(any(byte[].class))).thenReturn(Optional.of(getUser()));
+        Mockito.when(userService.findByBase64PublicKey(any(String.class))).thenReturn(Optional.of(getUser()));
         Mockito.when(userService.existsUserByUsername(USERNAME)).thenReturn(true);
 
     }

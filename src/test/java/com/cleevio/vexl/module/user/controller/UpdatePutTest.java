@@ -7,6 +7,7 @@ import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserErrorType;
+import com.cleevio.vexl.module.user.exception.UsernameNotAvailable;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ public class UpdatePutTest extends BaseControllerTest {
 
     @Test
     public void updateMeWithDuplicateUsername() throws Exception {
-        Mockito.when(userService.update(any(User.class), any(UserCreateRequest.class))).thenThrow(UserAlreadyExistsException.class);
+        Mockito.when(userService.update(any(User.class), any(UserCreateRequest.class))).thenThrow(UsernameNotAvailable.class);
 
         mvc.perform(put(BASE_URL)
                         .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)
@@ -62,7 +63,7 @@ public class UpdatePutTest extends BaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(new UserCreateRequest("Vratislav Konvalinka", null))))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code", is(ApiException.Module.USER.getErrorCode() + UserErrorType.USER_DUPLICATE.getCode())))
-                .andExpect(jsonPath("$.message[0]", is(UserErrorType.USER_DUPLICATE.getMessage())));
+                .andExpect(jsonPath("$.code", is(ApiException.Module.USER.getErrorCode() + UserErrorType.USERNAME_NOT_AVAILABLE.getCode())))
+                .andExpect(jsonPath("$.message[0]", is(UserErrorType.USERNAME_NOT_AVAILABLE.getMessage())));
     }
 }

@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,10 +47,10 @@ public class CofirmChallengePostTest extends BaseIntegrationTest {
 
     @Test
     public void confirmChallengeValidPostTest() throws Exception {
-        ChallengeRequest challengeRequest = new ChallengeRequest(PUBLIC_KEY, "challengeSignature");
-        SignatureResponse signatureResponse = new SignatureResponse("testHash", "testSignature", true);
+        ChallengeRequest challengeRequest = new ChallengeRequest(PUBLIC_KEY.getBytes(StandardCharsets.UTF_8), "challengeSignature".getBytes(StandardCharsets.UTF_8));
+        SignatureResponse signatureResponse = new SignatureResponse("testHash".getBytes(), "testSignature".getBytes(), true);
 
-        Mockito.when(this.challengeService.isSignedChallengeValid(any(User.class), any(ChallengeRequest.class)))
+        Mockito.when(this.challengeService.isSignedChallengeValid(any(User.class), any(byte[].class)))
                 .thenReturn(true);
         Mockito.when(this.signatureService.createSignature(any(User.class), any()))
                 .thenReturn(signatureResponse);
@@ -59,15 +61,15 @@ public class CofirmChallengePostTest extends BaseIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.hash", notNullValue()))
                 .andExpect(jsonPath("$.signature", notNullValue()))
-                .andExpect(jsonPath("$.challengeValid", equalTo(true)));
+                .andExpect(jsonPath("$.challengeVerified", equalTo(true)));
     }
 
     @Test
     public void confirmChallengeNotValidTest() throws Exception {
-        ChallengeRequest challengeRequest = new ChallengeRequest(PUBLIC_KEY, "challengeSignature");
-        SignatureResponse signatureResponse = new SignatureResponse("testHash", "testSignature", true);
+        ChallengeRequest challengeRequest = new ChallengeRequest(PUBLIC_KEY.getBytes(StandardCharsets.UTF_8), "challengeSignature".getBytes(StandardCharsets.UTF_8));
+        SignatureResponse signatureResponse = new SignatureResponse("testHash".getBytes(), "testSignature".getBytes(), true);
 
-        Mockito.when(this.challengeService.isSignedChallengeValid(any(User.class), any(ChallengeRequest.class)))
+        Mockito.when(this.challengeService.isSignedChallengeValid(any(User.class), any(byte[].class)))
                 .thenReturn(false);
         Mockito.when(this.signatureService.createSignature(any(User.class), any()))
                 .thenReturn(signatureResponse);
@@ -76,6 +78,6 @@ public class CofirmChallengePostTest extends BaseIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(challengeRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.challengeValid", equalTo(false)));
+                .andExpect(jsonPath("$.challengeVerified", equalTo(false)));
     }
 }
