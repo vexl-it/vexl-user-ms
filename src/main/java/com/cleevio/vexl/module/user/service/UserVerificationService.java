@@ -6,6 +6,7 @@ import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.entity.UserVerification;
 import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
+import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
 import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
 import com.cleevio.vexl.utils.EncryptionUtils;
 import com.cleevio.vexl.utils.PhoneUtils;
@@ -51,7 +52,8 @@ public class UserVerificationService {
      * @return
      */
     @Transactional(rollbackOn = Exception.class)
-    public UserVerification requestConfirmPhone(PhoneConfirmRequest phoneConfirmRequest) {
+    public UserVerification requestConfirmPhone(PhoneConfirmRequest phoneConfirmRequest)
+            throws UserPhoneInvalidException {
         final String codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.codeDigitsLength);
 
         log.info("Creating user verification for new request for phone number verification.");

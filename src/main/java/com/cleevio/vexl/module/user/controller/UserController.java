@@ -15,6 +15,7 @@ import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.enums.AlgorithmEnum;
 import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
 import com.cleevio.vexl.module.user.exception.InvalidPublicKeyAndHashException;
+import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
 import com.cleevio.vexl.module.user.exception.UsernameNotAvailable;
 import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
 import com.cleevio.vexl.module.user.exception.DigitalSignatureException;
@@ -65,9 +66,13 @@ public class UserController {
     private String secretKey;
 
     @PostMapping("/confirmation/phone")
-    @ApiResponse(responseCode = "200")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400 (100110)", description = "User phone number is invalid", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
     @Operation(summary = "Phone number confirmation")
-    PhoneConfirmResponse requestConfirmPhone(@Valid @RequestBody PhoneConfirmRequest phoneConfirmRequest) {
+    PhoneConfirmResponse requestConfirmPhone(@Valid @RequestBody PhoneConfirmRequest phoneConfirmRequest)
+            throws UserPhoneInvalidException {
         return new PhoneConfirmResponse(this.userVerificationService.requestConfirmPhone(phoneConfirmRequest));
     }
 
