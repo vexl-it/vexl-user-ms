@@ -2,26 +2,15 @@ package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.common.IntegrationTest;
 import com.cleevio.vexl.module.sms.service.SmsService;
-import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
-import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
 import com.cleevio.vexl.module.user.entity.UserVerification;
-import com.cleevio.vexl.module.user.enums.AlgorithmEnum;
-import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
-import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
+import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 
 
@@ -64,7 +53,7 @@ public class UserVerificationServiceTest {
     }
 
     @Test
-    void createTest() {
+    void createTest() throws UserPhoneInvalidException {
         PhoneConfirmRequest phoneConfirmRequest = new PhoneConfirmRequest();
         phoneConfirmRequest.setPhoneNumber(PHONE);
         Mockito.when(this.verificationRepository.save(any())).thenReturn(verification);
