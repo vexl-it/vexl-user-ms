@@ -2,6 +2,8 @@ package com.cleevio.vexl.common.config;
 
 import com.cleevio.vexl.common.dto.ErrorResponse;
 import com.cleevio.vexl.common.exception.ApiException;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -51,6 +53,13 @@ public class ExceptionConfig {
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public final ResponseEntity<ErrorResponse> handleBodyMissingException(Exception ex, WebRequest request) {
+        if (ex.getCause() instanceof JsonMappingException) {
+            String fieldName = ((JsonMappingException) ex.getCause()).getPath().get(0).getFieldName();
+            return handleException(Collections.singleton(String.format("[%s] is invalid.", fieldName)), "0", HttpStatus.BAD_REQUEST);
+        } else if (ex.getCause() instanceof JsonParseException) {
+            String fieldName = ((JsonParseException) ex.getCause()).getProcessor().getParsingContext().getCurrentName();
+            return handleException(Collections.singleton(String.format("[%s] is invalid.", fieldName)), "0", HttpStatus.BAD_REQUEST);
+        }
         return handleException(Collections.singleton("Invalid or missing body"), "0", HttpStatus.BAD_REQUEST);
     }
 
