@@ -21,9 +21,6 @@ public class UserVerificationServiceTest {
     private UserVerificationRepository verificationRepository;
 
     @Mock
-    private UserRepository userRepository;
-
-    @Mock
     private UserVerification verification;
 
     private UserVerificationService verificationService;
@@ -42,7 +39,6 @@ public class UserVerificationServiceTest {
     private final int expirationTime = 30;
 
     private static final String PHONE = "+420752653958";
-    private final static String PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEzIdBL0Q/P+OEk84pJTaEIwro2mY9Y3JihBzNlMn5jTxVtzyi0MEepbgu57Z5nBZG6kNo0D8FTrY0Oe/2niL13w==";
 
     @Value("${hmac.secret.key}")
     private String secretKey;
