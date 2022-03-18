@@ -1,6 +1,7 @@
 package com.cleevio.vexl.module.user.controller;
 
 import com.cleevio.vexl.common.dto.ErrorResponse;
+import com.cleevio.vexl.common.security.filter.SecurityFilter;
 import com.cleevio.vexl.module.user.dto.request.ChallengeRequest;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
@@ -115,9 +116,9 @@ public class UserController {
 
     @GetMapping("/signature/{facebookId}")
     @SecurityRequirements({
-            @SecurityRequirement(name = "public-key"),
-            @SecurityRequirement(name = "phone-hash"),
-            @SecurityRequirement(name = "signature"),
+            @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
+            @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
+            @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
     })
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
@@ -141,9 +142,9 @@ public class UserController {
 
     @PostMapping("/username/availability")
     @SecurityRequirements({
-            @SecurityRequirement(name = "public-key"),
-            @SecurityRequirement(name = "phone-hash"),
-            @SecurityRequirement(name = "signature"),
+            @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
+            @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
+            @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
     })
     @ApiResponse(responseCode = "200")
     @Operation(summary = "Is username available")
@@ -153,9 +154,9 @@ public class UserController {
 
     @PostMapping
     @SecurityRequirements({
-            @SecurityRequirement(name = "public-key"),
-            @SecurityRequirement(name = "phone-hash"),
-            @SecurityRequirement(name = "signature"),
+            @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
+            @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
+            @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
     })
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
@@ -171,9 +172,9 @@ public class UserController {
 
     @GetMapping("/me")
     @SecurityRequirements({
-            @SecurityRequirement(name = "public-key"),
-            @SecurityRequirement(name = "phone-hash"),
-            @SecurityRequirement(name = "signature"),
+            @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
+            @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
+            @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
     })
     @ApiResponse(responseCode = "200")
     @Operation(summary = "Get an user")
@@ -183,9 +184,9 @@ public class UserController {
 
     @PutMapping("/me")
     @SecurityRequirements({
-            @SecurityRequirement(name = "public-key"),
-            @SecurityRequirement(name = "phone-hash"),
-            @SecurityRequirement(name = "signature"),
+            @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
+            @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
+            @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
     })
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
@@ -200,9 +201,9 @@ public class UserController {
 
     @DeleteMapping("/me")
     @SecurityRequirements({
-            @SecurityRequirement(name = "public-key"),
-            @SecurityRequirement(name = "phone-hash"),
-            @SecurityRequirement(name = "signature"),
+            @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
+            @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
+            @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
     })
     @ApiResponse(responseCode = "200")
     @Operation(summary = "Remove an user")

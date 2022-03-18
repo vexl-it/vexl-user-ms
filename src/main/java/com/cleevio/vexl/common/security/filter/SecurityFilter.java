@@ -23,7 +23,7 @@ import java.util.Collections;
 public class SecurityFilter extends OncePerRequestFilter {
 
     public static final String HEADER_PUBLIC_KEY = "public-key";
-    public static final String HEADER_PHONE_HASH = "phone-hash";
+    public static final String HEADER_HASH = "hash";
     public static final String HEADER_SIGNATURE = "signature";
 
     private final SignatureService signatureService;
@@ -40,7 +40,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         final String requestURI = request.getRequestURI();
 
         String publicKey = request.getHeader(HEADER_PUBLIC_KEY);
-        String phoneHash = request.getHeader(HEADER_PHONE_HASH);
+        String phoneHash = request.getHeader(HEADER_HASH);
         String signature = request.getHeader(HEADER_SIGNATURE);
 
         if (signature == null || publicKey == null || phoneHash == null || !requestURI.contains("/api/v1")) {

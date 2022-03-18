@@ -33,7 +33,7 @@ public class UsernameAvailabilityTest extends BaseIntegrationTest {
 
         mvc.perform(post(BASE_URL)
                         .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)
-                        .header(SecurityFilter.HEADER_PHONE_HASH, PHONE_HASH)
+                        .header(SecurityFilter.HEADER_HASH, PHONE_HASH)
                         .header(SecurityFilter.HEADER_SIGNATURE, SIGNATURE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
@@ -49,7 +49,7 @@ public class UsernameAvailabilityTest extends BaseIntegrationTest {
 
         mvc.perform(post(BASE_URL)
                         .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)
-                        .header(SecurityFilter.HEADER_PHONE_HASH, PHONE_HASH)
+                        .header(SecurityFilter.HEADER_HASH, PHONE_HASH)
                         .header(SecurityFilter.HEADER_SIGNATURE, SIGNATURE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
