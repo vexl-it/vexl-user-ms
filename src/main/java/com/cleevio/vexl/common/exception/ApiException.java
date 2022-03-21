@@ -46,7 +46,8 @@ public abstract class ApiException extends Exception {
     @RequiredArgsConstructor
     public enum Module {
 
-        USER("100", "User Module Error.");
+        USER("100", "User Module Error."),
+        CRYPTOCURRENCY("101", "Cryptocurrency Module Error.");
 
         /**
          * Error custom code
