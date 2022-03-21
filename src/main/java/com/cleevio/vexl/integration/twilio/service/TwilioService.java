@@ -20,7 +20,7 @@ public class TwilioService implements SmsService {
     private final TwilioConfig twilioConfig;
 
     @Override
-    public void sendMessage(UserVerification verification, String phoneNumber)
+    public void sendMessage(String codeToSend, String phoneNumber)
             throws UserPhoneInvalidException {
         log.info("Sending sms.");
 
@@ -28,7 +28,7 @@ public class TwilioService implements SmsService {
             Message.creator(
                             new PhoneNumber(phoneNumber),
                             new PhoneNumber(twilioConfig.getPhone()),
-                            verification.getVerificationCode())
+                            codeToSend)
                     .create();
         } catch (ApiException ex) {
 
