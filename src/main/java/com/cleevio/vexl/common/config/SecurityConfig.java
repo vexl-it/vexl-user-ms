@@ -36,10 +36,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api-docs/**").permitAll()
 				.antMatchers("/actuator/health").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/user/confirmation/phone").anonymous()
-                .antMatchers(HttpMethod.POST, "/api/v1/user/confirmation/code").anonymous()
-                .antMatchers(HttpMethod.POST, "/api/v1/user/confirmation/challenge").anonymous()
+                .antMatchers(HttpMethod.POST, "/api/v1/user/confirmation/**").anonymous()
                 .antMatchers(HttpMethod.GET, "/api/v1/temp/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/temp/**").permitAll()
                 .anyRequest().authenticated();
     }
 }

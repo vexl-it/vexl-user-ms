@@ -1,11 +1,11 @@
 package com.cleevio.vexl.module.temp.controller;
 
-import com.cleevio.vexl.module.user.dto.response.SignatureResponse;
 import com.cleevio.vexl.module.user.enums.AlgorithmEnum;
 import com.cleevio.vexl.utils.EncryptionUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,7 +31,7 @@ public class TempController {
         return new TempResponse(EncryptionUtils.retrieveKeyPair(AlgorithmEnum.ECIES.getValue()));
     }
 
-    @GetMapping("signature")
+    @PostMapping("signature")
     private TempResponse2 signChallenge(@RequestBody TempRequest request) throws SignatureException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException {
 
             Signature signature = Signature.getInstance(AlgorithmEnum.ECDSA.getValue());
