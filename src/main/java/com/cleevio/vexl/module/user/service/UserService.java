@@ -1,6 +1,7 @@
 package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
+import com.cleevio.vexl.module.user.dto.request.UserUpdateRequest;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserNotFoundException;
@@ -73,21 +74,21 @@ public class UserService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public User update(User user, UserCreateRequest userCreateRequest)
+    public User update(User user, UserUpdateRequest userUpdateRequest)
             throws UsernameNotAvailable {
         log.info("Updating user {}", user.getId());
 
-        if (userCreateRequest.getUsername() != null) {
-            if (existsUserByUsername(userCreateRequest.getUsername())) {
+        if (userUpdateRequest.getUsername() != null && !userUpdateRequest.getUsername().equals(user.getUsername())) {
+            if (existsUserByUsername(userUpdateRequest.getUsername())) {
                 log.warn("Username {} is not available. Username must be unique.",
-                        userCreateRequest.getUsername());
+                        userUpdateRequest.getUsername());
                 throw new UsernameNotAvailable();
             }
-            user.setUsername(userCreateRequest.getUsername());
+            user.setUsername(userUpdateRequest.getUsername());
         }
 
-        if (userCreateRequest.getAvatar() != null) {
-            user.setAvatar(userCreateRequest.getAvatar());
+        if (userUpdateRequest.getAvatar() != null) {
+            user.setAvatar(userUpdateRequest.getAvatar());
         }
 
         User updatedUser = this.userRepository.save(user);

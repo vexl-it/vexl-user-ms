@@ -6,6 +6,7 @@ import com.cleevio.vexl.module.user.dto.request.ChallengeRequest;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
+import com.cleevio.vexl.module.user.dto.request.UserUpdateRequest;
 import com.cleevio.vexl.module.user.dto.request.UsernameAvailableRequest;
 import com.cleevio.vexl.module.user.dto.response.PhoneConfirmResponse;
 import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
@@ -193,7 +194,7 @@ public class UserController {
             @ApiResponse(responseCode = "409 (100109)", description = "Username is not available. Choose different username.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @Operation(summary = "Update an user")
-    UserResponse updateMe(@Valid @RequestBody UserCreateRequest userCreateRequest,
+    UserResponse updateMe(@Valid @RequestBody UserUpdateRequest userCreateRequest,
                           @Parameter(hidden = true) @AuthenticationPrincipal User user)
             throws UsernameNotAvailable {
         return new UserResponse(this.userService.update(user, userCreateRequest));
