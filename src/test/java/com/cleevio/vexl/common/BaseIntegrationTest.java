@@ -26,7 +26,7 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.transaction.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -85,7 +85,7 @@ public abstract class BaseIntegrationTest {
                 .user(user)
                 .id(1L)
                 .verificationCode("123")
-                .expirationAt(Instant.now().plusSeconds(30000))
+                .expirationAt(ZonedDateTime.now().plusSeconds(30000))
                 .phoneNumber("+420852852825".getBytes(StandardCharsets.UTF_8))
                 .challenge("challenge")
                 .phoneVerified(true)

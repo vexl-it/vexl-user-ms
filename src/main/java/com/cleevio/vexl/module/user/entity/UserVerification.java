@@ -13,7 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import java.time.Instant;
+import java.time.ZonedDateTime;
 
 @Entity(name = "user_verification")
 @Data
@@ -36,7 +36,7 @@ public class UserVerification {
 
     @Column(name = "expiration_at")
     @Nullable
-    private Instant expirationAt;
+    private ZonedDateTime expirationAt;
 
     @Column
     @Nullable

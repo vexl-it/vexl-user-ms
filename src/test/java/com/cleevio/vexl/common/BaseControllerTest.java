@@ -16,7 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -61,7 +61,7 @@ public class BaseControllerTest {
 
         Mockito.when(userVerification.getId()).thenReturn(1L);
         Mockito.when(userVerification.getVerificationCode()).thenReturn("456");
-        Mockito.when(userVerification.getExpirationAt()).thenReturn(Instant.now());
+        Mockito.when(userVerification.getExpirationAt()).thenReturn(ZonedDateTime.now());
 
         Mockito.when(userService.existsUserByUsername(any())).thenReturn(false);
         Mockito.when(userService.findByPublicKey(any())).thenReturn(Optional.of(user));

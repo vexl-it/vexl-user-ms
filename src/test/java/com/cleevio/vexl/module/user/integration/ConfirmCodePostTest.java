@@ -3,8 +3,6 @@ package com.cleevio.vexl.module.user.integration;
 import com.cleevio.vexl.common.BaseIntegrationTest;
 import com.cleevio.vexl.common.IntegrationTest;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
-import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
-import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
 import com.cleevio.vexl.module.user.entity.UserVerification;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 
-import java.time.Instant;
-import java.util.Random;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
