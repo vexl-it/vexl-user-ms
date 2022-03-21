@@ -33,7 +33,7 @@ public class AppConfig {
 
 	@PostConstruct
 	void started() {
-		TimeZone.setDefault(TimeZone.getTimeZone("CET"));
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 	}
 
 	@Bean

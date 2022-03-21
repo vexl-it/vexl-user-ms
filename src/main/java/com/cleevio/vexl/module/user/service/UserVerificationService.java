@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
+import java.time.ZonedDateTime;
 
 /**
  * Service for processing of request to phone number verification. Phone must be valid according industry-standard
@@ -80,7 +80,7 @@ public class UserVerificationService {
     private UserVerification createUserVerification(String codeToSend, byte[] phoneNumber) {
         return UserVerification.builder()
                 .verificationCode(codeToSend)
-                .expirationAt(Instant.now().plusSeconds(this.expirationTime))
+                .expirationAt(ZonedDateTime.now().plusSeconds(this.expirationTime))
                 .phoneNumber(phoneNumber)
                 .build();
     }
@@ -104,7 +104,7 @@ public class UserVerificationService {
                 this.userVerificationRepository.findValidUserVerificationByIdAndCode(
                         codeConfirmRequest.getId(),
                         codeConfirmRequest.getCode(),
-                        Instant.now()
+                        ZonedDateTime.now()
                 ).orElseThrow(VerificationNotFoundException::new);
 
         log.info("Code is verified for verification: {}", userVerification.getId());
@@ -126,6 +126,6 @@ public class UserVerificationService {
     }
 
     public void deleteExpiredVerifications() {
-        this.userVerificationRepository.deleteExpiredVerifications(Instant.now().plusSeconds(this.expirationTime));
+        this.userVerificationRepository.deleteExpiredVerifications(ZonedDateTime.now().plusSeconds(this.expirationTime));
     }
 }
