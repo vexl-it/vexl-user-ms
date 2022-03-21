@@ -1,5 +1,6 @@
 package com.cleevio.vexl.module.user.service;
 
+import com.cleevio.vexl.integration.twilio.config.TwilioConfig;
 import com.cleevio.vexl.module.sms.service.SmsService;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
@@ -34,6 +35,7 @@ public class UserVerificationService {
     private final UserVerificationRepository userVerificationRepository;
     private final ChallengeService challengeService;
     private final UserService userService;
+    private final TwilioConfig twilioConfig;
 
     @Value("#{new Integer('${verification.phone.digits:Length}')}")
     private Integer codeDigitsLength;
@@ -54,7 +56,16 @@ public class UserVerificationService {
     @Transactional(rollbackOn = Exception.class)
     public UserVerification requestConfirmPhone(PhoneConfirmRequest phoneConfirmRequest)
             throws UserPhoneInvalidException {
-        final String codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.codeDigitsLength);
+
+        final String codeToSend;
+        if ("devel".equals(twilioConfig.getPhone())) {
+            codeToSend = "111111";
+        } else {
+            codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.codeDigitsLength);
+
+            smsService.sendMessage(codeToSend,
+                    PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.getPhoneNumber()));
+        }
 
         log.info("Creating user verification for new request for phone number verification.");
         UserVerification userVerification =
@@ -65,9 +76,6 @@ public class UserVerificationService {
                                 this.secretKey
                         )
                 );
-
-        smsService.sendMessage(userVerification,
-                PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.getPhoneNumber()));
 
         UserVerification savedVerification = this.userVerificationRepository.save(userVerification);
 

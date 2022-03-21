@@ -1,6 +1,7 @@
 package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.common.IntegrationTest;
+import com.cleevio.vexl.integration.twilio.config.TwilioConfig;
 import com.cleevio.vexl.module.sms.service.SmsService;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.entity.UserVerification;
@@ -29,6 +30,9 @@ public class UserVerificationServiceTest {
     private SmsService smsService;
 
     @Mock
+    private TwilioConfig twilioConfig;
+
+    @Mock
     private ChallengeService challengeService;
 
     @Mock
@@ -45,7 +49,7 @@ public class UserVerificationServiceTest {
 
     @BeforeEach
     public void setup() {
-        this.verificationService = new UserVerificationService(smsService, verificationRepository, challengeService, userService, phoneDigitsLength, expirationTime, secretKey);
+        this.verificationService = new UserVerificationService(smsService, verificationRepository, challengeService, userService, twilioConfig, phoneDigitsLength, expirationTime, secretKey);
     }
 
     @Test
@@ -53,6 +57,7 @@ public class UserVerificationServiceTest {
         PhoneConfirmRequest phoneConfirmRequest = new PhoneConfirmRequest();
         phoneConfirmRequest.setPhoneNumber(PHONE);
         Mockito.when(this.verificationRepository.save(any())).thenReturn(verification);
+        Mockito.when(this.twilioConfig.getPhone()).thenReturn("+421011561651");
         verificationService.requestConfirmPhone(phoneConfirmRequest);
         Mockito.verify(verificationRepository).save(any());
     }
