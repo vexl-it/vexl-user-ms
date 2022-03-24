@@ -43,6 +43,7 @@ public abstract class BaseIntegrationTest {
     protected static final String PHONE_HASH = "GCzF7P15aLtu+LG6itgRfRKpOO+KKrdKZAnPzmTl1Fs=";
     protected static final String SIGNATURE = "/ty+wIsnpJu5XAcqTYs9FspaJct6YipVpIMqZTrMOglkisoU5E9jy5OiTVG/Gg5jVy+zEyc9KTHwJmIBcwlvDQ==";
     protected static final String USERNAME = "Vitezlas";
+    protected static final byte[] AVATAR = "image/png;base64,iVBORw0KGgo".getBytes(StandardCharsets.UTF_8);
 
     protected MockMvc mvc;
 
@@ -101,7 +102,7 @@ public abstract class BaseIntegrationTest {
         return User.builder()
                 .username(USERNAME)
                 .publicKey("MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEzIdBL0Q/P+OEk84pJTaEIwro2mY9Y3JihBzNlMn5jTxVtzyi0MEepbgu57Z5nBZG6kNo0D8FTrY0Oe/2niL13w==".getBytes(StandardCharsets.UTF_8))
-                .avatar("adsad1as651d56a1")
+                .avatar(AVATAR)
                 .build();
     }
 

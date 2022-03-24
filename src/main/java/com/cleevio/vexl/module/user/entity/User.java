@@ -37,7 +37,7 @@ public class User {
     private String username;
 
     @Column
-    private String avatar;
+    private byte[] avatar;
 
     @Column(name = "public_key")
     private byte[] publicKey;

@@ -26,6 +26,8 @@ public class BaseControllerTest {
     protected static final String PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEzIdBL0Q/P+OEk84pJTaEIwro2mY9Y3JihBzNlMn5jTxVtzyi0MEepbgu57Z5nBZG6kNo0D8FTrY0Oe/2niL13w==";
     protected static final String PHONE_HASH = "GCzF7P15aLtu+LG6itgRfRKpOO+KKrdKZAnPzmTl1Fs=";
     protected static final String SIGNATURE = "/ty+wIsnpJu5XAcqTYs9FspaJct6YipVpIMqZTrMOglkisoU5E9jy5OiTVG/Gg5jVy+zEyc9KTHwJmIBcwlvDQ==";
+    protected static final byte[] AVATAR = "image/png;base64,iVBORw0KGgo".getBytes(StandardCharsets.UTF_8);
+
 
     @Autowired
     protected MockMvc mvc;
@@ -57,7 +59,7 @@ public class BaseControllerTest {
         Mockito.when(user.getId()).thenReturn(1L);
         Mockito.when(user.getUsername()).thenReturn("Cermak");
         Mockito.when(user.getPublicKey()).thenReturn("1d6s51asd65s1ad65a15sa".getBytes(StandardCharsets.UTF_8));
-        Mockito.when(user.getAvatar()).thenReturn("avatarpicture");
+        Mockito.when(user.getAvatar()).thenReturn(AVATAR);
 
         Mockito.when(userVerification.getId()).thenReturn(1L);
         Mockito.when(userVerification.getVerificationCode()).thenReturn("456");
