@@ -1,15 +1,21 @@
 package com.cleevio.vexl.module.user.dto.response;
 
 import com.cleevio.vexl.module.user.entity.User;
+import com.cleevio.vexl.module.user.serializer.Base64Serializer;
 import com.cleevio.vexl.utils.EncryptionUtils;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
 @Data
 public class UserResponse {
 
     private Long userId;
+
     private String username;
-    private String avatar;
+
+    @JsonSerialize(using = Base64Serializer.class)
+    private byte[] avatar;
+
     private String publicKey;
 
     public UserResponse(User user) {

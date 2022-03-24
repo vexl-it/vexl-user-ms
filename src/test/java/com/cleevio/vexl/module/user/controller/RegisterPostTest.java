@@ -14,6 +14,8 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,7 +43,7 @@ public class RegisterPostTest extends BaseControllerTest {
                         .header(SecurityFilter.HEADER_HASH, PHONE_HASH)
                         .header(SecurityFilter.HEADER_SIGNATURE, SIGNATURE)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(new UserCreateRequest("David", "image/png;base64,iVBORw0KGgo"))))
+                        .content(asJsonString(new UserCreateRequest("David", AVATAR))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.userId", notNullValue()))
                 .andExpect(jsonPath("$.username", notNullValue()))
@@ -59,7 +61,7 @@ public class RegisterPostTest extends BaseControllerTest {
                         .header(SecurityFilter.HEADER_HASH, PHONE_HASH)
                         .header(SecurityFilter.HEADER_SIGNATURE, SIGNATURE)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(new UserCreateRequest("Bartolomej", "image/png;base64,iVBORw0KGgo"))))
+                        .content(asJsonString(new UserCreateRequest("Bartolomej", AVATAR))))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code", is(ApiException.Module.USER.getErrorCode() + UserErrorType.USERNAME_NOT_AVAILABLE.getCode())))
                 .andExpect(jsonPath("$.message[0]", is(UserErrorType.USERNAME_NOT_AVAILABLE.getMessage())));
@@ -73,7 +75,7 @@ public class RegisterPostTest extends BaseControllerTest {
                         .header(SecurityFilter.HEADER_HASH, PHONE_HASH)
                         .header(SecurityFilter.HEADER_SIGNATURE, SIGNATURE)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(new UserCreateRequest(null, "image/png;base64,iVBORw0KGgo"))))
+                        .content(asJsonString(new UserCreateRequest(null, AVATAR))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code", is("0")));
     }
