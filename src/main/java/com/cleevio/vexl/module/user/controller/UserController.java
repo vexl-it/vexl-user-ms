@@ -2,6 +2,7 @@ package com.cleevio.vexl.module.user.controller;
 
 import com.cleevio.vexl.common.dto.ErrorResponse;
 import com.cleevio.vexl.common.security.filter.SecurityFilter;
+import com.cleevio.vexl.module.file.exception.FileWriteException;
 import com.cleevio.vexl.module.user.dto.request.ChallengeRequest;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
@@ -167,7 +168,7 @@ public class UserController {
     @Operation(summary = "Register as a new user")
     ResponseEntity<UserResponse> register(@Valid @RequestBody UserCreateRequest userCreateRequest,
                                           @Parameter(hidden = true) @AuthenticationPrincipal User user)
-            throws UsernameNotAvailable {
+            throws UsernameNotAvailable, FileWriteException {
         return new ResponseEntity<>(new UserResponse(this.userService.create(user, userCreateRequest)), HttpStatus.CREATED);
     }
 
@@ -196,7 +197,7 @@ public class UserController {
     @Operation(summary = "Update an user")
     UserResponse updateMe(@Valid @RequestBody UserUpdateRequest userCreateRequest,
                           @Parameter(hidden = true) @AuthenticationPrincipal User user)
-            throws UsernameNotAvailable {
+            throws UsernameNotAvailable, FileWriteException {
         return new UserResponse(this.userService.update(user, userCreateRequest));
     }
 

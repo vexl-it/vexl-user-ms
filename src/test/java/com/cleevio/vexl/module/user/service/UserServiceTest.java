@@ -1,6 +1,8 @@
 package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.common.IntegrationTest;
+import com.cleevio.vexl.module.file.exception.FileWriteException;
+import com.cleevio.vexl.module.file.service.ImageService;
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
@@ -27,17 +29,20 @@ public class UserServiceTest {
     private UserRepository userRepository;
 
     @Mock
+    private ImageService imageService;
+
+    @Mock
     private User user;
 
     private UserService userService;
 
     @BeforeEach
     public void setup() {
-        this.userService = new UserService(userRepository);
+        this.userService = new UserService(userRepository, imageService);
     }
 
     @Test
-    void createTest() throws UsernameNotAvailable {
+    void createTest() throws UsernameNotAvailable, FileWriteException {
         Mockito.when(userService.existsUserByUsername(user.getUsername())).thenReturn(false);
         Mockito.when(userRepository.save(user)).thenReturn(user);
         userService.create(user, UserCreateRequest.of(user.getUsername(), user.getAvatar()));
