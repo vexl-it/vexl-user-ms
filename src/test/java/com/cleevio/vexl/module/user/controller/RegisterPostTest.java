@@ -3,6 +3,7 @@ package com.cleevio.vexl.module.user.controller;
 import com.cleevio.vexl.common.BaseControllerTest;
 import com.cleevio.vexl.common.exception.ApiException;
 import com.cleevio.vexl.common.security.filter.SecurityFilter;
+import com.cleevio.vexl.module.file.dto.request.ImageRequest;
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.UserErrorType;
@@ -13,8 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
-
-import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -43,7 +42,7 @@ public class RegisterPostTest extends BaseControllerTest {
                         .header(SecurityFilter.HEADER_HASH, PHONE_HASH)
                         .header(SecurityFilter.HEADER_SIGNATURE, SIGNATURE)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(new UserCreateRequest("David", AVATAR))))
+                        .content(asJsonString(new UserCreateRequest("David", new ImageRequest("jpg", "YXNkYXNkc2FkYXNkYXM=")))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.userId", notNullValue()))
                 .andExpect(jsonPath("$.username", notNullValue()))
@@ -61,7 +60,7 @@ public class RegisterPostTest extends BaseControllerTest {
                         .header(SecurityFilter.HEADER_HASH, PHONE_HASH)
                         .header(SecurityFilter.HEADER_SIGNATURE, SIGNATURE)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(new UserCreateRequest("Bartolomej", AVATAR))))
+                        .content(asJsonString(new UserCreateRequest("Bartolomej", new ImageRequest("jpg", "YXNkYXNkc2FkYXNkYXM=")))))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code", is(ApiException.Module.USER.getErrorCode() + UserErrorType.USERNAME_NOT_AVAILABLE.getCode())))
                 .andExpect(jsonPath("$.message[0]", is(UserErrorType.USERNAME_NOT_AVAILABLE.getMessage())));
@@ -75,7 +74,7 @@ public class RegisterPostTest extends BaseControllerTest {
                         .header(SecurityFilter.HEADER_HASH, PHONE_HASH)
                         .header(SecurityFilter.HEADER_SIGNATURE, SIGNATURE)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(new UserCreateRequest(null, AVATAR))))
+                        .content(asJsonString(new UserCreateRequest(null, new ImageRequest("jpg", "YXNkYXNkc2FkYXNkYXM=")))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code", is("0")));
     }

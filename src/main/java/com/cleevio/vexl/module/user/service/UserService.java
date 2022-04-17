@@ -1,5 +1,7 @@
 package com.cleevio.vexl.module.user.service;
 
+import com.cleevio.vexl.module.file.exception.FileWriteException;
+import com.cleevio.vexl.module.file.service.ImageService;
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.dto.request.UserUpdateRequest;
 import com.cleevio.vexl.module.user.entity.User;
@@ -28,20 +30,25 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ImageService imageService;
 
     @Transactional(rollbackFor = Exception.class)
-    public User create(User user, UserCreateRequest userCreateRequest)
-            throws UsernameNotAvailable {
+    public User create(User user, UserCreateRequest dto)
+            throws UsernameNotAvailable, FileWriteException {
         log.info("Creating user {}", user.getId());
 
-        if (existsUserByUsername(userCreateRequest.getUsername())) {
+        if (existsUserByUsername(dto.getUsername())) {
             log.warn("Username {} is not available. Username must be unique.",
-                    userCreateRequest.getUsername());
+                    dto.getUsername());
             throw new UsernameNotAvailable();
         }
 
-        user.setAvatar(userCreateRequest.getAvatar());
-        user.setUsername(userCreateRequest.getUsername());
+        if (dto.getAvatar() != null) {
+            String destination = this.imageService.save(dto.getAvatar());
+            user.setAvatar(destination);
+        }
+
+        user.setUsername(dto.getUsername());
 
         User savedUser = this.userRepository.save(user);
         log.info("User {} has been successfully created.",
@@ -75,7 +82,7 @@ public class UserService {
 
     @Transactional(rollbackFor = Exception.class)
     public User update(User user, UserUpdateRequest userUpdateRequest)
-            throws UsernameNotAvailable {
+            throws UsernameNotAvailable, FileWriteException {
         log.info("Updating user {}", user.getId());
 
         if (userUpdateRequest.getUsername() != null && !userUpdateRequest.getUsername().equals(user.getUsername())) {
@@ -88,7 +95,9 @@ public class UserService {
         }
 
         if (userUpdateRequest.getAvatar() != null) {
-            user.setAvatar(userUpdateRequest.getAvatar());
+            this.imageService.removeAvatar(user.getAvatar());
+            String destination = this.imageService.save(userUpdateRequest.getAvatar());
+            user.setAvatar(destination);
         }
 
         User updatedUser = this.userRepository.save(user);
@@ -99,6 +108,7 @@ public class UserService {
     }
 
     public void remove(User user) {
+        this.imageService.removeAvatar(user.getAvatar());
         this.userRepository.delete(user);
     }
 

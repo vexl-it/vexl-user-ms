@@ -102,7 +102,7 @@ public abstract class BaseIntegrationTest {
         return User.builder()
                 .username(USERNAME)
                 .publicKey("MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEzIdBL0Q/P+OEk84pJTaEIwro2mY9Y3JihBzNlMn5jTxVtzyi0MEepbgu57Z5nBZG6kNo0D8FTrY0Oe/2niL13w==".getBytes(StandardCharsets.UTF_8))
-                .avatar(AVATAR)
+                .avatar("AVATAR")
                 .build();
     }
 

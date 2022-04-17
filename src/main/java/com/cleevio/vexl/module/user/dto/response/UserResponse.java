@@ -13,8 +13,7 @@ public class UserResponse {
 
     private String username;
 
-    @JsonSerialize(using = Base64Serializer.class)
-    private byte[] avatar;
+    private String avatar;
 
     private String publicKey;
 

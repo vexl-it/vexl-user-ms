@@ -47,7 +47,9 @@ public abstract class ApiException extends Exception {
     public enum Module {
 
         USER("100", "User Module Error."),
-        CRYPTOCURRENCY("101", "Cryptocurrency Module Error.");
+        CRYPTOCURRENCY("101", "Cryptocurrency Module Error."),
+        FILE("102", "File."),
+        ;
 
         /**
          * Error custom code
