@@ -14,6 +14,10 @@ spec:
     spec:
       imagePullSecrets:
         - name: regcred
+      volumes:
+        - name: static-files
+          persistentVolumeClaim:
+            claimName: vexl-data
       containers:
         - name: application
           imagePullPolicy: Always
