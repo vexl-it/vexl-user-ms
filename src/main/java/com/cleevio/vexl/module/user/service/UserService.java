@@ -108,7 +108,9 @@ public class UserService {
     }
 
     public void remove(User user) {
-        this.imageService.removeAvatar(user.getAvatar());
+        if (user.getAvatar() != null) {
+            this.imageService.removeAvatar(user.getAvatar());
+        }
         this.userRepository.delete(user);
     }
 
