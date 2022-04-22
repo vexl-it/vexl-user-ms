@@ -2,15 +2,10 @@ package com.cleevio.vexl.utils;
 
 import com.cleevio.vexl.module.user.enums.AlgorithmEnum;
 import lombok.experimental.UtilityClass;
-import org.bouncycastle.util.io.pem.PemObject;
-import org.bouncycastle.util.io.pem.PemReader;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -37,18 +32,18 @@ public class EncryptionUtils {
         return digest.digest(valueForEncryption.getBytes(StandardCharsets.UTF_8));
     }
 
+    public String createHashInBase64String(String valueForEncryption, String hashFunction)
+            throws NoSuchAlgorithmException {
+        return encodeToBase64String(createHash(valueForEncryption, hashFunction));
+    }
+
     public String encodeToBase64String(byte[] bytes) {
         return Base64.getEncoder().encodeToString(bytes);
     }
 
     public PublicKey createPublicKey(byte[] publicKey, String algorithm)
-            throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-        Reader keyReader = new InputStreamReader(new ByteArrayInputStream(publicKey));
-        PemReader pemReader = new PemReader(keyReader);
-        PemObject pemObject = pemReader.readPemObject();
-        byte[] content = pemObject.getContent();
-
-        return KeyFactory.getInstance(algorithm).generatePublic(new X509EncodedKeySpec(content));
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        return KeyFactory.getInstance(algorithm).generatePublic(new X509EncodedKeySpec(publicKey));
     }
 
     public PrivateKey createPrivateKey(String base64PrivateKey, String algorithm)

@@ -117,7 +117,7 @@ public class SignatureService {
             signature.initVerify(EncryptionUtils.createPublicKey(publicKey, publicKeyAlgorithm));
             signature.update(valueForSign);
             return signature.verify(digitalSignature);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | IOException | SignatureException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException e) {
             log.error("Error occurred while verifying signature {}, error {}",
                     digitalSignature,
                     e.getMessage());
