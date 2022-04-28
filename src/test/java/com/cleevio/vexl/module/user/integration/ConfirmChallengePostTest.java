@@ -34,10 +34,10 @@ public class ConfirmChallengePostTest extends BaseIntegrationTest {
 
     @Test
     public void confirmChallengeValidPostTest() throws Exception {
-        ChallengeRequest challengeRequest = new ChallengeRequest(PUBLIC_KEY.getBytes(StandardCharsets.UTF_8), "challengeSignature".getBytes(StandardCharsets.UTF_8));
+        ChallengeRequest challengeRequest = new ChallengeRequest(PUBLIC_KEY.getBytes(StandardCharsets.UTF_8), "challengeSignature");
         SignatureResponse signatureResponse = new SignatureResponse("testHash".getBytes(), "testSignature".getBytes(), true);
 
-        Mockito.when(this.challengeService.isSignedChallengeValid(any(User.class), any(byte[].class)))
+        Mockito.when(this.challengeService.isSignedChallengeValid(any(User.class), any(String.class)))
                 .thenReturn(true);
         Mockito.when(this.signatureService.createSignature(any(User.class), any()))
                 .thenReturn(signatureResponse);
@@ -53,10 +53,10 @@ public class ConfirmChallengePostTest extends BaseIntegrationTest {
 
     @Test
     public void confirmChallengeNotValidTest() throws Exception {
-        ChallengeRequest challengeRequest = new ChallengeRequest(PUBLIC_KEY.getBytes(StandardCharsets.UTF_8), "challengeSignature".getBytes(StandardCharsets.UTF_8));
+        ChallengeRequest challengeRequest = new ChallengeRequest(PUBLIC_KEY.getBytes(StandardCharsets.UTF_8), "challengeSignature");
         SignatureResponse signatureResponse = new SignatureResponse("testHash".getBytes(), "testSignature".getBytes(), true);
 
-        Mockito.when(this.challengeService.isSignedChallengeValid(any(User.class), any(byte[].class)))
+        Mockito.when(this.challengeService.isSignedChallengeValid(any(User.class), any(String.class)))
                 .thenReturn(false);
         Mockito.when(this.signatureService.createSignature(any(User.class), any()))
                 .thenReturn(signatureResponse);

@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -22,6 +21,5 @@ public class ChallengeRequest {
 
     @NotNull
     @Schema(required = true, description = "Base64 encoded challenge's signature")
-    @JsonDeserialize(using = Base64Deserializer.class)
-    private byte[] signature;
+    private String signature;
 }
