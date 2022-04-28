@@ -2,10 +2,11 @@ package com.cleevio.vexl.common.cryptolib;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import com.sun.jna.Platform;
 
 public interface CLibrary extends Library {
 
-    CLibrary CRYPTO_LIB = Native.load("libvc", CLibrary.class);
+    CLibrary CRYPTO_LIB = Native.load(Platform.isWindows() ? "libvc" : "vc", CLibrary.class);
 
     /**
      * ECDSA
