@@ -24,6 +24,9 @@ public class ImageService {
     @Value("${content.path}")
     private String contentPath;
 
+    @Value("${content.url}")
+    private String urlPath;
+
     /**
      * Store file to the storage
      *
@@ -48,7 +51,7 @@ public class ImageService {
 
             log.info("created file {}", destination.getPath());
 
-            return destination.getPath();
+            return String.join("", urlPath, destination.getName());
         } catch (IOException e) {
             log.error(e.getMessage());
             throw new FileWriteException();

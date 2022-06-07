@@ -65,7 +65,7 @@ public class UserController {
     private final ChallengeService challengeService;
     private final SignatureService signatureService;
 
-    @Value("${hmac.secret.key}")
+    @Value("${security.hmac.key}")
     private String secretKey;
 
     @PostMapping("/confirmation/phone")
