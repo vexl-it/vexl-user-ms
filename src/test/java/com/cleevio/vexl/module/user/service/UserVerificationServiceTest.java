@@ -44,7 +44,7 @@ public class UserVerificationServiceTest {
 
     private static final String PHONE = "+420752653958";
 
-    @Value("${hmac.secret.key}")
+    @Value("${security.hmac.key}")
     private String secretKey;
 
     @BeforeEach

@@ -1,12 +1,13 @@
 package com.cleevio.vexl.module.user.entity;
 
+import com.cleevio.vexl.common.convertor.AesEncryptionConvertor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.annotation.Nullable;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,19 +28,17 @@ public class UserVerification {
     private Long id;
 
     @Column(name = "verification_code")
-    @Nullable
+    @Convert(converter = AesEncryptionConvertor.class)
     private String verificationCode;
 
     @Column(name = "phone_number")
-    @Nullable
     private byte[] phoneNumber;
 
     @Column(name = "expiration_at")
-    @Nullable
     private ZonedDateTime expirationAt;
 
     @Column
-    @Nullable
+    @Convert(converter = AesEncryptionConvertor.class)
     private String challenge;
 
     @Column(name = "phone_verified")

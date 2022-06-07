@@ -43,7 +43,7 @@ public class UserVerificationService {
     @Value("#{new Integer('${verification.phone.expiration.time:ExpirationTime}')}")
     private Integer expirationTime;
 
-    @Value("${hmac.secret.key}")
+    @Value("${security.hmac.key}")
     private String secretKey;
 
     /**
