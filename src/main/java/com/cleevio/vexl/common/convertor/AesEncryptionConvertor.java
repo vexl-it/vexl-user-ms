@@ -14,11 +14,13 @@ public class AesEncryptionConvertor implements AttributeConverter<String, String
 
     @Override
     public String convertToDatabaseColumn(String value) {
+        if (value == null) return null;
         return CLibrary.CRYPTO_LIB.aes_encrypt(key, value);
     }
 
     @Override
     public String convertToEntityAttribute(String value) {
+        if (value == null) return null;
         return CLibrary.CRYPTO_LIB.aes_decrypt(key, value);
     }
 }
