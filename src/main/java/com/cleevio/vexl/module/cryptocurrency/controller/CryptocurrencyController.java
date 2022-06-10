@@ -3,6 +3,7 @@ package com.cleevio.vexl.module.cryptocurrency.controller;
 import com.cleevio.vexl.common.dto.ErrorResponse;
 import com.cleevio.vexl.common.security.filter.SecurityFilter;
 import com.cleevio.vexl.module.cryptocurrency.dto.response.CoinPriceResponse;
+import com.cleevio.vexl.module.cryptocurrency.dto.response.MarketChartResponse;
 import com.cleevio.vexl.module.cryptocurrency.exception.CoinException;
 import com.cleevio.vexl.module.cryptocurrency.service.CryptocurrencyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Cryptocurrency", description = "For cryptocurrency data retrieval.")
@@ -42,5 +44,28 @@ public class CryptocurrencyController {
     CoinPriceResponse retrieveCoinPrice(@PathVariable String coin)
             throws CoinException {
         return new CoinPriceResponse(this.cryptocurrencyService.retrieveCoinPrice(coin));
+    }
+
+    @GetMapping("/bitcoin/market_chart")
+    @SecurityRequirements({
+            @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
+            @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
+            @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
+    })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400 (101101)", description = "Coingecko was not able to process request.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
+    @Operation(summary = "Get historical price.",
+            description = """
+                    Data granularity is automatic (cannot be adjusted)
+                    - 1 day from current time = 5 minute interval data
+                    - 1 - 90 days from current time = hourly data
+                    - above 90 days from current time = daily data (00:00 UTC)
+                    """)
+    MarketChartResponse retrieveCoinPriceMarketChart(@RequestParam String from,
+                                                     @RequestParam String to)
+            throws CoinException {
+        return this.cryptocurrencyService.retrieveMarketChart(from, to);
     }
 }
