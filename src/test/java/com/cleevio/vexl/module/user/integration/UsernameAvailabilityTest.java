@@ -38,7 +38,7 @@ public class UsernameAvailabilityTest extends BaseIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.available", equalTo(true)));
+                .andExpect(jsonPath("$.isAvailable", equalTo(true)));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class UsernameAvailabilityTest extends BaseIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.available", equalTo(false)));
+                .andExpect(jsonPath("$.isAvailable", equalTo(false)));
     }
 
 
