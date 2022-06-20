@@ -11,8 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 
-import java.nio.charset.StandardCharsets;
-
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,12 +32,12 @@ public class ConfirmChallengePostTest extends BaseIntegrationTest {
 
     @Test
     public void confirmChallengeValidPostTest() throws Exception {
-        ChallengeRequest challengeRequest = new ChallengeRequest(PUBLIC_KEY.getBytes(StandardCharsets.UTF_8), "challengeSignature");
-        SignatureResponse signatureResponse = new SignatureResponse("testHash".getBytes(), "testSignature".getBytes(), true);
+        ChallengeRequest challengeRequest = new ChallengeRequest(PUBLIC_KEY, "challengeSignature");
+        SignatureResponse signatureResponse = new SignatureResponse("testHash", "testSignature", true);
 
         Mockito.when(this.challengeService.isSignedChallengeValid(any(User.class), any(String.class)))
                 .thenReturn(true);
-        Mockito.when(this.signatureService.createSignature(any(User.class), any()))
+        Mockito.when(this.signatureService.createSignature(any(User.class)))
                 .thenReturn(signatureResponse);
 
         mvc.perform(post(BASE_URL)
@@ -53,12 +51,12 @@ public class ConfirmChallengePostTest extends BaseIntegrationTest {
 
     @Test
     public void confirmChallengeNotValidTest() throws Exception {
-        ChallengeRequest challengeRequest = new ChallengeRequest(PUBLIC_KEY.getBytes(StandardCharsets.UTF_8), "challengeSignature");
-        SignatureResponse signatureResponse = new SignatureResponse("testHash".getBytes(), "testSignature".getBytes(), true);
+        ChallengeRequest challengeRequest = new ChallengeRequest(PUBLIC_KEY, "challengeSignature");
+        SignatureResponse signatureResponse = new SignatureResponse("testHash", "testSignature", true);
 
         Mockito.when(this.challengeService.isSignedChallengeValid(any(User.class), any(String.class)))
                 .thenReturn(false);
-        Mockito.when(this.signatureService.createSignature(any(User.class), any()))
+        Mockito.when(this.signatureService.createSignature(any(User.class)))
                 .thenReturn(signatureResponse);
 
         mvc.perform(post(BASE_URL)

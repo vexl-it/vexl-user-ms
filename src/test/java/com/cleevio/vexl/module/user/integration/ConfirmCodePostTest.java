@@ -35,10 +35,7 @@ public class ConfirmCodePostTest extends BaseIntegrationTest {
         Mockito.when(userVerificationService.requestConfirmCodeAndGenerateCodeChallenge(any(CodeConfirmRequest.class)))
                 .thenReturn(this.getVerification(this.getUser()));
 
-        CodeConfirmRequest codeConfirmRequest = new CodeConfirmRequest();
-        codeConfirmRequest.setId(1L);
-        codeConfirmRequest.setCode("123987");
-        codeConfirmRequest.setUserPublicKey(PUBLIC_KEY.getBytes());
+        CodeConfirmRequest codeConfirmRequest = new CodeConfirmRequest(1L, "123987", PUBLIC_KEY);
 
         mvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -58,10 +55,7 @@ public class ConfirmCodePostTest extends BaseIntegrationTest {
         Mockito.when(userVerificationService.requestConfirmCodeAndGenerateCodeChallenge(any(CodeConfirmRequest.class)))
                 .thenReturn(userVerification);
 
-        CodeConfirmRequest codeConfirmRequest = new CodeConfirmRequest();
-        codeConfirmRequest.setId(1L);
-        codeConfirmRequest.setCode("123987");
-        codeConfirmRequest.setUserPublicKey(PUBLIC_KEY.getBytes());
+        CodeConfirmRequest codeConfirmRequest = new CodeConfirmRequest(1L, "123987", PUBLIC_KEY);
 
         mvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)

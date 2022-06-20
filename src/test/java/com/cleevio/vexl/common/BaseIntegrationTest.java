@@ -74,8 +74,8 @@ public abstract class BaseIntegrationTest {
         this.mvc = MockMvcBuilders.webAppContextSetup(this.wac).apply(springSecurity()).build();
         this.userService.save(getUser());
 
-        Mockito.when(signatureService.isSignatureValid(any(String.class), any(), any(), any(), any())).thenReturn(true);
-        Mockito.when(userService.findByPublicKey(any(byte[].class))).thenReturn(Optional.of(getUser()));
+        Mockito.when(signatureService.isSignatureValid(any(String.class), any(), any())).thenReturn(true);
+        Mockito.when(userService.findByPublicKey(any(String.class))).thenReturn(Optional.of(getUser()));
         Mockito.when(userService.findByBase64PublicKey(any(String.class))).thenReturn(Optional.of(getUser()));
         Mockito.when(userService.existsUserByUsername(USERNAME)).thenReturn(true);
 
@@ -87,7 +87,7 @@ public abstract class BaseIntegrationTest {
                 .id(1L)
                 .verificationCode("123")
                 .expirationAt(ZonedDateTime.now().plusSeconds(30000))
-                .phoneNumber("+420852852825".getBytes(StandardCharsets.UTF_8))
+                .phoneNumber("+420852852825")
                 .challenge("challenge")
                 .phoneVerified(true)
                 .build();
@@ -101,7 +101,7 @@ public abstract class BaseIntegrationTest {
     protected User getUser() {
         return User.builder()
                 .username(USERNAME)
-                .publicKey("MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEzIdBL0Q/P+OEk84pJTaEIwro2mY9Y3JihBzNlMn5jTxVtzyi0MEepbgu57Z5nBZG6kNo0D8FTrY0Oe/2niL13w==".getBytes(StandardCharsets.UTF_8))
+                .publicKey("MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEzIdBL0Q/P+OEk84pJTaEIwro2mY9Y3JihBzNlMn5jTxVtzyi0MEepbgu57Z5nBZG6kNo0D8FTrY0Oe/2niL13w==")
                 .avatar("AVATAR")
                 .build();
     }

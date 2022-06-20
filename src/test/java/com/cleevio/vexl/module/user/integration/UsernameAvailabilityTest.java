@@ -28,8 +28,7 @@ public class UsernameAvailabilityTest extends BaseIntegrationTest {
     @Test
     public void nicknameAvailabilityValidTest() throws Exception {
 
-        UsernameAvailableRequest request = new UsernameAvailableRequest();
-        request.setUsername("Vladimir518");
+        UsernameAvailableRequest request = new UsernameAvailableRequest("Vladimir518");
 
         mvc.perform(post(BASE_URL)
                         .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)
@@ -44,8 +43,7 @@ public class UsernameAvailabilityTest extends BaseIntegrationTest {
     @Test
     public void nicknameNotAvailableTest() throws Exception {
 
-        UsernameAvailableRequest request = new UsernameAvailableRequest();
-        request.setUsername(USERNAME);
+        UsernameAvailableRequest request = new UsernameAvailableRequest(USERNAME);
 
         mvc.perform(post(BASE_URL)
                         .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)
