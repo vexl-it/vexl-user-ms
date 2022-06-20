@@ -67,7 +67,7 @@ public class UserServiceTest {
     @Test
     void prepareUserTest() throws UserAlreadyExistsException {
         Mockito.when(userService.existsUserByUsername(user.getUsername())).thenReturn(false);
-        userService.prepareUser(PUBLIC_KEY.getBytes(StandardCharsets.UTF_8));
+        userService.prepareUser(PUBLIC_KEY);
         Mockito.verify(userRepository).save(any());
     }
 }

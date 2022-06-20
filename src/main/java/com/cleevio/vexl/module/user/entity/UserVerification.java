@@ -32,7 +32,7 @@ public class UserVerification {
     private String verificationCode;
 
     @Column(name = "phone_number")
-    private byte[] phoneNumber;
+    private String phoneNumber;
 
     @Column(name = "expiration_at")
     private ZonedDateTime expirationAt;

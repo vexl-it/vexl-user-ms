@@ -1,7 +1,9 @@
 package com.cleevio.vexl.module.user.service;
 
+import com.cleevio.vexl.common.cryptolib.CLibrary;
 import com.cleevio.vexl.integration.twilio.config.TwilioConfig;
 import com.cleevio.vexl.module.sms.service.SmsService;
+import com.cleevio.vexl.module.user.config.SecretKeyConfig;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.entity.UserVerification;
@@ -9,10 +11,9 @@ import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
 import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
-import com.cleevio.vexl.utils.EncryptionUtils;
 import com.cleevio.vexl.utils.PhoneUtils;
 import com.cleevio.vexl.utils.RandomSecurityUtils;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ import java.time.ZonedDateTime;
  */
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserVerificationService {
 
     private final SmsService smsService;
@@ -36,15 +37,13 @@ public class UserVerificationService {
     private final ChallengeService challengeService;
     private final UserService userService;
     private final TwilioConfig twilioConfig;
+    private final SecretKeyConfig secretKey;
 
     @Value("#{new Integer('${verification.phone.digits:Length}')}")
-    private Integer codeDigitsLength;
+    private final Integer codeDigitsLength;
 
     @Value("#{new Integer('${verification.phone.expiration.time:ExpirationTime}')}")
-    private Integer expirationTime;
-
-    @Value("${security.hmac.key}")
-    private String secretKey;
+    private final Integer expirationTime;
 
     /**
      * Generate a random code for phone verification. Store the unencrypted code and the phone encrypted with HMAC-SHA256 in the database
@@ -64,16 +63,16 @@ public class UserVerificationService {
             codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.codeDigitsLength);
 
             smsService.sendMessage(codeToSend,
-                    PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.getPhoneNumber()));
+                    PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.phoneNumber()));
         }
 
         log.info("Creating user verification for new request for phone number verification.");
         UserVerification userVerification =
                 createUserVerification(
                         codeToSend,
-                        EncryptionUtils.calculateHmacSha256(
-                                phoneConfirmRequest.getPhoneNumber(),
-                                this.secretKey
+                        CLibrary.CRYPTO_LIB.hmac_digest(
+                                phoneConfirmRequest.phoneNumber(),
+                                this.secretKey.hmacKey()
                         )
                 );
 
@@ -85,7 +84,7 @@ public class UserVerificationService {
         return savedVerification;
     }
 
-    private UserVerification createUserVerification(String codeToSend, byte[] phoneNumber) {
+    private UserVerification createUserVerification(String codeToSend, String phoneNumber) {
         return UserVerification.builder()
                 .verificationCode(codeToSend)
                 .expirationAt(ZonedDateTime.now().plusSeconds(this.expirationTime))
@@ -110,8 +109,8 @@ public class UserVerificationService {
 
         UserVerification userVerification =
                 this.userVerificationRepository.findValidUserVerificationByIdAndCode(
-                        codeConfirmRequest.getId(),
-                        codeConfirmRequest.getCode(),
+                        codeConfirmRequest.id(),
+                        codeConfirmRequest.code(),
                         ZonedDateTime.now()
                 ).orElseThrow(VerificationNotFoundException::new);
 
@@ -124,7 +123,7 @@ public class UserVerificationService {
             userVerification.setChallenge(challenge);
             userVerification.setPhoneVerified(true);
             userVerification.setUser(
-                    this.userService.prepareUser(codeConfirmRequest.getUserPublicKey()));
+                    this.userService.prepareUser(codeConfirmRequest.userPublicKey()));
 
             return this.userVerificationRepository.save(userVerification);
         } catch (NoSuchAlgorithmException exception) {

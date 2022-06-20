@@ -34,8 +34,7 @@ public class ConfirmPhonePostTest extends BaseIntegrationTest {
         Mockito.when(userVerificationService.requestConfirmPhone(any(PhoneConfirmRequest.class)))
                 .thenReturn(this.getVerification(this.getUser()));
 
-        PhoneConfirmRequest phoneConfirmRequest = new PhoneConfirmRequest();
-        phoneConfirmRequest.setPhoneNumber("+420731958659");
+        PhoneConfirmRequest phoneConfirmRequest = new PhoneConfirmRequest("+420731958659");
 
         mvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)

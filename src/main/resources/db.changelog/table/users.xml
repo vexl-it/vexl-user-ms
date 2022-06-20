@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.10.xsd">
+
+    <!-- ##################################################################### -->
+    <!-- ###################### TABLE INSTALL CHANGESET ###################### -->
+    <!-- ##################################################################### -->
+    <changeSet id="create_users_table" author="David Tilser" runOnChange="true">
+        <preConditions onSqlOutput="TEST" onFail="CONTINUE">
+            <not>
+                <tableExists tableName="users"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="users">
+            <column name="id" autoIncrement="true" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="PK_Users"/>
+            </column>
+            <column name="username" type="varchar"/>
+            <column name="avatar" type="varchar"/>
+            <column name="public_key" type="varchar">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

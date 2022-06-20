@@ -3,7 +3,6 @@ package com.cleevio.vexl.module.user.service;
 import com.cleevio.vexl.common.cryptolib.CLibrary;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
-import com.cleevio.vexl.utils.EncryptionUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -49,7 +48,7 @@ public class ChallengeService {
         }
 
         return CLibrary.CRYPTO_LIB.ecdsa_verify(
-                EncryptionUtils.encodeToBase64String(user.getPublicKey()),
+                user.getPublicKey(),
                 user.getUserVerification().getChallenge(),
                 user.getUserVerification().getChallenge().length(),
                 signature

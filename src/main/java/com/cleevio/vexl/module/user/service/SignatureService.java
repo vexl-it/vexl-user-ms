@@ -1,46 +1,32 @@
 package com.cleevio.vexl.module.user.service;
 
+import com.cleevio.vexl.common.cryptolib.CLibrary;
+import com.cleevio.vexl.module.user.config.SecretKeyConfig;
 import com.cleevio.vexl.module.user.dto.response.SignatureResponse;
 import com.cleevio.vexl.module.user.entity.User;
-import com.cleevio.vexl.module.user.exception.InvalidPublicKeyAndHashException;
 import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
-import com.cleevio.vexl.module.user.exception.DigitalSignatureException;
-import com.cleevio.vexl.utils.EncryptionUtils;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
-
 /**
  * Creating and verifying signatures.
- *
+ * <p>
  * If the user verifies his challenge, his public key is verified,
  * and we can generate a certificate for him - a signed combination of
  * his public key and a hash of his phone number or facebookId.
  */
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SignatureService {
 
-    @Value("${signature.user.publickey}")
-    private final String publicKey;
-
-    //TODO private_key will be in keystore and public_key will be in properties
-    private static final String privateKey = "MC4CAQAwBQYDK2VwBCIEIIp2wWL1uO8lt+lOXfbI+6Ge0pUCSegkiC7GNRgmG9Lk";
+    private final SecretKeyConfig secretKey;
 
     @Transactional(readOnly = true)
-    public SignatureResponse createSignature(User user, String algorithm)
-            throws VerificationNotFoundException, DigitalSignatureException, InvalidPublicKeyAndHashException {
+    public SignatureResponse createSignature(User user)
+            throws VerificationNotFoundException {
         log.info("Creating digital signature for user {}",
                 user.getId());
 
@@ -52,78 +38,36 @@ public class SignatureService {
         return createSignature(
                 user.getPublicKey(),
                 user.getUserVerification().getPhoneNumber(),
-                algorithm
+                true
         );
     }
 
-    @Transactional(readOnly = true)
-    public SignatureResponse createSignature(byte[] publicKey, byte[] hash, String algorithm)
-            throws DigitalSignatureException, InvalidPublicKeyAndHashException {
+    public SignatureResponse createSignature(String publicKey, String hash, boolean alreadyHashed) {
 
-        try {
-            Signature signature = Signature.getInstance(algorithm);
-            signature.initSign(EncryptionUtils.createPrivateKey(privateKey, algorithm));
-
-            signature.update(
-                    joinBytes(
-                            publicKey,
-                            hash
-                    )
-            );
-
-            byte[] digitalSignature = signature.sign();
-
-            log.info("Digital signature is done.");
-
-            return new SignatureResponse(
+        if (!alreadyHashed) {
+            hash = CLibrary.CRYPTO_LIB.hmac_digest(
                     hash,
-                    digitalSignature,
-                    true
+                    this.secretKey.hmacKey()
             );
-
-        } catch (IOException e) {
-            log.error("Error occurred while joining bytes of public key and hash.", e);
-            throw new InvalidPublicKeyAndHashException();
-        } catch (NoSuchAlgorithmException | InvalidKeyException | InvalidKeySpecException | SignatureException e) {
-            log.error("Error occurred while creating signature.", e);
-            throw new DigitalSignatureException();
         }
-    }
 
-    private byte[] joinBytes(byte[] publicKey, byte[] phoneHash) throws IOException {
-        log.info("Joining public key and hash.");
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        outputStream.write(publicKey);
-        outputStream.write(phoneHash);
+        String input = String.join("", publicKey, hash);
+        String digitalSignature = CLibrary.CRYPTO_LIB.ecdsa_sign(
+                this.secretKey.signaturePublicKey(),
+                this.secretKey.signaturePrivateKey(),
+                input,
+                input.length());
 
-        return outputStream.toByteArray();
-    }
-
-    public boolean isSignatureValid(String publicKey, String phoneHash, String digitalSignature, String signatureAlgorithm, String publicKeyAlgorithm)
-            throws DigitalSignatureException, IOException {
-        byte[] valueForSign = joinBytes(EncryptionUtils.decodeBase64String(publicKey), EncryptionUtils.decodeBase64String(phoneHash));
-        return isSignatureValid(valueForSign,
-                EncryptionUtils.decodeBase64String(digitalSignature),
-                EncryptionUtils.decodeBase64String(this.publicKey),
-                signatureAlgorithm,
-                publicKeyAlgorithm
+        return new SignatureResponse(
+                hash,
+                digitalSignature,
+                true
         );
     }
 
-    public boolean isSignatureValid(byte[] valueForSign, byte[] digitalSignature, byte[] publicKey, String signatureAlgorithm, String publicKeyAlgorithm)
-            throws DigitalSignatureException {
-        try {
-            Signature signature = Signature.getInstance(signatureAlgorithm);
-            signature.initVerify(EncryptionUtils.createPublicKey(publicKey, publicKeyAlgorithm));
-            signature.update(valueForSign);
-            return signature.verify(digitalSignature);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | SignatureException e) {
-            log.error("Error occurred while verifying signature {}, error {}",
-                    digitalSignature,
-                    e.getMessage());
-            throw new DigitalSignatureException();
-        }
-
+    public boolean isSignatureValid(String publicKey, String hash, String signature) {
+        String input = String.join("", publicKey, hash);
+        return CLibrary.CRYPTO_LIB.ecdsa_verify(this.secretKey.signaturePublicKey(), input, input.length(), signature);
     }
 
 }

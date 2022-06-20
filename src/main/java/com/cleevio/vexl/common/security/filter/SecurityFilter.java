@@ -2,8 +2,6 @@ package com.cleevio.vexl.common.security.filter;
 
 import com.cleevio.vexl.common.dto.ErrorResponse;
 import com.cleevio.vexl.common.security.AuthenticationHolder;
-import com.cleevio.vexl.module.user.enums.AlgorithmEnum;
-import com.cleevio.vexl.module.user.exception.DigitalSignatureException;
 import com.cleevio.vexl.module.user.service.SignatureService;
 import com.cleevio.vexl.module.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,7 +47,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         }
 
         try {
-            if (signatureService.isSignatureValid(publicKey, phoneHash, signature, AlgorithmEnum.EdDSA.getValue(), AlgorithmEnum.EdDSA.getValue())) {
+            if (signatureService.isSignatureValid(publicKey, phoneHash, signature)) {
                 AuthenticationHolder authentication = userService
                         .findByBase64PublicKey(publicKey)
                         .map(user -> {
@@ -64,17 +62,17 @@ public class SecurityFilter extends OncePerRequestFilter {
             } else {
                 SecurityContextHolder.clearContext();
             }
-        } catch (DigitalSignatureException e) {
+        } catch (Exception e) {
             SecurityContextHolder.clearContext();
-            handleError(response, "Signature verification failed: " + e.getMessage(), Integer.parseInt(e.getErrorCode()));
+            handleError(response, "Signature verification failed: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);
     }
 
-    protected void handleError(ServletResponse response, String s, int code) throws IOException {
+    protected void handleError(ServletResponse response, String s) throws IOException {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        httpResponse.setStatus(code);
+        httpResponse.setStatus(500);
 
         ErrorResponse error = new ErrorResponse(Collections.singleton(s), "0");
         OutputStream out = response.getOutputStream();

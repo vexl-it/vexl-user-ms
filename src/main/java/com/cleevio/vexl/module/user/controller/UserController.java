@@ -15,20 +15,16 @@ import com.cleevio.vexl.module.user.dto.response.SignatureResponse;
 import com.cleevio.vexl.module.user.dto.response.UserResponse;
 import com.cleevio.vexl.module.user.dto.response.UsernameAvailableResponse;
 import com.cleevio.vexl.module.user.entity.User;
-import com.cleevio.vexl.module.user.enums.AlgorithmEnum;
 import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
-import com.cleevio.vexl.module.user.exception.InvalidPublicKeyAndHashException;
 import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
 import com.cleevio.vexl.module.user.exception.UsernameNotAvailable;
 import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
-import com.cleevio.vexl.module.user.exception.DigitalSignatureException;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserNotFoundException;
 import com.cleevio.vexl.module.user.service.ChallengeService;
 import com.cleevio.vexl.module.user.service.SignatureService;
 import com.cleevio.vexl.module.user.service.UserService;
 import com.cleevio.vexl.module.user.service.UserVerificationService;
-import com.cleevio.vexl.utils.EncryptionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,7 +35,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -64,9 +59,6 @@ public class UserController {
     private final UserVerificationService userVerificationService;
     private final ChallengeService challengeService;
     private final SignatureService signatureService;
-
-    @Value("${security.hmac.key}")
-    private String secretKey;
 
     @PostMapping("/confirmation/phone")
     @ApiResponses({
@@ -105,13 +97,13 @@ public class UserController {
     })
     @Operation(summary = "Verify challenge.", description = "If challenge is verified successfully, we will create certificate for user.")
     SignatureResponse verifyChallengeAndGenerateSignature(@Valid @RequestBody ChallengeRequest challengeRequest)
-            throws UserNotFoundException, DigitalSignatureException, VerificationNotFoundException, InvalidPublicKeyAndHashException {
+            throws UserNotFoundException, VerificationNotFoundException {
 
-        User user = this.userService.findByPublicKey(challengeRequest.getUserPublicKey())
+        User user = this.userService.findByPublicKey(challengeRequest.userPublicKey())
                 .orElseThrow(UserNotFoundException::new);
 
-        if (this.challengeService.isSignedChallengeValid(user, challengeRequest.getSignature())) {
-            return this.signatureService.createSignature(user, AlgorithmEnum.EdDSA.getValue());
+        if (this.challengeService.isSignedChallengeValid(user, challengeRequest.signature())) {
+            return this.signatureService.createSignature(user);
         }
         return new SignatureResponse(false);
     }
@@ -129,16 +121,12 @@ public class UserController {
     })
     @Operation(summary = "Generate signature for Facebook.")
     SignatureResponse generateSignature(@Parameter(hidden = true) @AuthenticationPrincipal User user,
-                                        @PathVariable String facebookId)
-            throws DigitalSignatureException, InvalidPublicKeyAndHashException {
+                                        @PathVariable String facebookId) {
 
         return this.signatureService.createSignature(
                 user.getPublicKey(),
-                EncryptionUtils.calculateHmacSha256(
-                        facebookId,
-                        this.secretKey
-                ),
-                AlgorithmEnum.EdDSA.getValue()
+                facebookId,
+                false
         );
     }
 
@@ -151,7 +139,7 @@ public class UserController {
     @ApiResponse(responseCode = "200")
     @Operation(summary = "Is username available")
     UsernameAvailableResponse usernameAvailable(@Valid @RequestBody UsernameAvailableRequest usernameAvailableRequest) {
-        return new UsernameAvailableResponse(!this.userService.existsUserByUsername(usernameAvailableRequest.getUsername()));
+        return new UsernameAvailableResponse(!this.userService.existsUserByUsername(usernameAvailableRequest.username()));
     }
 
     @PostMapping

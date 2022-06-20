@@ -57,7 +57,7 @@ public class BaseControllerTest {
     public void setup() {
         Mockito.when(user.getId()).thenReturn(1L);
         Mockito.when(user.getUsername()).thenReturn("Cermak");
-        Mockito.when(user.getPublicKey()).thenReturn("1d6s51asd65s1ad65a15sa".getBytes(StandardCharsets.UTF_8));
+        Mockito.when(user.getPublicKey()).thenReturn("1d6s51asd65s1ad65a15sa");
         Mockito.when(user.getAvatar()).thenReturn("AVATAR");
 
         Mockito.when(userVerification.getId()).thenReturn(1L);
@@ -68,7 +68,7 @@ public class BaseControllerTest {
         Mockito.when(userService.findByPublicKey(any())).thenReturn(Optional.of(user));
         Mockito.when(userService.findByBase64PublicKey((any()))).thenReturn(Optional.of(user));
 
-        Mockito.when(signatureService.isSignatureValid(any(String.class), any(), any(), any(), any())).thenReturn(true);
+        Mockito.when(signatureService.isSignatureValid(any(String.class), any(), any())).thenReturn(true);
 
     }
 

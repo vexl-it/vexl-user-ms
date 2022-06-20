@@ -8,8 +8,7 @@ import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserNotFoundException;
 import com.cleevio.vexl.module.user.exception.UsernameNotAvailable;
-import com.cleevio.vexl.utils.EncryptionUtils;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,7 @@ import java.util.Optional;
  */
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
@@ -58,7 +57,7 @@ public class UserService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public User prepareUser(byte[] publicKey)
+    public User prepareUser(String publicKey)
             throws UserAlreadyExistsException {
 
         if (this.userRepository.existsUserByPublicKey(publicKey)) {
@@ -85,18 +84,18 @@ public class UserService {
             throws UsernameNotAvailable, FileWriteException {
         log.info("Updating user {}", user.getId());
 
-        if (userUpdateRequest.getUsername() != null && !userUpdateRequest.getUsername().equals(user.getUsername())) {
-            if (existsUserByUsername(userUpdateRequest.getUsername())) {
+        if (userUpdateRequest.username() != null && !userUpdateRequest.username().equals(user.getUsername())) {
+            if (existsUserByUsername(userUpdateRequest.username())) {
                 log.warn("Username {} is not available. Username must be unique.",
-                        userUpdateRequest.getUsername());
+                        userUpdateRequest.username());
                 throw new UsernameNotAvailable();
             }
-            user.setUsername(userUpdateRequest.getUsername());
+            user.setUsername(userUpdateRequest.username());
         }
 
-        if (userUpdateRequest.getAvatar() != null) {
+        if (userUpdateRequest.avatar() != null) {
             this.imageService.removeAvatar(user.getAvatar());
-            String destination = this.imageService.save(userUpdateRequest.getAvatar());
+            String destination = this.imageService.save(userUpdateRequest.avatar());
             user.setAvatar(destination);
         }
 
@@ -122,11 +121,11 @@ public class UserService {
     }
 
     public Optional<User> findByBase64PublicKey(String publicKeyBase64) {
-        return this.findByPublicKey(EncryptionUtils.decodeBase64String(publicKeyBase64));
+        return this.findByPublicKey(publicKeyBase64);
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> findByPublicKey(byte[] publicKey) {
+    public Optional<User> findByPublicKey(String publicKey) {
         return this.userRepository.findByPublicKey(publicKey);
     }
 
