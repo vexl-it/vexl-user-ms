@@ -56,14 +56,15 @@ public class UserVerificationService {
     public UserVerification requestConfirmPhone(PhoneConfirmRequest phoneConfirmRequest)
             throws UserPhoneInvalidException {
 
+        final String formattedNumber = PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.phoneNumber());
+
         final String codeToSend;
         if ("devel".equals(twilioConfig.getPhone())) {
             codeToSend = "111111";
         } else {
             codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.codeDigitsLength);
 
-            smsService.sendMessage(codeToSend,
-                    PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.phoneNumber()));
+            smsService.sendMessage(codeToSend, formattedNumber);
         }
 
         log.info("Creating user verification for new request for phone number verification.");
@@ -71,8 +72,8 @@ public class UserVerificationService {
                 createUserVerification(
                         codeToSend,
                         CLibrary.CRYPTO_LIB.hmac_digest(
-                                phoneConfirmRequest.phoneNumber(),
-                                this.secretKey.hmacKey()
+                                this.secretKey.hmacKey(),
+                                formattedNumber
                         )
                 );
 

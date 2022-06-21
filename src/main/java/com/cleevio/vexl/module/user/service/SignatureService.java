@@ -46,8 +46,8 @@ public class SignatureService {
 
         if (!alreadyHashed) {
             hash = CLibrary.CRYPTO_LIB.hmac_digest(
-                    hash,
-                    this.secretKey.hmacKey()
+                    this.secretKey.hmacKey(),
+                    hash
             );
         }
 
