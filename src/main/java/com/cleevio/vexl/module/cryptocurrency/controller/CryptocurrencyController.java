@@ -64,8 +64,9 @@ public class CryptocurrencyController {
                     - above 90 days from current time = daily data (00:00 UTC)
                     """)
     MarketChartResponse retrieveCoinPriceMarketChart(@RequestParam String from,
-                                                     @RequestParam String to)
+                                                     @RequestParam String to,
+                                                     @RequestParam(required = false, defaultValue = "USD") String currency)
             throws CoinException {
-        return this.cryptocurrencyService.retrieveMarketChart(from, to);
+        return this.cryptocurrencyService.retrieveMarketChart(from, to, currency);
     }
 }

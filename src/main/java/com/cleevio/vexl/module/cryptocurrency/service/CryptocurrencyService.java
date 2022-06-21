@@ -50,12 +50,12 @@ public class CryptocurrencyService {
 
     }
 
-    public MarketChartResponse retrieveMarketChart(String from, String to) throws CoinException {
+    public MarketChartResponse retrieveMarketChart(String from, String to, String currency) throws CoinException {
         RestTemplate restTemplate = new RestTemplate();
 
         URI targetUrl = UriComponentsBuilder.fromUriString(this.coingeckoUrl)
                 .path(this.coingeckoUrlMarketChartApi)
-                .queryParam("vs_currency", "USD")
+                .queryParam("vs_currency", currency)
                 .queryParam("from", from)
                 .queryParam("to", to)
                 .build()
