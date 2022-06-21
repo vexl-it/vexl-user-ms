@@ -36,7 +36,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @WebAppConfiguration
 @Transactional
 @ContextConfiguration(classes = Application.class)
-@TestPropertySource(locations = "/application.properties")
+@TestPropertySource(locations = "/application-test.properties")
 public abstract class BaseIntegrationTest {
 
     protected static final String PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEzIdBL0Q/P+OEk84pJTaEIwro2mY9Y3JihBzNlMn5jTxVtzyi0MEepbgu57Z5nBZG6kNo0D8FTrY0Oe/2niL13w==";
