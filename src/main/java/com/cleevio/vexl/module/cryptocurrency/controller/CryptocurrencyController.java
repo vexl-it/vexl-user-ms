@@ -29,7 +29,7 @@ public class CryptocurrencyController {
 
     private final CryptocurrencyService cryptocurrencyService;
 
-    @GetMapping("/{coin}/")
+    @GetMapping("/{coin}")
     @SecurityRequirements({
             @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
             @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
