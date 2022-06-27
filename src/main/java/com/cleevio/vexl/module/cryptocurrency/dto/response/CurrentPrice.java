@@ -10,4 +10,10 @@ public class CurrentPrice {
 
     @JsonProperty("usd")
     private Double usd;
+
+    @JsonProperty("czk")
+    private Double czk;
+
+    @JsonProperty("eur")
+    private Double eur;
 }
