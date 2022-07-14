@@ -18,9 +18,8 @@ class SignatureServiceTest {
     private static final String AES_KEY = "test";
     private static final String PHONE_HASH = "dummy_phone_hash";
 
-    private static final SignatureService signatureService;
-
-    private static final SecretKeyConfig secretKey;
+    private static final SecretKeyConfig secretKey = new SecretKeyConfig(PUBLIC_KEY_MS, PRIVATE_KEY_MS, HMAC_KEY, AES_KEY);
+    private static final SignatureService signatureService = new SignatureService(secretKey);
 
     private static final User USER;
     private static final UserVerification USER_VERIFICATION;
@@ -28,8 +27,6 @@ class SignatureServiceTest {
     static {
         USER = new User();
         USER.setPublicKey(PUBLIC_KEY);
-        secretKey = new SecretKeyConfig(PUBLIC_KEY_MS, PRIVATE_KEY_MS, HMAC_KEY, AES_KEY);
-        signatureService = new SignatureService(secretKey);
 
         USER_VERIFICATION = new UserVerification();
         USER_VERIFICATION.setPhoneNumber(PHONE_HASH);
@@ -46,7 +43,7 @@ class SignatureServiceTest {
         USER.setUserVerification(USER_VERIFICATION);
         final var signature = signatureService.createSignature(USER);
 
-        boolean result = signatureService.isSignatureValid(PUBLIC_KEY, PHONE_HASH, signature.signature());
+        final boolean result = signatureService.isSignatureValid(PUBLIC_KEY, PHONE_HASH, signature.signature());
         assertThat(result).isTrue();
     }
 
@@ -55,7 +52,7 @@ class SignatureServiceTest {
         USER.setUserVerification(USER_VERIFICATION);
         final var signature = signatureService.createSignature(USER);
 
-        boolean result = signatureService.isSignatureValid(PUBLIC_KEY_MS, PHONE_HASH, signature.signature());
+        final boolean result = signatureService.isSignatureValid(PUBLIC_KEY_MS, PHONE_HASH, signature.signature());
         assertThat(result).isFalse();
     }
 

@@ -2,19 +2,17 @@ package com.cleevio.vexl.integration.twilio.service;
 
 import com.cleevio.vexl.integration.twilio.config.TwilioConfig;
 import com.cleevio.vexl.module.sms.service.SmsService;
-import com.cleevio.vexl.module.user.entity.UserVerification;
 import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
 import com.twilio.exception.ApiException;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TwilioService implements SmsService {
 
     private final TwilioConfig twilioConfig;

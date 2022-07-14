@@ -1,8 +1,9 @@
 package com.cleevio.vexl.utils;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-@Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PhoneUtils {
 
     public static String trimAndDeleteSpacesFromPhoneNumber(String phoneNumber) {

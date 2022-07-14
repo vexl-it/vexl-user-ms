@@ -14,17 +14,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Cryptocurrency", description = "For cryptocurrency data retrieval.")
 @RestController
 @RequestMapping(value = "/api/v1/cryptocurrencies")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CryptocurrencyController {
 
     private final CryptocurrencyService cryptocurrencyService;
@@ -39,6 +41,7 @@ public class CryptocurrencyController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400 (101101)", description = "Coingecko was not able to process request.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Obtaining market data as price and percentage of the price change of the selected cryptocurrency",
             description = "For example, use 'bitcoin' for coin parameter if you want information about Bitcoin.")
     CoinPriceResponse retrieveCoinPrice(@PathVariable String coin)
@@ -56,6 +59,7 @@ public class CryptocurrencyController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400 (101101)", description = "Coingecko was not able to process request.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get historical price.",
             description = """
                     Data granularity is automatic (cannot be adjusted)

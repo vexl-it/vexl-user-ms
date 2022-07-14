@@ -49,10 +49,4 @@ public class User {
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private UserVerification userVerification;
 
-    public User(User user) {
-        this.id = user.getId();
-        this.username = user.getUsername();
-        this.avatar = user.getAvatar();
-        this.publicKey = user.getPublicKey();
-    }
 }

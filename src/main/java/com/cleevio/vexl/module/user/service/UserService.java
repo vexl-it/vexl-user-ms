@@ -1,10 +1,13 @@
 package com.cleevio.vexl.module.user.service;
 
+import com.cleevio.vexl.common.constant.ModuleLockNamespace;
+import com.cleevio.vexl.common.service.AdvisoryLockService;
 import com.cleevio.vexl.module.file.exception.FileWriteException;
 import com.cleevio.vexl.module.file.service.ImageService;
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.dto.request.UserUpdateRequest;
 import com.cleevio.vexl.module.user.entity.User;
+import com.cleevio.vexl.module.user.enums.UserAdvisoryLock;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserNotFoundException;
 import com.cleevio.vexl.module.user.exception.UsernameNotAvailable;
@@ -30,28 +33,35 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final ImageService imageService;
+    private final AdvisoryLockService advisoryLockService;
 
     @Transactional(rollbackFor = Exception.class)
     public User create(User user, UserCreateRequest dto)
             throws UsernameNotAvailable, FileWriteException {
-        log.info("Creating user {}", user.getId());
+        advisoryLockService.lock(
+                ModuleLockNamespace.USER,
+                UserAdvisoryLock.CREATE_USER.name(),
+                user.getPublicKey()
+        );
+
+        log.info("Creating user [{}]", user);
 
         if (existsUserByUsername(dto.getUsername())) {
-            log.warn("Username {} is not available. Username must be unique.",
+            log.warn("Username [{}] is not available. Username must be unique.",
                     dto.getUsername());
             throw new UsernameNotAvailable();
         }
 
         if (dto.getAvatar() != null) {
-            String destination = this.imageService.save(dto.getAvatar());
+            final String destination = this.imageService.save(dto.getAvatar());
             user.setAvatar(destination);
         }
 
         user.setUsername(dto.getUsername());
 
-        User savedUser = this.userRepository.save(user);
-        log.info("User {} has been successfully created.",
-                savedUser.getId());
+        final User savedUser = this.userRepository.save(user);
+        log.info("User [{}] has been successfully created.",
+                savedUser);
 
         return savedUser;
     }
@@ -59,16 +69,21 @@ public class UserService {
     @Transactional(rollbackFor = Exception.class)
     public User prepareUser(String publicKey)
             throws UserAlreadyExistsException {
+        advisoryLockService.lock(
+                ModuleLockNamespace.USER,
+                UserAdvisoryLock.PREPARE_USER.name(),
+                publicKey
+        );
 
         if (this.userRepository.existsUserByPublicKey(publicKey)) {
             throw new UserAlreadyExistsException();
         }
 
-        User user = User.builder()
+        final User user = User.builder()
                 .publicKey(publicKey)
                 .build();
 
-        User savedUser = this.userRepository.save(user);
+        final User savedUser = this.userRepository.save(user);
         log.info("User with ID {} is prepared.", user.getId());
 
         return savedUser;
@@ -82,7 +97,13 @@ public class UserService {
     @Transactional(rollbackFor = Exception.class)
     public User update(User user, UserUpdateRequest userUpdateRequest)
             throws UsernameNotAvailable, FileWriteException {
-        log.info("Updating user {}", user.getId());
+        advisoryLockService.lock(
+                ModuleLockNamespace.USER,
+                UserAdvisoryLock.UPDATE_USER.name(),
+                user.getPublicKey()
+        );
+
+        log.info("Updating an user {}", user);
 
         if (userUpdateRequest.username() != null && !userUpdateRequest.username().equals(user.getUsername())) {
             if (existsUserByUsername(userUpdateRequest.username())) {
@@ -95,13 +116,13 @@ public class UserService {
 
         if (userUpdateRequest.avatar() != null) {
             this.imageService.removeAvatar(user.getAvatar());
-            String destination = this.imageService.save(userUpdateRequest.avatar());
+            final String destination = this.imageService.save(userUpdateRequest.avatar());
             user.setAvatar(destination);
         }
 
-        User updatedUser = this.userRepository.save(user);
+        final User updatedUser = this.userRepository.save(user);
         log.info("User {} was successfully updated.",
-                updatedUser.getId());
+                updatedUser);
 
         return updatedUser;
     }
@@ -118,10 +139,6 @@ public class UserService {
             throws UserNotFoundException {
         return this.userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
-    }
-
-    public Optional<User> findByBase64PublicKey(String publicKeyBase64) {
-        return this.findByPublicKey(publicKeyBase64);
     }
 
     @Transactional(readOnly = true)

@@ -18,7 +18,7 @@ public record CodeConfirmRequest(
         @JsonDeserialize(using = TrimStringDeserializer.class)
         String code,
 
-        @NotNull
+        @NotBlank
         @Schema(required = true, description = "Base64 encoded user's public_key")
         String userPublicKey
 

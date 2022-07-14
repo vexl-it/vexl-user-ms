@@ -37,9 +37,9 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String requestURI = request.getRequestURI();
 
-        String publicKey = request.getHeader(HEADER_PUBLIC_KEY);
-        String phoneHash = request.getHeader(HEADER_HASH);
-        String signature = request.getHeader(HEADER_SIGNATURE);
+        final String publicKey = request.getHeader(HEADER_PUBLIC_KEY);
+        final String phoneHash = request.getHeader(HEADER_HASH);
+        final String signature = request.getHeader(HEADER_SIGNATURE);
 
         if (signature == null || publicKey == null || phoneHash == null || !requestURI.contains("/api/v1")) {
             filterChain.doFilter(request, response);
@@ -49,7 +49,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         try {
             if (signatureService.isSignatureValid(publicKey, phoneHash, signature)) {
                 AuthenticationHolder authentication = userService
-                        .findByBase64PublicKey(publicKey)
+                        .findByPublicKey(publicKey)
                         .map(user -> {
                             AuthenticationHolder authenticationHolder = new AuthenticationHolder(user);
                             authenticationHolder.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
