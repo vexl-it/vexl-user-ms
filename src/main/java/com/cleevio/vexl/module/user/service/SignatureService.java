@@ -25,7 +25,7 @@ public class SignatureService {
     private final SecretKeyConfig secretKey;
 
     @Transactional(readOnly = true)
-    public SignatureResponse createSignature(User user)
+    public SignatureResponse createSignature(final User user)
             throws VerificationNotFoundException {
         log.info("Creating digital signature for user {}",
                 user.getId());
@@ -51,8 +51,8 @@ public class SignatureService {
             );
         }
 
-        String input = String.join("", publicKey, hash);
-        String digitalSignature = CLibrary.CRYPTO_LIB.ecdsa_sign(
+        final String input = String.join("", publicKey, hash);
+        final String digitalSignature = CLibrary.CRYPTO_LIB.ecdsa_sign(
                 this.secretKey.signaturePublicKey(),
                 this.secretKey.signaturePrivateKey(),
                 input,
@@ -66,7 +66,7 @@ public class SignatureService {
     }
 
     public boolean isSignatureValid(String publicKey, String hash, String signature) {
-        String input = String.join("", publicKey, hash);
+        final String input = String.join("", publicKey, hash);
         return CLibrary.CRYPTO_LIB.ecdsa_verify(this.secretKey.signaturePublicKey(), input, input.length(), signature);
     }
 

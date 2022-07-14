@@ -34,7 +34,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -52,7 +53,7 @@ import javax.validation.Valid;
 @Tag(name = "User")
 @RestController
 @RequestMapping(value = "/api/v1/user")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
@@ -65,6 +66,7 @@ public class UserController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400 (100110)", description = "User phone number is invalid", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Phone number confirmation")
     PhoneConfirmResponse requestConfirmPhone(@Valid @RequestBody PhoneConfirmRequest phoneConfirmRequest)
             throws UserPhoneInvalidException {
@@ -78,6 +80,7 @@ public class UserController {
             @ApiResponse(responseCode = "500 (100106)", description = "Challenge couldn't be generated", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404 (100104)", description = "Verification not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
+    @ResponseStatus(HttpStatus.OK)
     @Operation(
             summary = "Code number confirmation.",
             description = "If code number is valid, we will generate challenge for user. Challenge is used to verify that the public key is really his. "
@@ -95,11 +98,12 @@ public class UserController {
             @ApiResponse(responseCode = "400 (100105)", description = "Signature could not be generated", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "406 (100108)", description = "Server could not create message for signature. Public key or hash is invalid.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Verify challenge.", description = "If challenge is verified successfully, we will create certificate for user.")
     SignatureResponse verifyChallengeAndGenerateSignature(@Valid @RequestBody ChallengeRequest challengeRequest)
             throws UserNotFoundException, VerificationNotFoundException {
 
-        User user = this.userService.findByPublicKey(challengeRequest.userPublicKey())
+        final User user = this.userService.findByPublicKey(challengeRequest.userPublicKey())
                 .orElseThrow(UserNotFoundException::new);
 
         if (this.challengeService.isSignedChallengeValid(user, challengeRequest.signature())) {
@@ -119,6 +123,7 @@ public class UserController {
             @ApiResponse(responseCode = "400 (100105)", description = "Signature could not be generated", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "406 (100108)", description = "Server could not create message for signature. Public key or hash is invalid.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Generate signature for Facebook.")
     SignatureResponse generateSignature(@Parameter(hidden = true) @AuthenticationPrincipal User user,
                                         @PathVariable String facebookId) {
@@ -137,6 +142,7 @@ public class UserController {
             @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
     })
     @ApiResponse(responseCode = "200")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Is username available")
     UsernameAvailableResponse usernameAvailable(@Valid @RequestBody UsernameAvailableRequest usernameAvailableRequest) {
         return new UsernameAvailableResponse(!this.userService.existsUserByUsername(usernameAvailableRequest.username()));
@@ -149,10 +155,10 @@ public class UserController {
             @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
     })
     @ApiResponses({
-            @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "201", description = "User has been created"),
             @ApiResponse(responseCode = "409 (100109)", description = "Username is not available. Choose different username.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register as a new user")
     ResponseEntity<UserResponse> register(@Valid @RequestBody UserCreateRequest userCreateRequest,
                                           @Parameter(hidden = true) @AuthenticationPrincipal User user)
@@ -167,6 +173,7 @@ public class UserController {
             @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
     })
     @ApiResponse(responseCode = "200")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get an user")
     UserResponse getMe(@Parameter(hidden = true) @AuthenticationPrincipal User user) {
         return new UserResponse(user);
@@ -182,6 +189,7 @@ public class UserController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "409 (100109)", description = "Username is not available. Choose different username.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Update an user")
     UserResponse updateMe(@Valid @RequestBody UserUpdateRequest userCreateRequest,
                           @Parameter(hidden = true) @AuthenticationPrincipal User user)
@@ -196,6 +204,7 @@ public class UserController {
             @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
     })
     @ApiResponse(responseCode = "200")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Remove an user")
     void removeMe(@Parameter(hidden = true) @AuthenticationPrincipal User user) {
         this.userService.remove(user);

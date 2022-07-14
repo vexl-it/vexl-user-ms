@@ -9,23 +9,27 @@ import com.cleevio.vexl.module.user.service.UserVerificationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class BaseControllerTest {
 
-    protected static final String PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEzIdBL0Q/P+OEk84pJTaEIwro2mY9Y3JihBzNlMn5jTxVtzyi0MEepbgu57Z5nBZG6kNo0D8FTrY0Oe/2niL13w==";
-    protected static final String PHONE_HASH = "GCzF7P15aLtu+LG6itgRfRKpOO+KKrdKZAnPzmTl1Fs=";
-    protected static final String SIGNATURE = "/ty+wIsnpJu5XAcqTYs9FspaJct6YipVpIMqZTrMOglkisoU5E9jy5OiTVG/Gg5jVy+zEyc9KTHwJmIBcwlvDQ==";
+    protected static final String PUBLIC_KEY = "dummy_public_key";
+    protected static final String PHONE_HASH = "dummy_hash";
+    protected static final String SIGNATURE = "dummy_signature";
+    protected static final String SIGNATURE_CHALLENGE = "dummy_signature_challenge";
+    protected static final String USER_NAME = "David Nejneobhospodářovávatelnější";
+    protected static final String USER_AVATAR = "dummy_avatar";
+    protected static final String USER_PUBLIC_KEY = "dummy_user_public_key";
+    protected static final String VERIFICATION_CODE = "dummy_verification_code";
+    protected static final String CHALLENGE = "dummy_challenge";
 
 
     @Autowired
@@ -43,33 +47,33 @@ public class BaseControllerTest {
     @MockBean
     protected ChallengeService challengeService;
 
-    @Mock
-    protected User user;
-
-    @Mock
-    protected UserVerification userVerification;
+    protected static final User USER;
+    protected static final UserVerification USER_VERIFICATION;
 
     @Autowired
     protected ObjectMapper objectMapper;
 
+    static {
+        USER = new User();
+        USER.setId(1L);
+        USER.setUsername(USER_NAME);
+        USER.setAvatar(USER_AVATAR);
+        USER.setPublicKey(USER_PUBLIC_KEY);
+
+        USER_VERIFICATION = new UserVerification();
+        USER_VERIFICATION.setVerificationCode(VERIFICATION_CODE);
+        USER_VERIFICATION.setExpirationAt(ZonedDateTime.now());
+        USER_VERIFICATION.setChallenge(CHALLENGE);
+        USER_VERIFICATION.setPhoneVerified(true);
+    }
+
     @BeforeEach
     @SneakyThrows
     public void setup() {
-        Mockito.when(user.getId()).thenReturn(1L);
-        Mockito.when(user.getUsername()).thenReturn("Cermak");
-        Mockito.when(user.getPublicKey()).thenReturn("1d6s51asd65s1ad65a15sa");
-        Mockito.when(user.getAvatar()).thenReturn("AVATAR");
+        when(userService.existsUserByUsername(any())).thenReturn(false);
+        when(userService.findByPublicKey(any())).thenReturn(Optional.of(USER));
 
-        Mockito.when(userVerification.getId()).thenReturn(1L);
-        Mockito.when(userVerification.getVerificationCode()).thenReturn("456");
-        Mockito.when(userVerification.getExpirationAt()).thenReturn(ZonedDateTime.now());
-
-        Mockito.when(userService.existsUserByUsername(any())).thenReturn(false);
-        Mockito.when(userService.findByPublicKey(any())).thenReturn(Optional.of(user));
-        Mockito.when(userService.findByBase64PublicKey((any()))).thenReturn(Optional.of(user));
-
-        Mockito.when(signatureService.isSignatureValid(any(String.class), any(), any())).thenReturn(true);
-
+        when(signatureService.isSignatureValid(PUBLIC_KEY, PHONE_HASH, SIGNATURE)).thenReturn(true);
     }
 
     /**

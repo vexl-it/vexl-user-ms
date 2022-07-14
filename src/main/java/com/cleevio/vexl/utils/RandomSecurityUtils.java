@@ -1,5 +1,7 @@
 package com.cleevio.vexl.utils;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.security.NoSuchAlgorithmException;
@@ -8,6 +10,7 @@ import java.security.SecureRandom;
 import java.util.stream.IntStream;
 
 @Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RandomSecurityUtils {
 
     private static final String ALGORITHM = "SHA1PRNG";

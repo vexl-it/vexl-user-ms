@@ -6,12 +6,16 @@ import com.cleevio.vexl.module.user.serializer.TrimStringDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import javax.annotation.Nullable;
+
 public record UserUpdateRequest(
 
+        @Nullable
         @Schema(required = true, description = "Username in String format")
         @JsonDeserialize(using = TrimStringDeserializer.class)
         String username,
 
+        @Nullable
         @Schema(description = "Base64 encoded file data including header. i.e.: data:image/png;base64,iVBORw0KGgo")
         @JsonDeserialize(using = Base64Deserializer.class)
         ImageRequest avatar

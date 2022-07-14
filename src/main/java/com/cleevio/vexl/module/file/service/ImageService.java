@@ -2,6 +2,7 @@ package com.cleevio.vexl.module.file.service;
 
 import com.cleevio.vexl.module.file.dto.request.ImageRequest;
 import com.cleevio.vexl.module.file.exception.FileWriteException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,13 +20,14 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ImageService {
 
     @Value("${content.path}")
-    private String contentPath;
+    private final String contentPath;
 
     @Value("${content.url}")
-    private String urlPath;
+    private final String urlPath;
 
     /**
      * Store file to the storage
@@ -35,13 +37,13 @@ public class ImageService {
      */
     public String save(@NotNull ImageRequest imageRequest) throws FileWriteException {
         try {
-            File dir = new File(this.contentPath);
+            final File dir = new File(this.contentPath);
 
             if (!dir.exists() && !dir.mkdirs()) {
                 throw new FileWriteException();
             }
 
-            String fileName = UUID.randomUUID().toString();
+            final String fileName = UUID.randomUUID().toString();
 
             final File destination = new File(dir, fileName + "." + imageRequest.getExtension());
 

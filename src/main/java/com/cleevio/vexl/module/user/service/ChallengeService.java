@@ -3,7 +3,7 @@ package com.cleevio.vexl.module.user.service;
 import com.cleevio.vexl.common.cryptolib.CLibrary;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -21,13 +21,15 @@ import java.util.Base64;
  */
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ChallengeService {
+
+    private static final String SHA256 = "SHA-256";
 
     public String generateChallenge()
             throws NoSuchAlgorithmException {
         byte[] bytes = generateCodeVerifier().getBytes(StandardCharsets.US_ASCII);
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+        MessageDigest messageDigest = MessageDigest.getInstance(SHA256);
         messageDigest.update(bytes, 0, bytes.length);
         byte[] digest = messageDigest.digest();
         return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
@@ -40,7 +42,7 @@ public class ChallengeService {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(codeVerifier);
     }
 
-    public boolean isSignedChallengeValid(User user, String signature)
+    public boolean isSignedChallengeValid(final User user, final String signature)
             throws VerificationNotFoundException {
 
         if (user.getUserVerification() == null || user.getUserVerification().getChallenge() == null) {

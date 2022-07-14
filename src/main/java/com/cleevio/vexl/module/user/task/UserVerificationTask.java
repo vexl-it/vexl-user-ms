@@ -18,7 +18,7 @@ public class UserVerificationTask {
 
     private final UserVerificationService verificationService;
 
-    @Scheduled(fixedDelay = 600000)
+    @Scheduled(fixedDelay = 600_000)
     @Transactional(rollbackFor = Exception.class)
     public void deleteExpiredVerifications() {
         log.info("Deleting expired user verification");

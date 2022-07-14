@@ -1,10 +1,13 @@
 package com.cleevio.vexl.module.user.entity;
 
 import com.cleevio.vexl.common.convertor.AesEncryptionConvertor;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -20,10 +23,14 @@ import java.time.ZonedDateTime;
 @Data
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class UserVerification {
 
     @Id
+    @EqualsAndHashCode.Include
+    @ToString.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -44,8 +51,8 @@ public class UserVerification {
     @Column(name = "phone_verified")
     private boolean phoneVerified;
 
-	@JoinColumn(name = "user_id", referencedColumnName = "id")
-	@OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @OneToOne
     private User user;
 
 }

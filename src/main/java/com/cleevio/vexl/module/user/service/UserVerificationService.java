@@ -1,12 +1,15 @@
 package com.cleevio.vexl.module.user.service;
 
+import com.cleevio.vexl.common.constant.ModuleLockNamespace;
 import com.cleevio.vexl.common.cryptolib.CLibrary;
+import com.cleevio.vexl.common.service.AdvisoryLockService;
 import com.cleevio.vexl.integration.twilio.config.TwilioConfig;
 import com.cleevio.vexl.module.sms.service.SmsService;
 import com.cleevio.vexl.module.user.config.SecretKeyConfig;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.entity.UserVerification;
+import com.cleevio.vexl.module.user.enums.VerificationAdvisoryLock;
 import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
@@ -35,6 +38,7 @@ public class UserVerificationService {
     private final SmsService smsService;
     private final UserVerificationRepository userVerificationRepository;
     private final ChallengeService challengeService;
+    private final AdvisoryLockService advisoryLockService;
     private final UserService userService;
     private final TwilioConfig twilioConfig;
     private final SecretKeyConfig secretKey;
@@ -55,6 +59,11 @@ public class UserVerificationService {
     @Transactional(rollbackOn = Exception.class)
     public UserVerification requestConfirmPhone(PhoneConfirmRequest phoneConfirmRequest)
             throws UserPhoneInvalidException {
+        advisoryLockService.lock(
+                ModuleLockNamespace.VERIFICATION,
+                VerificationAdvisoryLock.REQUEST_VERIFICATION_CODE.name(),
+                phoneConfirmRequest.phoneNumber()
+        );
 
         final String formattedNumber = PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.phoneNumber());
 
@@ -68,7 +77,7 @@ public class UserVerificationService {
         }
 
         log.info("Creating user verification for new request for phone number verification.");
-        UserVerification userVerification =
+        final UserVerification userVerification =
                 createUserVerification(
                         codeToSend,
                         CLibrary.CRYPTO_LIB.hmac_digest(
@@ -77,7 +86,7 @@ public class UserVerificationService {
                         )
                 );
 
-        UserVerification savedVerification = this.userVerificationRepository.save(userVerification);
+        final UserVerification savedVerification = this.userVerificationRepository.save(userVerification);
 
         log.info("Created verification and code sent for verification id {}",
                 savedVerification.getId());
@@ -107,6 +116,11 @@ public class UserVerificationService {
     @Transactional(rollbackOn = Exception.class)
     public UserVerification requestConfirmCodeAndGenerateCodeChallenge(CodeConfirmRequest codeConfirmRequest)
             throws UserAlreadyExistsException, ChallengeGenerationException, VerificationNotFoundException {
+        advisoryLockService.lock(
+                ModuleLockNamespace.VERIFICATION,
+                VerificationAdvisoryLock.CONFIRM_VERIFICATION_CODE.name(),
+                codeConfirmRequest.userPublicKey()
+        );
 
         UserVerification userVerification =
                 this.userVerificationRepository.findValidUserVerificationByIdAndCode(
@@ -118,7 +132,7 @@ public class UserVerificationService {
         log.info("Code is verified for verification: {}", userVerification.getId());
 
         try {
-            String challenge = this.challengeService.generateChallenge();
+            final String challenge = this.challengeService.generateChallenge();
             log.info("Challenge is created.");
 
             userVerification.setChallenge(challenge);

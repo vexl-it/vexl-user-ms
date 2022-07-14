@@ -4,8 +4,6 @@ import com.cleevio.vexl.module.user.entity.User;
 
 public record UserResponse(
 
-        Long userId,
-
         String username,
 
         String avatar,
@@ -16,7 +14,6 @@ public record UserResponse(
 
     public UserResponse(User user) {
         this(
-                user.getId(),
                 user.getUsername(),
                 user.getAvatar(),
                 user.getPublicKey()
