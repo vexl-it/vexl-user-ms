@@ -21,10 +21,4 @@ public record UserUpdateRequest(
         ImageRequest avatar
 
 ) {
-
-    public static UserCreateRequest of(String username, byte[] avatar) {
-        return new UserCreateRequest(
-                username,
-                new ImageRequest());
-    }
 }
