@@ -21,10 +21,4 @@ public class UserCreateRequest implements AvatarConstraints {
 
     private final ImageRequest avatar;
 
-    public static UserCreateRequest of(String username, String avatar) {
-        return new UserCreateRequest(
-                username,
-                new ImageRequest());
-    }
-
 }
