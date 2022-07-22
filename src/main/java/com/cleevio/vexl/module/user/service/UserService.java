@@ -115,7 +115,9 @@ public class UserService {
         }
 
         if (userUpdateRequest.avatar() != null) {
-            this.imageService.removeAvatar(user.getAvatar());
+            if (user.getAvatar() != null) {
+                this.imageService.removeAvatar(user.getAvatar());
+            }
             final String destination = this.imageService.save(userUpdateRequest.avatar());
             user.setAvatar(destination);
         }
