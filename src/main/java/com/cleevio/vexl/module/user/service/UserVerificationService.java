@@ -51,6 +51,10 @@ public class UserVerificationService {
     @Value("${verification.phone.expiration.time}")
     private final Integer expirationTime;
 
+    @Value("${devel.environment}")
+    private final boolean isDevel;
+    private static final String DEVEL_CODE = "111111";
+
     /**
      * Generate a random code for phone verification. Store the unencrypted code and the phone encrypted with HMAC-SHA256 in the database
      * and create an entry in the USER_VERIFICATION table.
@@ -69,8 +73,13 @@ public class UserVerificationService {
 
         final String formattedNumber = PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.phoneNumber());
 
-        final String codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.codeDigitsLength);
-        smsService.sendMessage(codeToSend, formattedNumber);
+        final String codeToSend;
+        if (isDevel) {
+            codeToSend = DEVEL_CODE;
+        } else {
+            codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.codeDigitsLength);
+            smsService.sendMessage(codeToSend, formattedNumber);
+        }
 
         log.info("Creating user verification for new request for phone number verification.");
         final UserVerification userVerification =
