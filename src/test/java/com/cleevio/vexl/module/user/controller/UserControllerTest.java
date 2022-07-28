@@ -3,25 +3,23 @@ package com.cleevio.vexl.module.user.controller;
 import com.cleevio.vexl.common.BaseControllerTest;
 import com.cleevio.vexl.common.exception.ApiException;
 import com.cleevio.vexl.common.security.filter.SecurityFilter;
+import com.cleevio.vexl.module.user.dto.SignatureData;
+import com.cleevio.vexl.module.user.dto.UserData;
 import com.cleevio.vexl.module.user.dto.request.ChallengeRequest;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.dto.request.UserUpdateRequest;
 import com.cleevio.vexl.module.user.dto.request.UsernameAvailableRequest;
-import com.cleevio.vexl.module.user.dto.response.SignatureResponse;
 import com.cleevio.vexl.module.user.exception.UserErrorType;
-import com.cleevio.vexl.module.user.exception.UsernameNotAvailable;
+import com.cleevio.vexl.module.user.exception.UsernameNotAvailableException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 
-import java.util.Optional;
-
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -47,18 +45,12 @@ class UserControllerTest extends BaseControllerTest {
     private static final PhoneConfirmRequest PHONE_CONFIRM_REQUEST;
     private static final CodeConfirmRequest CODE_CONFIRM_REQUEST;
     private static final ChallengeRequest CHALLENGE_REQUEST;
-    private static final SignatureResponse SIGNATURE_RESPONSE;
     private static final UsernameAvailableRequest USERNAME_AVAILABLE_REQUEST;
     private static final UserCreateRequest USER_CREATE_REQUEST;
     private static final UserUpdateRequest USER_UPDATE_REQUEST;
+    private static final UserData USER_DATA;
+    private static final SignatureData SIGNATURE_DATA;
     private static final String USER_PHONE = "+420856856856";
-
-
-    private static final String INVALID_PHONE_REQUEST = """
-            {
-                "phoneNumber": "INVALID_PHONE_FORMAT"
-            }
-                                                """;
 
     private static final String INVALID_REGISTER_USER_REQUEST = """
             {
@@ -73,13 +65,15 @@ class UserControllerTest extends BaseControllerTest {
 
         CHALLENGE_REQUEST = new ChallengeRequest(USER_PUBLIC_KEY, SIGNATURE_CHALLENGE);
 
-        SIGNATURE_RESPONSE = new SignatureResponse(PHONE_HASH, SIGNATURE, true);
-
         USERNAME_AVAILABLE_REQUEST = new UsernameAvailableRequest(USER_NAME);
 
         USER_CREATE_REQUEST = new UserCreateRequest(USER_NAME, null);
 
         USER_UPDATE_REQUEST = new UserUpdateRequest(USER_NAME, null);
+
+        USER_DATA = new UserData(USER_PUBLIC_KEY, USER_PHONE, SIGNATURE_CHALLENGE, SIGNATURE);
+
+        SIGNATURE_DATA = new SignatureData(PHONE_HASH, SIGNATURE, true);
     }
 
     @Test
@@ -91,14 +85,6 @@ class UserControllerTest extends BaseControllerTest {
                         .content(asJsonString(PHONE_CONFIRM_REQUEST)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.verificationId", is(USER_VERIFICATION.getId())));
-    }
-
-    @Test
-    void testRequestConfirmPhone_invalidInput_shouldReturn400() throws Exception {
-        mvc.perform(post(REQUEST_SMS_EP)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(INVALID_PHONE_REQUEST))
-                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -115,8 +101,8 @@ class UserControllerTest extends BaseControllerTest {
 
     @Test
     void testVerifyChallengeAndGenerateSignature_validInput_shouldReturn200() throws Exception {
-        when(challengeService.isSignedChallengeValid(USER, CHALLENGE_REQUEST.signature())).thenReturn(true);
-        when(signatureService.createSignature(USER)).thenReturn(SIGNATURE_RESPONSE);
+        when(userService.findValidUserWithChallenge(any())).thenReturn(USER_DATA);
+        when(signatureService.createSignature(any())).thenReturn(SIGNATURE_DATA);
 
         mvc.perform(post(CONFIRM_CHALLENGE)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -128,22 +114,8 @@ class UserControllerTest extends BaseControllerTest {
     }
 
     @Test
-    void testVerifyChallengeAndGenerateSignature_validInput_invalidChallenge_shouldReturn200() throws Exception {
-        when(userService.findByPublicKey(any())).thenReturn(Optional.of(USER));
-        when(challengeService.isSignedChallengeValid(USER, CHALLENGE_REQUEST.signature())).thenReturn(false);
-
-        mvc.perform(post(CONFIRM_CHALLENGE)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(CHALLENGE_REQUEST)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.hash", nullValue()))
-                .andExpect(jsonPath("$.signature", nullValue()))
-                .andExpect(jsonPath("$.challengeVerified", equalTo(false)));
-    }
-
-    @Test
     void testGenerateSignature_validInput_shouldReturn200() throws Exception {
-        when(signatureService.createSignature(USER.getPublicKey(), FACEBOOK_ID, false)).thenReturn(SIGNATURE_RESPONSE);
+        when(signatureService.createSignature(USER.getPublicKey(), FACEBOOK_ID, false)).thenReturn(SIGNATURE_DATA);
 
         mvc.perform(get(FB_SIGNATURE_EP)
                         .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)
@@ -188,7 +160,7 @@ class UserControllerTest extends BaseControllerTest {
 
     @Test
     public void testRegisterUserWithExistingUsername_invalidInput_shouldReturn409() throws Exception {
-        when(userService.create(USER, USER_CREATE_REQUEST)).thenThrow(UsernameNotAvailable.class);
+        when(userService.create(USER, USER_CREATE_REQUEST)).thenThrow(UsernameNotAvailableException.class);
 
         mvc.perform(post(DEFAULT_EP)
                         .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)
@@ -231,7 +203,7 @@ class UserControllerTest extends BaseControllerTest {
 
     @Test
     public void testUpdateMe_invalidInput_duplicateUsername_shouldReturn409() throws Exception {
-        when(userService.update(USER, USER_UPDATE_REQUEST)).thenThrow(UsernameNotAvailable.class);
+        when(userService.update(USER, USER_UPDATE_REQUEST)).thenThrow(UsernameNotAvailableException.class);
 
         mvc.perform(put(ME_EP)
                         .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)

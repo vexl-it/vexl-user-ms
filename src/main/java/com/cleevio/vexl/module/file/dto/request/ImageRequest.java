@@ -1,22 +1,21 @@
 package com.cleevio.vexl.module.file.dto.request;
 
+import com.cleevio.vexl.module.user.annotation.ValidAvatar;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ImageRequest {
 
-    @NotNull
-    @NotEmpty
+    @NotBlank
     private String extension;
 
-    @NotNull
-    @NotEmpty
+    @NotBlank
+    @ValidAvatar
     private String data;
 }

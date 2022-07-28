@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 public record UserUpdateRequest(
 
         @Nullable
-        @Schema(required = true, description = "Username in String format")
+        @Schema(description = "Username in String format")
         @JsonDeserialize(using = TrimStringDeserializer.class)
         String username,
 

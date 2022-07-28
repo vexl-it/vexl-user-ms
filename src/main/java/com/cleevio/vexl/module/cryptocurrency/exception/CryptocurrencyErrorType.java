@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CryptocurrencyErrorType implements ErrorType {
 
-    COINGECKO_ERROR("101", "Coingecko was not able to process request.");
+    COINGECKO_ERROR("100", "Coingecko was not able to process request."),
+    ;
 
 	/**
 	 * Error custom code

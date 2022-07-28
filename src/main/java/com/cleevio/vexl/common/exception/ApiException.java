@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
-public abstract class ApiException extends Exception {
+public abstract class ApiException extends RuntimeException {
 
     protected abstract ErrorType getErrorType();
 
