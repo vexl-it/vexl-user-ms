@@ -3,6 +3,7 @@ package com.cleevio.vexl.module.user.controller;
 import com.cleevio.vexl.common.dto.ErrorResponse;
 import com.cleevio.vexl.common.security.filter.SecurityFilter;
 import com.cleevio.vexl.module.file.exception.FileWriteException;
+import com.cleevio.vexl.module.user.dto.UserData;
 import com.cleevio.vexl.module.user.dto.request.ChallengeRequest;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
@@ -17,16 +18,14 @@ import com.cleevio.vexl.module.user.dto.response.UsernameAvailableResponse;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
 import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
-import com.cleevio.vexl.module.user.exception.UsernameNotAvailable;
+import com.cleevio.vexl.module.user.exception.UsernameNotAvailableException;
 import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserNotFoundException;
-import com.cleevio.vexl.module.user.service.ChallengeService;
 import com.cleevio.vexl.module.user.service.SignatureService;
 import com.cleevio.vexl.module.user.service.UserService;
 import com.cleevio.vexl.module.user.service.UserVerificationService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -36,7 +35,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,7 +56,6 @@ public class UserController {
 
     private final UserService userService;
     private final UserVerificationService userVerificationService;
-    private final ChallengeService challengeService;
     private final SignatureService signatureService;
 
     @PostMapping("/confirmation/phone")
@@ -66,9 +63,8 @@ public class UserController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400 (100110)", description = "User phone number is invalid", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Phone number confirmation")
-    PhoneConfirmResponse requestConfirmPhone(@Valid @RequestBody PhoneConfirmRequest phoneConfirmRequest)
+    PhoneConfirmResponse requestConfirmPhone(@RequestBody PhoneConfirmRequest phoneConfirmRequest)
             throws UserPhoneInvalidException {
         return new PhoneConfirmResponse(this.userVerificationService.requestConfirmPhone(phoneConfirmRequest));
     }
@@ -80,12 +76,11 @@ public class UserController {
             @ApiResponse(responseCode = "500 (100106)", description = "Challenge couldn't be generated", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404 (100104)", description = "Verification not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    @ResponseStatus(HttpStatus.OK)
     @Operation(
             summary = "Code number confirmation.",
             description = "If code number is valid, we will generate challenge for user. Challenge is used to verify that the public key is really his. "
     )
-    ConfirmCodeResponse confirmCodeAndGenerateCodeChallenge(@Valid @RequestBody CodeConfirmRequest codeConfirmRequest)
+    ConfirmCodeResponse confirmCodeAndGenerateCodeChallenge(@RequestBody CodeConfirmRequest codeConfirmRequest)
             throws UserAlreadyExistsException, ChallengeGenerationException, VerificationNotFoundException {
         return new ConfirmCodeResponse(this.userVerificationService.requestConfirmCodeAndGenerateCodeChallenge(codeConfirmRequest));
     }
@@ -98,18 +93,12 @@ public class UserController {
             @ApiResponse(responseCode = "400 (100105)", description = "Signature could not be generated", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "406 (100108)", description = "Server could not create message for signature. Public key or hash is invalid.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Verify challenge.", description = "If challenge is verified successfully, we will create certificate for user.")
-    SignatureResponse verifyChallengeAndGenerateSignature(@Valid @RequestBody ChallengeRequest challengeRequest)
+    SignatureResponse verifyChallengeAndGenerateSignature(@RequestBody ChallengeRequest challengeRequest)
             throws UserNotFoundException, VerificationNotFoundException {
+        final UserData userData = this.userService.findValidUserWithChallenge(challengeRequest);
 
-        final User user = this.userService.findByPublicKey(challengeRequest.userPublicKey())
-                .orElseThrow(UserNotFoundException::new);
-
-        if (this.challengeService.isSignedChallengeValid(user, challengeRequest.signature())) {
-            return this.signatureService.createSignature(user);
-        }
-        return new SignatureResponse(false);
+        return new SignatureResponse(this.signatureService.createSignature(userData));
     }
 
     @GetMapping("/signature/{facebookId}")
@@ -123,16 +112,15 @@ public class UserController {
             @ApiResponse(responseCode = "400 (100105)", description = "Signature could not be generated", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "406 (100108)", description = "Server could not create message for signature. Public key or hash is invalid.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Generate signature for Facebook.")
-    SignatureResponse generateSignature(@Parameter(hidden = true) @AuthenticationPrincipal User user,
+    SignatureResponse generateSignature(@AuthenticationPrincipal User user,
                                         @PathVariable String facebookId) {
 
-        return this.signatureService.createSignature(
+        return new SignatureResponse(this.signatureService.createSignature(
                 user.getPublicKey(),
                 facebookId,
                 false
-        );
+        ));
     }
 
     @PostMapping("/username/availability")
@@ -142,7 +130,6 @@ public class UserController {
             @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
     })
     @ApiResponse(responseCode = "200")
-    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Is username available")
     UsernameAvailableResponse usernameAvailable(@Valid @RequestBody UsernameAvailableRequest usernameAvailableRequest) {
         return new UsernameAvailableResponse(!this.userService.existsUserByUsername(usernameAvailableRequest.username()));
@@ -160,10 +147,10 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register as a new user")
-    ResponseEntity<UserResponse> register(@Valid @RequestBody UserCreateRequest userCreateRequest,
-                                          @Parameter(hidden = true) @AuthenticationPrincipal User user)
-            throws UsernameNotAvailable, FileWriteException {
-        return new ResponseEntity<>(new UserResponse(this.userService.create(user, userCreateRequest)), HttpStatus.CREATED);
+    UserResponse register(@RequestBody UserCreateRequest userCreateRequest,
+                          @AuthenticationPrincipal User user)
+            throws UsernameNotAvailableException, FileWriteException {
+        return new UserResponse(this.userService.create(user, userCreateRequest));
     }
 
     @GetMapping("/me")
@@ -173,9 +160,8 @@ public class UserController {
             @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
     })
     @ApiResponse(responseCode = "200")
-    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get an user")
-    UserResponse getMe(@Parameter(hidden = true) @AuthenticationPrincipal User user) {
+    UserResponse getMe(@AuthenticationPrincipal User user) {
         return new UserResponse(user);
     }
 
@@ -189,11 +175,10 @@ public class UserController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "409 (100109)", description = "Username is not available. Choose different username.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Update an user")
-    UserResponse updateMe(@Valid @RequestBody UserUpdateRequest userCreateRequest,
-                          @Parameter(hidden = true) @AuthenticationPrincipal User user)
-            throws UsernameNotAvailable, FileWriteException {
+    UserResponse updateMe(@RequestBody UserUpdateRequest userCreateRequest,
+                          @AuthenticationPrincipal User user)
+            throws UsernameNotAvailableException, FileWriteException {
         return new UserResponse(this.userService.update(user, userCreateRequest));
     }
 
@@ -204,9 +189,8 @@ public class UserController {
             @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
     })
     @ApiResponse(responseCode = "200")
-    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Remove an user")
-    void removeMe(@Parameter(hidden = true) @AuthenticationPrincipal User user) {
+    void removeMe(@AuthenticationPrincipal User user) {
         this.userService.remove(user);
     }
 

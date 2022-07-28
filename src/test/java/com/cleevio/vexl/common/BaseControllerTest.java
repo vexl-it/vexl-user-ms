@@ -2,7 +2,6 @@ package com.cleevio.vexl.common;
 
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.entity.UserVerification;
-import com.cleevio.vexl.module.user.service.ChallengeService;
 import com.cleevio.vexl.module.user.service.SignatureService;
 import com.cleevio.vexl.module.user.service.UserService;
 import com.cleevio.vexl.module.user.service.UserVerificationService;
@@ -43,9 +42,6 @@ public class BaseControllerTest {
 
     @MockBean
     protected UserVerificationService userVerificationService;
-
-    @MockBean
-    protected ChallengeService challengeService;
 
     protected static final User USER;
     protected static final UserVerification USER_VERIFICATION;

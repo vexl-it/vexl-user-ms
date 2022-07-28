@@ -3,7 +3,7 @@ package com.cleevio.vexl.module.user.service;
 import com.cleevio.vexl.common.IntegrationTest;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
-import com.cleevio.vexl.module.user.exception.UsernameNotAvailable;
+import com.cleevio.vexl.module.user.exception.UsernameNotAvailableException;
 import com.cleevio.vexl.util.CreateRequestUtilTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -32,7 +32,7 @@ class UserServiceIT {
     }
 
     @Test
-    void testPrepareAndCreateUser_shouldCreateUser() throws Exception {
+    void testPrepareAndCreateUser_shouldCreateUser() {
         final User prepareUser = userService.prepareUser(USER_PUBLIC_KEY_1);
         final Long userId = prepareUser.getId();
         final User savedPreparedUser = userRepository.findById(userId).get();
@@ -50,7 +50,7 @@ class UserServiceIT {
     }
 
     @Test
-    void testPrepareDuplicatedUser_shouldReturnException() throws Exception {
+    void testPrepareDuplicatedUser_shouldReturnException() {
         userService.prepareUser(USER_PUBLIC_KEY_1);
 
         assertThrows(
@@ -60,7 +60,7 @@ class UserServiceIT {
     }
 
     @Test
-    void testCreateDuplicatedUser_shouldReturnException() throws Exception {
+    void testCreateDuplicatedUser_shouldReturnException() {
         final User prepareUser = userService.prepareUser(USER_PUBLIC_KEY_1);
         final Long userId = prepareUser.getId();
         final User savedPreparedUser = userRepository.findById(userId).get();
@@ -72,14 +72,14 @@ class UserServiceIT {
         userService.create(savedPreparedUser, CreateRequestUtilTest.createUserCreateRequest(USER_NAME_1));
 
         assertThrows(
-                UsernameNotAvailable.class,
+                UsernameNotAvailableException.class,
                 () -> userService.create(savedPreparedUser, CreateRequestUtilTest.createUserCreateRequest(USER_NAME_1))
         );
     }
 
 
     @Test
-    void testUpdateUser_shouldUpdateUser() throws Exception {
+    void testUpdateUser_shouldUpdateUser() {
         final User prepareUser = userService.prepareUser(USER_PUBLIC_KEY_1);
         final Long userId = prepareUser.getId();
         final User savedPreparedUser = userRepository.findById(userId).get();
@@ -104,7 +104,7 @@ class UserServiceIT {
     }
 
     @Test
-    void testUpdateUserToAlreadyExistingUsername_shouldReturnException() throws Exception {
+    void testUpdateUserToAlreadyExistingUsername_shouldReturnException() {
         //create first user
         final User prepareUser = userService.prepareUser(USER_PUBLIC_KEY_1);
         final Long userId = prepareUser.getId();
@@ -120,13 +120,13 @@ class UserServiceIT {
         userRepository.findById(userId2).get();
 
         assertThrows(
-                UsernameNotAvailable.class,
+                UsernameNotAvailableException.class,
                 () -> userService.update(finalUser, CreateRequestUtilTest.createUserUpdateRequest(USER_NAME_2))
         );
     }
 
     @Test
-    void testGetAndFoundMethods_shouldFoundUser() throws Exception {
+    void testGetAndFoundMethods_shouldFoundUser() {
         final User prepareUser = userService.prepareUser(USER_PUBLIC_KEY_1);
         final Long userId = prepareUser.getId();
         final User savedPreparedUser = userRepository.findById(userId).get();
@@ -135,7 +135,7 @@ class UserServiceIT {
         final boolean existsUserByUsername = this.userService.existsUserByUsername(USER_NAME_1);
         assertThat(existsUserByUsername).isTrue();
 
-        final User foundUser = this.userService.find(userId);
+        final User foundUser = this.userService.getById(userId);
         assertThat(foundUser.getPublicKey()).isEqualTo(USER_PUBLIC_KEY_1);
         assertThat(foundUser.getUsername()).isEqualTo(USER_NAME_1);
         assertThat(foundUser.getAvatar()).isNull();
@@ -147,7 +147,7 @@ class UserServiceIT {
     }
 
     @Test
-    void testRemoveUser_shouldBeRemoved() throws Exception {
+    void testRemoveUser_shouldBeRemoved() {
         final User prepareUser = userService.prepareUser(USER_PUBLIC_KEY_1);
         final Long userId = prepareUser.getId();
         final User savedPreparedUser = userRepository.findById(userId).get();

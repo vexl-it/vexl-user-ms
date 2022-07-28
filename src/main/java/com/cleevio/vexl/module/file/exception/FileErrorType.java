@@ -8,9 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum FileErrorType implements ErrorType {
 
-	FILE_NOT_FOUND("100", "File was not found."),
-	FILE_READ("101", "Issue with reading stored file."),
-	FILE_WRITE("102", "Issue with store of file."),
+	FILE_WRITE("100", "Issue with store of file."),
 	;
 
 	/**
