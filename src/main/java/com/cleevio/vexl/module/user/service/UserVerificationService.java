@@ -3,27 +3,30 @@ package com.cleevio.vexl.module.user.service;
 import com.cleevio.vexl.common.constant.ModuleLockNamespace;
 import com.cleevio.vexl.common.cryptolib.CLibrary;
 import com.cleevio.vexl.common.service.AdvisoryLockService;
-import com.cleevio.vexl.integration.twilio.config.TwilioConfig;
-import com.cleevio.vexl.module.sms.service.SmsService;
+import com.cleevio.vexl.common.integration.twilio.service.SmsService;
 import com.cleevio.vexl.module.user.config.SecretKeyConfig;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.entity.UserVerification;
-import com.cleevio.vexl.module.user.enums.VerificationAdvisoryLock;
+import com.cleevio.vexl.module.user.constant.VerificationAdvisoryLock;
 import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
 import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
-import com.cleevio.vexl.utils.PhoneUtils;
-import com.cleevio.vexl.utils.RandomSecurityUtils;
+import com.cleevio.vexl.common.util.PhoneUtils;
+import com.cleevio.vexl.common.util.RandomSecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
-import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.security.NoSuchAlgorithmException;
 import java.time.ZonedDateTime;
+
+import static com.cleevio.vexl.module.user.util.ChallengeUtil.generateChallenge;
 
 /**
  * Service for processing of request to phone number verification. Phone must be valid according industry-standard
@@ -31,22 +34,21 @@ import java.time.ZonedDateTime;
  * generating challenge for user.
  */
 @Service
+@Validated
 @Slf4j
 @RequiredArgsConstructor
 public class UserVerificationService {
 
     private final SmsService smsService;
     private final UserVerificationRepository userVerificationRepository;
-    private final ChallengeService challengeService;
     private final AdvisoryLockService advisoryLockService;
     private final UserService userService;
-    private final TwilioConfig twilioConfig;
     private final SecretKeyConfig secretKey;
 
-    @Value("#{new Integer('${verification.phone.digits:Length}')}")
+    @Value("${verification.phone.digits}")
     private final Integer codeDigitsLength;
 
-    @Value("#{new Integer('${verification.phone.expiration.time:ExpirationTime}')}")
+    @Value("${verification.phone.expiration.time}")
     private final Integer expirationTime;
 
     /**
@@ -56,8 +58,8 @@ public class UserVerificationService {
      * @param phoneConfirmRequest
      * @return
      */
-    @Transactional(rollbackOn = Exception.class)
-    public UserVerification requestConfirmPhone(PhoneConfirmRequest phoneConfirmRequest)
+    @Transactional
+    public UserVerification requestConfirmPhone(@Valid PhoneConfirmRequest phoneConfirmRequest)
             throws UserPhoneInvalidException {
         advisoryLockService.lock(
                 ModuleLockNamespace.VERIFICATION,
@@ -67,14 +69,8 @@ public class UserVerificationService {
 
         final String formattedNumber = PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.phoneNumber());
 
-        final String codeToSend;
-        if ("devel".equals(twilioConfig.getPhone())) {
-            codeToSend = "111111";
-        } else {
-            codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.codeDigitsLength);
-
-            smsService.sendMessage(codeToSend, formattedNumber);
-        }
+        final String codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.codeDigitsLength);
+        smsService.sendMessage(codeToSend, formattedNumber);
 
         log.info("Creating user verification for new request for phone number verification.");
         final UserVerification userVerification =
@@ -94,14 +90,6 @@ public class UserVerificationService {
         return savedVerification;
     }
 
-    private UserVerification createUserVerification(String codeToSend, String phoneNumber) {
-        return UserVerification.builder()
-                .verificationCode(codeToSend)
-                .expirationAt(ZonedDateTime.now().plusSeconds(this.expirationTime))
-                .phoneNumber(phoneNumber)
-                .build();
-    }
-
     /**
      * Check if there is a valid verification for the ID and code. If there is, we create a challenge that verifies
      * that the user is giving us a public key to which he owns a private key.
@@ -113,8 +101,8 @@ public class UserVerificationService {
      * @throws ChallengeGenerationException
      * @throws VerificationNotFoundException
      */
-    @Transactional(rollbackOn = Exception.class)
-    public UserVerification requestConfirmCodeAndGenerateCodeChallenge(CodeConfirmRequest codeConfirmRequest)
+    @Transactional
+    public UserVerification requestConfirmCodeAndGenerateCodeChallenge(@Valid CodeConfirmRequest codeConfirmRequest)
             throws UserAlreadyExistsException, ChallengeGenerationException, VerificationNotFoundException {
         advisoryLockService.lock(
                 ModuleLockNamespace.VERIFICATION,
@@ -132,7 +120,7 @@ public class UserVerificationService {
         log.info("Code is verified for verification: {}", userVerification.getId());
 
         try {
-            final String challenge = this.challengeService.generateChallenge();
+            final String challenge = generateChallenge();
             log.info("Challenge is created.");
 
             userVerification.setChallenge(challenge);
@@ -147,7 +135,16 @@ public class UserVerificationService {
         }
     }
 
+    @Transactional
     public void deleteExpiredVerifications() {
         this.userVerificationRepository.deleteExpiredVerifications(ZonedDateTime.now().plusSeconds(this.expirationTime));
+    }
+
+    private UserVerification createUserVerification(String codeToSend, String phoneNumber) {
+        return UserVerification.builder()
+                .verificationCode(codeToSend)
+                .expirationAt(ZonedDateTime.now().plusSeconds(this.expirationTime))
+                .phoneNumber(phoneNumber)
+                .build();
     }
 }

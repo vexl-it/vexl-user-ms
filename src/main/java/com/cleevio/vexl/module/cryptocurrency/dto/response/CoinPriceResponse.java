@@ -1,5 +1,6 @@
 package com.cleevio.vexl.module.cryptocurrency.dto.response;
 
+import com.cleevio.vexl.common.integration.coingecko.dto.response.CoingeckoResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.ZonedDateTime;

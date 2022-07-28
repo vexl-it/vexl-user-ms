@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 
 public class TrimStringDeserializer extends StdDeserializer<String>  {
@@ -13,6 +14,7 @@ public class TrimStringDeserializer extends StdDeserializer<String>  {
     }
 
     @Override
+    @Nullable
     public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         return p.getText() == null ? null : p.getText().trim();
     }
