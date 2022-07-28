@@ -39,7 +39,7 @@ public class CryptocurrencyController {
     })
     @ApiResponses({
             @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "400 (101101)", description = "Coingecko was not able to process request.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "422 (101101)", description = "Coingecko was not able to process request.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Obtaining market data as price and percentage of the price change of the selected cryptocurrency",
@@ -71,6 +71,6 @@ public class CryptocurrencyController {
                                                      @RequestParam String to,
                                                      @RequestParam(required = false, defaultValue = "USD") String currency)
             throws CoinException {
-        return this.cryptocurrencyService.retrieveMarketChart(from, to, currency);
+        return new MarketChartResponse(this.cryptocurrencyService.retrieveMarketChart(from, to, currency));
     }
 }

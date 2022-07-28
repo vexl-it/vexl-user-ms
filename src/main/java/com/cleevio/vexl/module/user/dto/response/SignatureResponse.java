@@ -1,5 +1,6 @@
 package com.cleevio.vexl.module.user.dto.response;
 
+import com.cleevio.vexl.module.user.dto.SignatureData;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.annotation.Nullable;
@@ -20,11 +21,11 @@ public record SignatureResponse(
 ) {
 
 
-    public SignatureResponse(boolean challengeVerified) {
+    public SignatureResponse(SignatureData signatureData) {
         this(
-                null,
-                null,
-                challengeVerified
+                signatureData.hash(),
+                signatureData.signature(),
+                signatureData.challengeVerified()
         );
     }
 }

@@ -1,39 +1,20 @@
 package com.cleevio.vexl.module.cryptocurrency.service;
 
-import com.cleevio.vexl.module.cryptocurrency.dto.response.CoingeckoResponse;
-import com.cleevio.vexl.module.cryptocurrency.dto.response.MarketChartResponse;
+import com.cleevio.vexl.common.integration.coingecko.CoingeckoConnector;
+import com.cleevio.vexl.common.integration.coingecko.dto.response.CoingeckoResponse;
+import com.cleevio.vexl.common.integration.coingecko.dto.response.CoingeckoMarketResponse;
 import com.cleevio.vexl.module.cryptocurrency.exception.CoinException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
-import java.util.Objects;
 
 /**
  * Service for getting information about cryptocurrency.
  */
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class CryptocurrencyService {
 
-    @Value("${coingecko.url}")
-    private final String coingeckoUrl;
-
-    @Value("${coingecko.url.coin}")
-    private final String coingeckoUrlCoinApi;
-
-    @Value("${coingecko.url.market-chart}")
-    private final String coingeckoUrlMarketChartApi;
-
-    private static final String VS_CURRENCY = "vs_currency";
-    private static final String FROM = "from";
-    private static final String TO = "to";
+    private final CoingeckoConnector coingeckoConnector;
 
     /**
      * Retrieve coin price from Coingecko. As parameter must be supported name of cryptocurrency.
@@ -41,38 +22,11 @@ public class CryptocurrencyService {
      * @param coin
      * @throws CoinException
      */
-    public CoingeckoResponse retrieveCoinPrice(String coin)
-            throws CoinException {
-        final RestTemplate restTemplate = new RestTemplate();
-        try {
-            final ResponseEntity<CoingeckoResponse> coingeckoResponse =
-                    restTemplate.getForEntity(this.coingeckoUrl + this.coingeckoUrlCoinApi, CoingeckoResponse.class, coin);
-
-            return Objects.requireNonNull(coingeckoResponse.getBody());
-        } catch (Exception e) {
-            log.error("Error occurred during retrieval of data from Coingecko", e);
-            throw new CoinException();
-        }
-
+    public CoingeckoResponse retrieveCoinPrice(String coin) {
+        return this.coingeckoConnector.retrieveCoinPrice(coin);
     }
 
-    public MarketChartResponse retrieveMarketChart(String from, String to, String currency) throws CoinException {
-        final RestTemplate restTemplate = new RestTemplate();
-
-        final URI targetUrl = UriComponentsBuilder.fromUriString(this.coingeckoUrl)
-                .path(this.coingeckoUrlMarketChartApi)
-                .queryParam(VS_CURRENCY, currency)
-                .queryParam(FROM, from)
-                .queryParam(TO, to)
-                .build()
-                .encode()
-                .toUri();
-
-        try {
-            return Objects.requireNonNull(restTemplate.getForObject(targetUrl, MarketChartResponse.class));
-        } catch (Exception e) {
-            log.error("Error occurred during retrieval of data from Coingecko", e);
-            throw new CoinException();
-        }
+    public CoingeckoMarketResponse retrieveMarketChart(String from, String to, String currency) {
+        return this.coingeckoConnector.retrieveMarketChart(from, to, currency);
     }
 }

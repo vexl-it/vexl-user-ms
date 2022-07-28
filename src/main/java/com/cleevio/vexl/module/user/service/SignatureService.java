@@ -2,13 +2,17 @@ package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.common.cryptolib.CLibrary;
 import com.cleevio.vexl.module.user.config.SecretKeyConfig;
-import com.cleevio.vexl.module.user.dto.response.SignatureResponse;
-import com.cleevio.vexl.module.user.entity.User;
-import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
+import com.cleevio.vexl.module.user.dto.SignatureData;
+import com.cleevio.vexl.module.user.dto.UserData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.Valid;
+
+import static com.cleevio.vexl.module.user.util.ChallengeUtil.isSignedChallengeValid;
 
 /**
  * Creating and verifying signatures.
@@ -18,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
  * his public key and a hash of his phone number or facebookId.
  */
 @Service
+@Validated
 @Slf4j
 @RequiredArgsConstructor
 public class SignatureService {
@@ -25,24 +30,19 @@ public class SignatureService {
     private final SecretKeyConfig secretKey;
 
     @Transactional(readOnly = true)
-    public SignatureResponse createSignature(final User user)
-            throws VerificationNotFoundException {
-        log.info("Creating digital signature for user {}",
-                user.getId());
-
-        if (user.getUserVerification() == null || user.getUserVerification().getPhoneNumber() == null) {
-            log.error("Verification is missing. We need verification for phone number.");
-            throw new VerificationNotFoundException();
+    public SignatureData createSignature(@Valid final UserData userData) {
+        if (!isSignedChallengeValid(userData)) {
+            return new SignatureData(null, null, false);
         }
 
         return createSignature(
-                user.getPublicKey(),
-                user.getUserVerification().getPhoneNumber(),
+                userData.publicKey(),
+                userData.phoneNumber(),
                 true
         );
     }
 
-    public SignatureResponse createSignature(String publicKey, String hash, boolean alreadyHashed) {
+    public SignatureData createSignature(String publicKey, String hash, boolean alreadyHashed) {
 
         if (!alreadyHashed) {
             hash = CLibrary.CRYPTO_LIB.hmac_digest(
@@ -58,7 +58,7 @@ public class SignatureService {
                 input,
                 input.length());
 
-        return new SignatureResponse(
+        return new SignatureData(
                 hash,
                 digitalSignature,
                 true

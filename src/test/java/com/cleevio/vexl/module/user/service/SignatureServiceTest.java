@@ -7,7 +7,6 @@ import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SignatureServiceTest {
 
@@ -33,26 +32,20 @@ class SignatureServiceTest {
     }
 
     @Test
-    void verificationMissingTest() {
-        USER.setUserVerification(null);
-        assertThrows(VerificationNotFoundException.class, () -> signatureService.createSignature(USER));
-    }
-
-    @Test
     void createSignatureAndVerify_shouldBeVerified() throws VerificationNotFoundException {
         USER.setUserVerification(USER_VERIFICATION);
-        final var signature = signatureService.createSignature(USER);
+        final var signature = signatureService.createSignature(PUBLIC_KEY, PHONE_HASH, false);
 
-        final boolean result = signatureService.isSignatureValid(PUBLIC_KEY, PHONE_HASH, signature.signature());
+        final boolean result = signatureService.isSignatureValid(PUBLIC_KEY, signature.hash(), signature.signature());
         assertThat(result).isTrue();
     }
 
     @Test
     void createSignatureAndVerify_shouldNotBeVerified() throws VerificationNotFoundException {
         USER.setUserVerification(USER_VERIFICATION);
-        final var signature = signatureService.createSignature(USER);
+        final var signature = signatureService.createSignature(PUBLIC_KEY, PHONE_HASH, false);
 
-        final boolean result = signatureService.isSignatureValid(PUBLIC_KEY_MS, PHONE_HASH, signature.signature());
+        final boolean result = signatureService.isSignatureValid(PUBLIC_KEY_MS, signature.hash(), signature.signature());
         assertThat(result).isFalse();
     }
 
