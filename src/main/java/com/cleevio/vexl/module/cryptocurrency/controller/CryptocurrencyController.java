@@ -2,6 +2,7 @@ package com.cleevio.vexl.module.cryptocurrency.controller;
 
 import com.cleevio.vexl.common.dto.ErrorResponse;
 import com.cleevio.vexl.common.security.filter.SecurityFilter;
+import com.cleevio.vexl.module.cryptocurrency.constant.Duration;
 import com.cleevio.vexl.module.cryptocurrency.dto.response.CoinPriceResponse;
 import com.cleevio.vexl.module.cryptocurrency.dto.response.MarketChartResponse;
 import com.cleevio.vexl.module.cryptocurrency.exception.CoinException;
@@ -67,10 +68,9 @@ public class CryptocurrencyController {
                     - 1 - 90 days from current time = hourly data
                     - above 90 days from current time = daily data (00:00 UTC)
                     """)
-    MarketChartResponse retrieveCoinPriceMarketChart(@RequestParam String from,
-                                                     @RequestParam String to,
+    MarketChartResponse retrieveCoinPriceMarketChart(@RequestParam Duration duration,
                                                      @RequestParam(required = false, defaultValue = "USD") String currency)
             throws CoinException {
-        return new MarketChartResponse(this.cryptocurrencyService.retrieveMarketChart(from, to, currency));
+        return new MarketChartResponse(this.cryptocurrencyService.retrieveMarketChart(duration, currency));
     }
 }
