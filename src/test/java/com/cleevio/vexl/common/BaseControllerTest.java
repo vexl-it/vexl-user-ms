@@ -66,7 +66,6 @@ public class BaseControllerTest {
     @BeforeEach
     @SneakyThrows
     public void setup() {
-        when(userService.existsUserByUsername(any())).thenReturn(false);
         when(userService.findByPublicKey(any())).thenReturn(Optional.of(USER));
 
         when(signatureService.isSignatureValid(PUBLIC_KEY, PHONE_HASH, SIGNATURE)).thenReturn(true);
