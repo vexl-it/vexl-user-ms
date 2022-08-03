@@ -1,7 +1,6 @@
 package com.cleevio.vexl.module.user.controller;
 
 import com.cleevio.vexl.common.BaseControllerTest;
-import com.cleevio.vexl.common.exception.ApiException;
 import com.cleevio.vexl.common.security.filter.SecurityFilter;
 import com.cleevio.vexl.module.user.dto.SignatureData;
 import com.cleevio.vexl.module.user.dto.UserData;
@@ -11,8 +10,6 @@ import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.dto.request.UserUpdateRequest;
 import com.cleevio.vexl.module.user.dto.request.UsernameAvailableRequest;
-import com.cleevio.vexl.module.user.exception.UserErrorType;
-import com.cleevio.vexl.module.user.exception.UsernameNotAvailableException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -129,20 +126,6 @@ class UserControllerTest extends BaseControllerTest {
     }
 
     @Test
-    void testUsernameAvailable_validInput_shouldReturn200() throws Exception {
-        when(userService.existsUserByUsername(USERNAME_AVAILABLE_REQUEST.username())).thenReturn(false);
-
-        mvc.perform(post(USERNAME_AVAILABLE_EP)
-                        .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)
-                        .header(SecurityFilter.HEADER_HASH, PHONE_HASH)
-                        .header(SecurityFilter.HEADER_SIGNATURE, SIGNATURE)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(USERNAME_AVAILABLE_REQUEST)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.isAvailable", equalTo(true)));
-    }
-
-    @Test
     public void testRegisterNewUser_validInput_shouldReturn200() throws Exception {
         when(userService.create(USER, USER_CREATE_REQUEST)).thenReturn(USER);
         mvc.perform(post(DEFAULT_EP)
@@ -159,18 +142,18 @@ class UserControllerTest extends BaseControllerTest {
 
 
     @Test
-    public void testRegisterUserWithExistingUsername_invalidInput_shouldReturn409() throws Exception {
-        when(userService.create(USER, USER_CREATE_REQUEST)).thenThrow(UsernameNotAvailableException.class);
-
+    public void testRegisterUserWithExistingUsername_validInput_shouldReturn200() throws Exception {
+        when(userService.create(USER, USER_CREATE_REQUEST)).thenReturn(USER);
         mvc.perform(post(DEFAULT_EP)
                         .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)
                         .header(SecurityFilter.HEADER_HASH, PHONE_HASH)
                         .header(SecurityFilter.HEADER_SIGNATURE, SIGNATURE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(USER_CREATE_REQUEST)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code", Matchers.is(ApiException.Module.USER.getErrorCode() + UserErrorType.USERNAME_NOT_AVAILABLE.getCode())))
-                .andExpect(jsonPath("$.message[0]", Matchers.is(UserErrorType.USERNAME_NOT_AVAILABLE.getMessage())));
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.username", is(USER.getUsername())))
+                .andExpect(jsonPath("$.avatar", is(USER.getAvatar())))
+                .andExpect(jsonPath("$.publicKey", is(USER.getPublicKey())));
     }
 
     @Test
@@ -199,21 +182,6 @@ class UserControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.username", is(USER.getUsername())))
                 .andExpect(jsonPath("$.avatar", is(USER.getAvatar())))
                 .andExpect(jsonPath("$.publicKey", is(USER.getPublicKey())));
-    }
-
-    @Test
-    public void testUpdateMe_invalidInput_duplicateUsername_shouldReturn409() throws Exception {
-        when(userService.update(USER, USER_UPDATE_REQUEST)).thenThrow(UsernameNotAvailableException.class);
-
-        mvc.perform(put(ME_EP)
-                        .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)
-                        .header(SecurityFilter.HEADER_HASH, PHONE_HASH)
-                        .header(SecurityFilter.HEADER_SIGNATURE, SIGNATURE)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(USER_UPDATE_REQUEST)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code", Matchers.is(ApiException.Module.USER.getErrorCode() + UserErrorType.USERNAME_NOT_AVAILABLE.getCode())))
-                .andExpect(jsonPath("$.message[0]", Matchers.is(UserErrorType.USERNAME_NOT_AVAILABLE.getMessage())));
     }
 
     @Test

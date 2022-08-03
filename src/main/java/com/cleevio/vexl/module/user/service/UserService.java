@@ -2,7 +2,6 @@ package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.common.constant.ModuleLockNamespace;
 import com.cleevio.vexl.common.service.AdvisoryLockService;
-import com.cleevio.vexl.module.file.exception.FileWriteException;
 import com.cleevio.vexl.module.file.service.ImageService;
 import com.cleevio.vexl.module.user.dto.UserData;
 import com.cleevio.vexl.module.user.dto.request.ChallengeRequest;
@@ -13,7 +12,6 @@ import com.cleevio.vexl.module.user.constant.UserAdvisoryLock;
 import com.cleevio.vexl.module.user.event.UserRemovedEvent;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserNotFoundException;
-import com.cleevio.vexl.module.user.exception.UsernameNotAvailableException;
 import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,8 +43,7 @@ public class UserService {
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
-    public User create(User user, @Valid UserCreateRequest dto)
-            throws UsernameNotAvailableException, FileWriteException {
+    public User create(User user, @Valid UserCreateRequest dto) {
         advisoryLockService.lock(
                 ModuleLockNamespace.USER,
                 UserAdvisoryLock.CREATE_USER.name(),
@@ -54,12 +51,6 @@ public class UserService {
         );
 
         log.info("Creating user [{}]", user);
-
-        if (existsUserByUsername(dto.username())) {
-            log.warn("Username [{}] is not available. Username must be unique.",
-                    dto.username());
-            throw new UsernameNotAvailableException();
-        }
 
         if (dto.avatar() != null) {
             final String destination = this.imageService.save(dto.avatar());
@@ -98,14 +89,8 @@ public class UserService {
         return savedUser;
     }
 
-    @Transactional(readOnly = true)
-    public boolean existsUserByUsername(String username) {
-        return this.userRepository.existsUserByUsername(username);
-    }
-
     @Transactional
-    public User update(User user, @Valid UserUpdateRequest userUpdateRequest)
-            throws UsernameNotAvailableException, FileWriteException {
+    public User update(User user, @Valid UserUpdateRequest userUpdateRequest) {
         advisoryLockService.lock(
                 ModuleLockNamespace.USER,
                 UserAdvisoryLock.UPDATE_USER.name(),
@@ -115,11 +100,6 @@ public class UserService {
         log.info("Updating an user {}", user);
 
         if (userUpdateRequest.username() != null && !userUpdateRequest.username().equals(user.getUsername())) {
-            if (existsUserByUsername(userUpdateRequest.username())) {
-                log.warn("Username {} is not available. Username must be unique.",
-                        userUpdateRequest.username());
-                throw new UsernameNotAvailableException();
-            }
             user.setUsername(userUpdateRequest.username());
         }
 
@@ -170,7 +150,6 @@ public class UserService {
         if (user.getUserVerification() == null || user.getUserVerification().getChallenge() == null) {
             throw new VerificationNotFoundException();
         }
-
 
         return new UserData(
                 user.getPublicKey(),

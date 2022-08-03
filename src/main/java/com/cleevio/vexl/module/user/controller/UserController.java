@@ -2,23 +2,19 @@ package com.cleevio.vexl.module.user.controller;
 
 import com.cleevio.vexl.common.dto.ErrorResponse;
 import com.cleevio.vexl.common.security.filter.SecurityFilter;
-import com.cleevio.vexl.module.file.exception.FileWriteException;
 import com.cleevio.vexl.module.user.dto.UserData;
 import com.cleevio.vexl.module.user.dto.request.ChallengeRequest;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.dto.request.UserUpdateRequest;
-import com.cleevio.vexl.module.user.dto.request.UsernameAvailableRequest;
 import com.cleevio.vexl.module.user.dto.response.PhoneConfirmResponse;
 import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
 import com.cleevio.vexl.module.user.dto.response.SignatureResponse;
 import com.cleevio.vexl.module.user.dto.response.UserResponse;
-import com.cleevio.vexl.module.user.dto.response.UsernameAvailableResponse;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
 import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
-import com.cleevio.vexl.module.user.exception.UsernameNotAvailableException;
 import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserNotFoundException;
@@ -45,8 +41,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
 
 @Tag(name = "User")
 @RestController
@@ -123,18 +117,6 @@ public class UserController {
         ));
     }
 
-    @PostMapping("/username/availability")
-    @SecurityRequirements({
-            @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
-            @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
-            @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
-    })
-    @ApiResponse(responseCode = "200")
-    @Operation(summary = "Is username available")
-    UsernameAvailableResponse usernameAvailable(@Valid @RequestBody UsernameAvailableRequest usernameAvailableRequest) {
-        return new UsernameAvailableResponse(!this.userService.existsUserByUsername(usernameAvailableRequest.username()));
-    }
-
     @PostMapping
     @SecurityRequirements({
             @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
@@ -148,8 +130,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register as a new user")
     UserResponse register(@RequestBody UserCreateRequest userCreateRequest,
-                          @AuthenticationPrincipal User user)
-            throws UsernameNotAvailableException, FileWriteException {
+                          @AuthenticationPrincipal User user) {
         return new UserResponse(this.userService.create(user, userCreateRequest));
     }
 
@@ -177,8 +158,7 @@ public class UserController {
     })
     @Operation(summary = "Update an user")
     UserResponse updateMe(@RequestBody UserUpdateRequest userCreateRequest,
-                          @AuthenticationPrincipal User user)
-            throws UsernameNotAvailableException, FileWriteException {
+                          @AuthenticationPrincipal User user) {
         return new UserResponse(this.userService.update(user, userCreateRequest));
     }
 

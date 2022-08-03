@@ -3,7 +3,6 @@ package com.cleevio.vexl.module.user.service;
 import com.cleevio.vexl.common.IntegrationTest;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
-import com.cleevio.vexl.module.user.exception.UsernameNotAvailableException;
 import com.cleevio.vexl.util.CreateRequestUtilTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -60,10 +59,13 @@ class UserServiceIT {
     }
 
     @Test
-    void testCreateDuplicatedUser_shouldReturnException() {
+    void testCreateUserWithAlreadyUsedNickname_shouldBeCreateD() {
         final User prepareUser = userService.prepareUser(USER_PUBLIC_KEY_1);
+        final User prepareUser2 = userService.prepareUser(USER_PUBLIC_KEY_2);
         final Long userId = prepareUser.getId();
+        final Long userId2 = prepareUser2.getId();
         final User savedPreparedUser = userRepository.findById(userId).get();
+        final User savedPreparedUser2 = userRepository.findById(userId2).get();
 
         assertThat(savedPreparedUser.getPublicKey()).isEqualTo(USER_PUBLIC_KEY_1);
         assertThat(savedPreparedUser.getUsername()).isNull();
@@ -71,10 +73,14 @@ class UserServiceIT {
 
         userService.create(savedPreparedUser, CreateRequestUtilTest.createUserCreateRequest(USER_NAME_1));
 
-        assertThrows(
-                UsernameNotAvailableException.class,
-                () -> userService.create(savedPreparedUser, CreateRequestUtilTest.createUserCreateRequest(USER_NAME_1))
-        );
+        userService.create(savedPreparedUser2, CreateRequestUtilTest.createUserCreateRequest(USER_NAME_1));
+
+        final List<User> users = userRepository.findAll();
+        assertThat(users).hasSize(2);
+        assertThat(users.get(0).getUsername()).isEqualTo(USER_NAME_1);
+        assertThat(users.get(0).getPublicKey()).isEqualTo(USER_PUBLIC_KEY_1);
+        assertThat(users.get(1).getPublicKey()).isEqualTo(USER_PUBLIC_KEY_2);
+        assertThat(users.get(1).getUsername()).isEqualTo(USER_NAME_1);
     }
 
 
@@ -104,7 +110,7 @@ class UserServiceIT {
     }
 
     @Test
-    void testUpdateUserToAlreadyExistingUsername_shouldReturnException() {
+    void testUpdateUserToAlreadyExistingUsername_shouldBeUpdated() {
         //create first user
         final User prepareUser = userService.prepareUser(USER_PUBLIC_KEY_1);
         final Long userId = prepareUser.getId();
@@ -119,10 +125,11 @@ class UserServiceIT {
         userService.create(savedPreparedUser2, CreateRequestUtilTest.createUserCreateRequest(USER_NAME_2));
         userRepository.findById(userId2).get();
 
-        assertThrows(
-                UsernameNotAvailableException.class,
-                () -> userService.update(finalUser, CreateRequestUtilTest.createUserUpdateRequest(USER_NAME_2))
-        );
+        final User updatedUser = userService.update(finalUser, CreateRequestUtilTest.createUserUpdateRequest(USER_NAME_2));
+
+        assertThat(updatedUser.getPublicKey()).isEqualTo(USER_PUBLIC_KEY_1);
+        assertThat(updatedUser.getUsername()).isEqualTo(USER_NAME_2);
+        assertThat(updatedUser.getAvatar()).isNull();
     }
 
     @Test
@@ -131,9 +138,6 @@ class UserServiceIT {
         final Long userId = prepareUser.getId();
         final User savedPreparedUser = userRepository.findById(userId).get();
         userService.create(savedPreparedUser, CreateRequestUtilTest.createUserCreateRequest(USER_NAME_1));
-
-        final boolean existsUserByUsername = this.userService.existsUserByUsername(USER_NAME_1);
-        assertThat(existsUserByUsername).isTrue();
 
         final User foundUser = this.userService.getById(userId);
         assertThat(foundUser.getPublicKey()).isEqualTo(USER_PUBLIC_KEY_1);

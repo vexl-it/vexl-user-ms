@@ -63,7 +63,7 @@ public class ImageService {
     public void removeAvatar(@NotNull String destination) {
         try {
             Files.deleteIfExists(
-                    Paths.get(destination));
+                    Paths.get(destination.replace(urlPath, contentPath)));
         } catch (NoSuchFileException e) {
             log.error("No such file/directory exists");
         } catch (DirectoryNotEmptyException e) {
