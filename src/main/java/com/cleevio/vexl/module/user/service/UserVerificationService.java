@@ -146,7 +146,7 @@ public class UserVerificationService {
 
     @Transactional
     public void deleteExpiredVerifications() {
-        this.userVerificationRepository.deleteExpiredVerifications(ZonedDateTime.now().plusSeconds(this.expirationTime));
+        this.userVerificationRepository.deleteExpiredVerifications(ZonedDateTime.now().minusSeconds(10));
     }
 
     private UserVerification createUserVerification(String codeToSend, String phoneNumber) {
