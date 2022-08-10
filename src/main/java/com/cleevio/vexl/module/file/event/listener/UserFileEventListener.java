@@ -21,6 +21,11 @@ class UserFileEventListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onUserRemovedEvent(@Valid final UserRemovedEvent event) {
-        this.imageService.removeAvatar(event.avatar());
+        final String avatar = event.user().getAvatar();
+        if (avatar == null || avatar.isEmpty()) {
+            return;
+        }
+
+        this.imageService.removeAvatar(avatar);
     }
 }

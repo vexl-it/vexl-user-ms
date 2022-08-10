@@ -1,6 +1,7 @@
 package com.cleevio.vexl.common.integration.twilio.config;
 
 import com.twilio.Twilio;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class TwilioConfig {
 
+    @Getter
     private final String phone;
 
     public TwilioConfig(@Value("${twilio.sid}") String sid,
@@ -23,9 +25,5 @@ public class TwilioConfig {
         } else {
             log.error("Twilio cannot be initialized");
         }
-    }
-
-    public String getPhone() {
-        return phone;
     }
 }

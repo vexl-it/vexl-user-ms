@@ -1,11 +1,13 @@
 package com.cleevio.vexl.module.user.event;
 
-import javax.validation.constraints.NotBlank;
+import com.cleevio.vexl.module.user.entity.User;
+
+import javax.validation.constraints.NotNull;
 
 public record UserRemovedEvent(
 
-        @NotBlank
-        String avatar
+        @NotNull
+        User user
 
 ) {
 }

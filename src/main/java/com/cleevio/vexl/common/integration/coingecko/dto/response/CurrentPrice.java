@@ -3,13 +3,15 @@ package com.cleevio.vexl.common.integration.coingecko.dto.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CurrentPrice {
 
-    private Double usd;
+    private BigDecimal usd;
 
-    private Double czk;
+    private BigDecimal czk;
 
-    private Double eur;
+    private BigDecimal eur;
 }

@@ -120,9 +120,7 @@ public class UserService {
 
     public void remove(User user) {
         this.userRepository.delete(user);
-        if (user.getAvatar() != null) {
-            applicationEventPublisher.publishEvent(new UserRemovedEvent(user.getAvatar()));
-        }
+        applicationEventPublisher.publishEvent(new UserRemovedEvent(user));
     }
 
     @Transactional(readOnly = true)

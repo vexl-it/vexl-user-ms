@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class TwilioService implements SmsService {
 
     private final static int INVALID_NUMBER = 21211;
-    private final static int NOT_NUMBER = 21211;
+    private final static int NOT_NUMBER = 21614;
     private final TwilioConfig twilioConfig;
 
     @Override
@@ -30,11 +30,10 @@ public class TwilioService implements SmsService {
 
             log.info("Sms successfully sent to " + phoneNumber);
         } catch (ApiException ex) {
-            log.error("Failed to send sms to number {}", phoneNumber, ex);
-
             if (ex.getCode() == INVALID_NUMBER || ex.getCode() == NOT_NUMBER) {
                 throw new UserPhoneInvalidException();
             }
+            log.error("Failed to send sms to number {}", phoneNumber, ex);
 
             throw ex;
         }
