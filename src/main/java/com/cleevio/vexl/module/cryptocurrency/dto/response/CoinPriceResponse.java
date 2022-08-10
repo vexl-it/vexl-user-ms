@@ -3,39 +3,40 @@ package com.cleevio.vexl.module.cryptocurrency.dto.response;
 import com.cleevio.vexl.common.integration.coingecko.dto.response.CoingeckoResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 public record CoinPriceResponse(
 
         @Schema(description = "Price of coin in USD.")
-        Double priceUsd,
+        BigDecimal priceUsd,
 
         @Schema(description = "Price of coin in CZK.")
-        Double priceCzk,
+        BigDecimal priceCzk,
 
         @Schema(description = "Price of coin in EUR.")
-        Double priceEur,
+        BigDecimal priceEur,
 
         @Schema(description = "Percentage of price change in the last 24 hours.")
-        Double priceChangePercentage24h,
+        BigDecimal priceChangePercentage24h,
 
         @Schema(description = "Percentage of price change in the last 7 days.")
-        Double priceChangePercentage7d,
+        BigDecimal priceChangePercentage7d,
 
         @Schema(description = "Percentage of price change in the last 14 days.")
-        Double priceChangePercentage14d,
+        BigDecimal priceChangePercentage14d,
 
         @Schema(description = "Percentage of price change in the last 30 days.")
-        Double priceChangePercentage30d,
+        BigDecimal priceChangePercentage30d,
 
         @Schema(description = "Percentage of price change in the last 60 days.")
-        Double priceChangePercentage60d,
+        BigDecimal priceChangePercentage60d,
 
         @Schema(description = "Percentage of price change in the last 200 days.")
-        Double priceChangePercentage200d,
+        BigDecimal priceChangePercentage200d,
 
         @Schema(description = "Percentage of price change in the last 1 year.")
-        Double priceChangePercentage1y,
+        BigDecimal priceChangePercentage1y,
 
         @Schema(description = "The data was last updated.")
         ZonedDateTime lastUpdated

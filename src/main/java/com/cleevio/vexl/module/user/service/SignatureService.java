@@ -6,6 +6,7 @@ import com.cleevio.vexl.module.user.dto.SignatureData;
 import com.cleevio.vexl.module.user.dto.UserData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -51,7 +52,7 @@ public class SignatureService {
             );
         }
 
-        final String input = String.join("", publicKey, hash);
+        final String input = String.join(StringUtils.EMPTY, publicKey, hash);
         final String digitalSignature = CLibrary.CRYPTO_LIB.ecdsa_sign(
                 this.secretKey.signaturePublicKey(),
                 this.secretKey.signaturePrivateKey(),
@@ -66,7 +67,7 @@ public class SignatureService {
     }
 
     public boolean isSignatureValid(String publicKey, String hash, String signature) {
-        final String input = String.join("", publicKey, hash);
+        final String input = String.join(StringUtils.EMPTY, publicKey, hash);
         return CLibrary.CRYPTO_LIB.ecdsa_verify(this.secretKey.signaturePublicKey(), input, input.length(), signature);
     }
 

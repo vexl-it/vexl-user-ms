@@ -3,8 +3,10 @@ package com.cleevio.vexl.common.integration.coingecko;
 import com.cleevio.vexl.common.integration.coingecko.constant.CoingeckoProperties;
 import com.cleevio.vexl.common.integration.coingecko.dto.response.CoingeckoResponse;
 import com.cleevio.vexl.common.integration.coingecko.dto.response.CoingeckoMarketResponse;
+import com.cleevio.vexl.common.util.ErrorHandlerUtil;
 import com.cleevio.vexl.module.cryptocurrency.exception.CoinException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -23,6 +25,7 @@ public class CoingeckoConnector {
         return webClient.get()
                 .uri(coingeckoProperties.getCoin(), coin)
                 .retrieve()
+                .onStatus(HttpStatus::isError, clientResponse -> ErrorHandlerUtil.defaultHandler(clientResponse, coingeckoProperties.getCoin()))
                 .bodyToMono(CoingeckoResponse.class)
                 .blockOptional()
                 .orElseThrow(CoinException::new);
@@ -41,6 +44,7 @@ public class CoingeckoConnector {
         return webClient.get()
                 .uri(targetUrl)
                 .retrieve()
+                .onStatus(HttpStatus::isError, clientResponse -> ErrorHandlerUtil.defaultHandler(clientResponse, coingeckoProperties.getMarketChart()))
                 .bodyToMono(CoingeckoMarketResponse.class)
                 .blockOptional()
                 .orElseThrow(CoinException::new);
