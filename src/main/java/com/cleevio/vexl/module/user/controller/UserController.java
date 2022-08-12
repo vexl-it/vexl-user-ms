@@ -174,4 +174,16 @@ public class UserController {
         this.userService.remove(user);
     }
 
+    @DeleteMapping("/me/avatar")
+    @SecurityRequirements({
+            @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
+            @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
+            @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
+    })
+    @ApiResponse(responseCode = "200")
+    @Operation(summary = "Remove my avatar")
+    void removeMyAvatar(@AuthenticationPrincipal User user) {
+        this.userService.removeAvatar(user);
+    }
+
 }

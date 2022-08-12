@@ -166,4 +166,21 @@ class UserServiceIT {
         final List<User> allUsers = userRepository.findAll();
         assertThat(allUsers).isEmpty();
     }
+
+    @Test
+    void testRemoveUserAvatar_shouldBeRemoved() {
+        final User prepareUser = userService.prepareUser(USER_PUBLIC_KEY_1);
+        final Long userId = prepareUser.getId();
+        final User savedPreparedUser = userRepository.findById(userId).get();
+        userService.create(savedPreparedUser, CreateRequestUtilTest.createUserCreateRequestWithAvatar(USER_NAME_1));
+        final User finalUser = userRepository.findById(userId).get();
+        assertThat(finalUser.getPublicKey()).isEqualTo(USER_PUBLIC_KEY_1);
+        assertThat(finalUser.getUsername()).isEqualTo(USER_NAME_1);
+        assertThat(finalUser.getAvatar()).isNotNull();
+
+        this.userService.removeAvatar(finalUser);
+
+        final List<User> allUsers = userRepository.findAll();
+        assertThat(allUsers.get(0).getAvatar()).isNull();
+    }
 }

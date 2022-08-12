@@ -93,8 +93,8 @@ public class UserService {
     public User update(User user, @Valid UserUpdateRequest userUpdateRequest) {
         advisoryLockService.lock(
                 ModuleLockNamespace.USER,
-                UserAdvisoryLock.UPDATE_USER.name(),
-                userUpdateRequest.username() != null ? userUpdateRequest.username() : user.getPublicKey()
+                UserAdvisoryLock.MODIFYING_USER.name(),
+                user.getPublicKey()
         );
 
         log.info("Updating an user {}", user);
@@ -118,7 +118,14 @@ public class UserService {
         return updatedUser;
     }
 
+    @Transactional
     public void remove(User user) {
+        advisoryLockService.lock(
+                ModuleLockNamespace.USER,
+                UserAdvisoryLock.MODIFYING_USER.name(),
+                user.getPublicKey()
+        );
+
         this.userRepository.delete(user);
         applicationEventPublisher.publishEvent(new UserRemovedEvent(user));
     }
@@ -141,7 +148,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserData findValidUserWithChallenge(@Valid  ChallengeRequest request) {
+    public UserData findValidUserWithChallenge(@Valid ChallengeRequest request) {
         final User user = findByPublicKey(request.userPublicKey())
                 .orElseThrow(UserNotFoundException::new);
 
@@ -155,5 +162,20 @@ public class UserService {
                 user.getUserVerification().getChallenge(),
                 request.signature()
         );
+    }
+
+    @Transactional
+    public void removeAvatar(User user) {
+        advisoryLockService.lock(
+                ModuleLockNamespace.USER,
+                UserAdvisoryLock.MODIFYING_USER.name(),
+                user.getPublicKey()
+        );
+
+        if (user.getAvatar() != null) {
+            this.imageService.removeAvatar(user.getAvatar());
+            user.setAvatar(null);
+            this.userRepository.save(user);
+        }
     }
 }
