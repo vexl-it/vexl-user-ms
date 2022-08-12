@@ -38,11 +38,10 @@ class UserControllerTest extends BaseControllerTest {
     private static final String CONFIRM_CHALLENGE = DEFAULT_EP + "/confirmation/challenge";
     private static final String FACEBOOK_ID = "dummy_facebook_id";
     private static final String FB_SIGNATURE_EP = DEFAULT_EP + "/signature/" + FACEBOOK_ID;
-    private static final String USERNAME_AVAILABLE_EP = DEFAULT_EP + "/username/availability";
+    private static final String DELETE_MY_AVATAR = DEFAULT_EP + "/me/avatar";
     private static final PhoneConfirmRequest PHONE_CONFIRM_REQUEST;
     private static final CodeConfirmRequest CODE_CONFIRM_REQUEST;
     private static final ChallengeRequest CHALLENGE_REQUEST;
-    private static final UsernameAvailableRequest USERNAME_AVAILABLE_REQUEST;
     private static final UserCreateRequest USER_CREATE_REQUEST;
     private static final UserUpdateRequest USER_UPDATE_REQUEST;
     private static final UserData USER_DATA;
@@ -61,8 +60,6 @@ class UserControllerTest extends BaseControllerTest {
         CODE_CONFIRM_REQUEST = new CodeConfirmRequest(1L, VERIFICATION_CODE, USER_PUBLIC_KEY);
 
         CHALLENGE_REQUEST = new ChallengeRequest(USER_PUBLIC_KEY, SIGNATURE_CHALLENGE);
-
-        USERNAME_AVAILABLE_REQUEST = new UsernameAvailableRequest(USER_NAME);
 
         USER_CREATE_REQUEST = new UserCreateRequest(USER_NAME, null);
 
@@ -200,6 +197,16 @@ class UserControllerTest extends BaseControllerTest {
     @Test
     public void testDeleteMe_validInput_shouldReturn200() throws Exception {
         mvc.perform(delete(ME_EP)
+                        .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)
+                        .header(SecurityFilter.HEADER_HASH, PHONE_HASH)
+                        .header(SecurityFilter.HEADER_SIGNATURE, SIGNATURE)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testDeleteMyAvatar_validInput_shouldReturn200() throws Exception {
+        mvc.perform(delete(DELETE_MY_AVATAR)
                         .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)
                         .header(SecurityFilter.HEADER_HASH, PHONE_HASH)
                         .header(SecurityFilter.HEADER_SIGNATURE, SIGNATURE)

@@ -1,6 +1,6 @@
 package com.cleevio.vexl.util;
 
-import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
+import com.cleevio.vexl.module.file.dto.request.ImageRequest;
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.dto.request.UserUpdateRequest;
 import lombok.AccessLevel;
@@ -13,6 +13,13 @@ public final class CreateRequestUtilTest {
         return new UserCreateRequest(
                 username,
                 null
+        );
+    }
+
+    public static UserCreateRequest createUserCreateRequestWithAvatar(String username) {
+        return new UserCreateRequest(
+                username,
+                new ImageRequest("png", "YXNkYXNkc2FkYXNkYXM=")
         );
     }
 
