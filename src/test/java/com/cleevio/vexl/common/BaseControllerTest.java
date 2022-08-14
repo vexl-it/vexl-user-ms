@@ -1,5 +1,6 @@
 package com.cleevio.vexl.common;
 
+import com.cleevio.vexl.module.export.service.ExportService;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.entity.UserVerification;
 import com.cleevio.vexl.module.user.service.SignatureService;
@@ -39,6 +40,9 @@ public class BaseControllerTest {
 
     @MockBean
     protected SignatureService signatureService;
+
+    @MockBean
+    protected ExportService exportService;
 
     @MockBean
     protected UserVerificationService userVerificationService;

@@ -48,7 +48,8 @@ public abstract class ApiException extends RuntimeException {
 
         USER("100", "User Module Error."),
         CRYPTOCURRENCY("101", "Cryptocurrency Module Error."),
-        FILE("102", "File."),
+        FILE("102", "File Module Error."),
+        EXPORT("103", "Export Module Error."),
         ;
 
         /**

@@ -15,7 +15,8 @@ public enum UserErrorType implements ErrorType {
 	CHALLENGE_ERROR("106", "Error occurred during generating challenge."),
 	INVALID_PK_HASH("108", "Server could not create message for signature. Public key or hash is invalid."),
 	USERNAME_NOT_AVAILABLE("109", "Username is not available. Choose different username."),
-	USER_PHONE_INVALID("110", "Invalid phone number.");
+	USER_PHONE_INVALID("110", "Invalid phone number."),
+	;
 
 	/**
 	 * Error custom code

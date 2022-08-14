@@ -9,7 +9,6 @@ import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
 import com.cleevio.vexl.module.user.dto.request.UserUpdateRequest;
-import com.cleevio.vexl.module.user.dto.request.UsernameAvailableRequest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
