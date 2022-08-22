@@ -4,6 +4,7 @@ import com.cleevio.vexl.common.constant.ModuleLockNamespace;
 import com.cleevio.vexl.common.cryptolib.CLibrary;
 import com.cleevio.vexl.common.service.AdvisoryLockService;
 import com.cleevio.vexl.common.integration.twilio.service.SmsService;
+import com.cleevio.vexl.module.user.config.CredentialConfig;
 import com.cleevio.vexl.module.user.config.SecretKeyConfig;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
@@ -44,6 +45,7 @@ public class UserVerificationService {
     private final AdvisoryLockService advisoryLockService;
     private final UserService userService;
     private final SecretKeyConfig secretKey;
+    private final CredentialConfig credentialConfig;
 
     @Value("${verification.phone.digits}")
     private final Integer codeDigitsLength;
@@ -51,8 +53,11 @@ public class UserVerificationService {
     @Value("${verification.phone.expiration.time}")
     private final Integer expirationTime;
 
-    @Value("${devel.environment}")
+    @Value("${environment.devel}")
     private final boolean isDevel;
+
+    @Value("${environment.prod}")
+    private final boolean isProd;
     private static final String DEVEL_CODE = "111111";
 
     /**
@@ -76,6 +81,9 @@ public class UserVerificationService {
         final String codeToSend;
         if (isDevel) {
             codeToSend = DEVEL_CODE;
+        } else if (isProd && credentialConfig.phone() != null &&
+                credentialConfig.code() != null && credentialConfig.phone().equals(phoneConfirmRequest.phoneNumber())) {
+            codeToSend = credentialConfig.code();
         } else {
             codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.codeDigitsLength);
             smsService.sendMessage(codeToSend, formattedNumber);

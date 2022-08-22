@@ -46,3 +46,33 @@ spec:
                 secretKeyRef:
                   key: security.encryption.key
                   name: spring-profile-user-ms
+            - name: SIGNATURE_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: secret.signature-public-key
+                  name: spring-profile-user-ms
+            - name: SIGNATURE_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: secret.signature-private-key
+                  name: spring-profile-user-ms
+            - name: HMAC_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: secret.hmac-key
+                  name: spring-profile-user-ms
+            - name: AES_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: secret.aes-key
+                  name: spring-profile-user-ms
+            - name: CREDENTIAL_PHONE
+              valueFrom:
+                secretKeyRef:
+                  key: credential.phone
+                  name: spring-profile-user-ms
+            - name: CREDENTIAL_CODE
+              valueFrom:
+                secretKeyRef:
+                  key: credential.code
+                  name: spring-profile-user-ms
