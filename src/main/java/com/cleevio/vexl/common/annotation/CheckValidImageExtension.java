@@ -17,7 +17,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Constraint(validatedBy = AllowedImageExtensionValidator.class)
 @Documented
-public @interface OnlyPng {
+public @interface CheckValidImageExtension {
 
     String message() default "Not allowed extension type.";
 
