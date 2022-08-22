@@ -11,9 +11,9 @@ import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.entity.UserVerification;
 import com.cleevio.vexl.module.user.constant.VerificationAdvisoryLock;
 import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
+import com.cleevio.vexl.module.user.exception.PreviousVerificationCodeNotExpiredException;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
-import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
-import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
+import com.cleevio.vexl.module.user.exception.VerificationExpiredException;
 import com.cleevio.vexl.common.util.PhoneUtils;
 import com.cleevio.vexl.common.util.RandomSecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -68,8 +68,7 @@ public class UserVerificationService {
      * @return
      */
     @Transactional
-    public UserVerification requestConfirmPhone(@Valid PhoneConfirmRequest phoneConfirmRequest)
-            throws UserPhoneInvalidException {
+    public UserVerification requestConfirmPhone(@Valid PhoneConfirmRequest phoneConfirmRequest) {
         advisoryLockService.lock(
                 ModuleLockNamespace.VERIFICATION,
                 VerificationAdvisoryLock.REQUEST_VERIFICATION_CODE.name(),
@@ -77,6 +76,10 @@ public class UserVerificationService {
         );
 
         final String formattedNumber = PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.phoneNumber());
+
+        if (doesPreviousVerificationValid(formattedNumber)) {
+            throw new PreviousVerificationCodeNotExpiredException();
+        }
 
         final String codeToSend;
         if (isDevel) {
@@ -116,11 +119,11 @@ public class UserVerificationService {
      * @return
      * @throws UserAlreadyExistsException
      * @throws ChallengeGenerationException
-     * @throws VerificationNotFoundException
+     * @throws VerificationExpiredException
      */
     @Transactional
     public UserVerification requestConfirmCodeAndGenerateCodeChallenge(@Valid CodeConfirmRequest codeConfirmRequest)
-            throws UserAlreadyExistsException, ChallengeGenerationException, VerificationNotFoundException {
+            throws UserAlreadyExistsException, ChallengeGenerationException, VerificationExpiredException {
         advisoryLockService.lock(
                 ModuleLockNamespace.VERIFICATION,
                 VerificationAdvisoryLock.CONFIRM_VERIFICATION_CODE.name(),
@@ -132,7 +135,7 @@ public class UserVerificationService {
                         codeConfirmRequest.id(),
                         codeConfirmRequest.code(),
                         ZonedDateTime.now()
-                ).orElseThrow(VerificationNotFoundException::new);
+                ).orElseThrow(VerificationExpiredException::new);
 
         log.info("Code is verified for verification: {}", userVerification.getId());
 
@@ -163,5 +166,13 @@ public class UserVerificationService {
                 .expirationAt(ZonedDateTime.now().plusSeconds(this.expirationTime))
                 .phoneNumber(phoneNumber)
                 .build();
+    }
+
+    private boolean doesPreviousVerificationValid(String formattedNumber) {
+        final String hmacNumber = CLibrary.CRYPTO_LIB.hmac_digest(
+                this.secretKey.hmacKey(),
+                formattedNumber
+        );
+        return this.userVerificationRepository.doesPreviousVerificationExist(hmacNumber, ZonedDateTime.now());
     }
 }

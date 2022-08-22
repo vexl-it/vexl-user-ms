@@ -3,7 +3,7 @@ package com.cleevio.vexl.module.user.service;
 import com.cleevio.vexl.module.user.config.SecretKeyConfig;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.entity.UserVerification;
-import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
+import com.cleevio.vexl.module.user.exception.VerificationExpiredException;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +32,7 @@ class SignatureServiceTest {
     }
 
     @Test
-    void createSignatureAndVerify_shouldBeVerified() throws VerificationNotFoundException {
+    void createSignatureAndVerify_shouldBeVerified() throws VerificationExpiredException {
         USER.setUserVerification(USER_VERIFICATION);
         final var signature = signatureService.createSignature(PUBLIC_KEY, PHONE_HASH, false);
 
@@ -41,7 +41,7 @@ class SignatureServiceTest {
     }
 
     @Test
-    void createSignatureAndVerify_shouldNotBeVerified() throws VerificationNotFoundException {
+    void createSignatureAndVerify_shouldNotBeVerified() throws VerificationExpiredException {
         USER.setUserVerification(USER_VERIFICATION);
         final var signature = signatureService.createSignature(PUBLIC_KEY, PHONE_HASH, false);
 

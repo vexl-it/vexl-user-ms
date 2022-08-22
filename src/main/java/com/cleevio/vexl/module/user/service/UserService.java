@@ -12,7 +12,7 @@ import com.cleevio.vexl.module.user.constant.UserAdvisoryLock;
 import com.cleevio.vexl.module.user.event.UserRemovedEvent;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserNotFoundException;
-import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
+import com.cleevio.vexl.module.user.exception.VerificationExpiredException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -153,7 +153,7 @@ public class UserService {
                 .orElseThrow(UserNotFoundException::new);
 
         if (user.getUserVerification() == null || user.getUserVerification().getChallenge() == null) {
-            throw new VerificationNotFoundException();
+            throw new VerificationExpiredException();
         }
 
         return new UserData(

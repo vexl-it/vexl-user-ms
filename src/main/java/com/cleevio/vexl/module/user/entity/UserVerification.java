@@ -19,7 +19,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import java.time.ZonedDateTime;
 
-@Entity(name = "user_verification")
+@Entity
 @Data
 @Builder
 @NoArgsConstructor
