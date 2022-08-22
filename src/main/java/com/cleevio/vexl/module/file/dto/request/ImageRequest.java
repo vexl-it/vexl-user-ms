@@ -1,6 +1,6 @@
 package com.cleevio.vexl.module.file.dto.request;
 
-import com.cleevio.vexl.common.annotation.OnlyPng;
+import com.cleevio.vexl.common.annotation.CheckValidImageExtension;
 import com.cleevio.vexl.module.user.annotation.ValidAvatar;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,8 +13,8 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class ImageRequest {
 
-    @OnlyPng
     @NotBlank
+    @CheckValidImageExtension
     private String extension;
 
     @NotBlank
