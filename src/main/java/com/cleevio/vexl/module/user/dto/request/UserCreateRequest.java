@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.annotation.Nullable;
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
 public record UserCreateRequest(
@@ -16,6 +17,7 @@ public record UserCreateRequest(
         String username,
 
         @Nullable
+        @Valid
         @Schema(description = "Base64 encoded file data including header. i.e.: data:image/png;base64,iVBORw0KGgo")
         ImageRequest avatar
 
