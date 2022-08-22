@@ -19,7 +19,8 @@ public final class RandomSecurityUtils {
     public static String retrieveRandomDigits(int length) {
         try {
             SecureRandom secureRandom = SecureRandom.getInstance(ALGORITHM, PROVIDER);
-            return IntStream.iterate(0, i -> secureRandom.nextInt(10))
+            final int seed = secureRandom.nextInt(10);
+            return IntStream.iterate(seed, i -> secureRandom.nextInt(10))
                     .limit(length)
                     .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
                     .toString();
