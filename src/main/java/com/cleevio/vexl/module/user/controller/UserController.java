@@ -15,7 +15,7 @@ import com.cleevio.vexl.module.user.dto.response.UserResponse;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
 import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
-import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
+import com.cleevio.vexl.module.user.exception.VerificationExpiredException;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.UserNotFoundException;
 import com.cleevio.vexl.module.user.service.SignatureService;
@@ -75,7 +75,7 @@ public class UserController {
             description = "If code number is valid, we will generate challenge for user. Challenge is used to verify that the public key is really his. "
     )
     ConfirmCodeResponse confirmCodeAndGenerateCodeChallenge(@RequestBody CodeConfirmRequest codeConfirmRequest)
-            throws UserAlreadyExistsException, ChallengeGenerationException, VerificationNotFoundException {
+            throws UserAlreadyExistsException, ChallengeGenerationException, VerificationExpiredException {
         return new ConfirmCodeResponse(this.userVerificationService.requestConfirmCodeAndGenerateCodeChallenge(codeConfirmRequest));
     }
 
@@ -88,8 +88,7 @@ public class UserController {
             @ApiResponse(responseCode = "406 (100108)", description = "Server could not create message for signature. Public key or hash is invalid.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @Operation(summary = "Verify challenge.", description = "If challenge is verified successfully, we will create certificate for user.")
-    SignatureResponse verifyChallengeAndGenerateSignature(@RequestBody ChallengeRequest challengeRequest)
-            throws UserNotFoundException, VerificationNotFoundException {
+    SignatureResponse verifyChallengeAndGenerateSignature(@RequestBody ChallengeRequest challengeRequest) {
         final UserData userData = this.userService.findValidUserWithChallenge(challengeRequest);
 
         return new SignatureResponse(this.signatureService.createSignature(userData));

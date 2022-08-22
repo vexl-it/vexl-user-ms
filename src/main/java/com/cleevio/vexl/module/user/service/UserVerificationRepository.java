@@ -11,10 +11,13 @@ import java.util.Optional;
 
 interface UserVerificationRepository extends JpaRepository<UserVerification, Long>, JpaSpecificationExecutor<UserVerification> {
 
-    @Query("select uv from user_verification uv where uv.expirationAt > :now AND uv.id = :id AND uv.verificationCode = :code ")
+    @Query("select uv from UserVerification uv where uv.expirationAt > :now AND uv.id = :id AND uv.verificationCode = :code ")
     Optional<UserVerification> findValidUserVerificationByIdAndCode(Long id, String code, ZonedDateTime now);
 
     @Modifying
-    @Query("delete from user_verification uv where uv.expirationAt < :now ")
+    @Query("delete from UserVerification uv where uv.expirationAt < :now ")
     void deleteExpiredVerifications(ZonedDateTime now);
+
+    @Query("select case when (count(uv) > 0) then true else false end from UserVerification uv where uv.phoneNumber = :formattedNumber and uv.expirationAt > :now ")
+    boolean doesPreviousVerificationExist(String formattedNumber, ZonedDateTime now);
 }

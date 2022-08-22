@@ -2,7 +2,7 @@ package com.cleevio.vexl.module.user.util;
 
 import com.cleevio.vexl.common.cryptolib.CLibrary;
 import com.cleevio.vexl.module.user.dto.UserData;
-import com.cleevio.vexl.module.user.exception.VerificationNotFoundException;
+import com.cleevio.vexl.module.user.exception.VerificationExpiredException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -38,7 +38,7 @@ public final class ChallengeUtil {
     }
 
     public static boolean isSignedChallengeValid(final UserData userData)
-            throws VerificationNotFoundException {
+            throws VerificationExpiredException {
         return CLibrary.CRYPTO_LIB.ecdsa_verify(
                 userData.publicKey(),
                 userData.challenge(),
