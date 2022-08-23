@@ -21,7 +21,7 @@ public final class CreateRequestUtilTest {
     public static UserCreateRequest createUserCreateRequestWithAvatar(String username) {
         return new UserCreateRequest(
                 username,
-                new ImageRequest("png", "YXNkYXNkc2FkYXNkYXM=")
+                new ImageRequest("jpg", "YXNkYXNkc2FkYXNkYXM=")
         );
     }
 
