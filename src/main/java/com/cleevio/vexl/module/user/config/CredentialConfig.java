@@ -5,14 +5,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Validated
 @ConfigurationProperties(prefix = "credential")
 public record CredentialConfig(
 
         @Nullable
-        @NullOrNotBlank
-        String phone,
+        List<@NotBlank String> phones,
 
         @Nullable
         @NullOrNotBlank

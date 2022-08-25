@@ -66,10 +66,10 @@ spec:
                 secretKeyRef:
                   key: secret.aes-key
                   name: spring-profile-user-ms
-            - name: CREDENTIAL_PHONE
+            - name: CREDENTIAL_PHONES
               valueFrom:
                 secretKeyRef:
-                  key: credential.phone
+                  key: credential.phones
                   name: spring-profile-user-ms
             - name: CREDENTIAL_CODE
               valueFrom:

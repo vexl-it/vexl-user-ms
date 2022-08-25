@@ -84,8 +84,8 @@ public class UserVerificationService {
         final String codeToSend;
         if (isDevel) {
             codeToSend = DEVEL_CODE;
-        } else if (isProd && credentialConfig.phone() != null &&
-                credentialConfig.code() != null && credentialConfig.phone().equals(formattedNumber)) {
+        } else if (isProd && credentialConfig.phones() != null &&
+                credentialConfig.code() != null && credentialConfig.phones().contains(formattedNumber)) {
             codeToSend = credentialConfig.code();
         } else {
             codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.codeDigitsLength);
