@@ -4,8 +4,8 @@ import com.cleevio.vexl.module.user.entity.UserVerification;
 import com.cleevio.vexl.module.user.serializer.DateTimeSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.lang.Nullable;
 
-import javax.annotation.Nullable;
 import java.time.ZonedDateTime;
 
 public record PhoneConfirmResponse(

@@ -3,8 +3,8 @@ package com.cleevio.vexl.module.user.serializer;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import org.springframework.lang.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 
 public class TrimStringDeserializer extends StdDeserializer<String>  {

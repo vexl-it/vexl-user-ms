@@ -1,6 +1,7 @@
 package com.cleevio.vexl.module.user.dto;
 
-import javax.annotation.Nullable;
+import org.springframework.lang.Nullable;
+
 import javax.validation.constraints.NotBlank;
 
 public record SignatureData(

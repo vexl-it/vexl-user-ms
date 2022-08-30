@@ -2,8 +2,7 @@ package com.cleevio.vexl.module.user.dto.response;
 
 import com.cleevio.vexl.module.user.entity.UserVerification;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.annotation.Nullable;
+import org.springframework.lang.Nullable;
 
 public record ConfirmCodeResponse(
 
