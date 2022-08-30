@@ -1,6 +1,6 @@
 package com.cleevio.vexl.common.exception;
 
-import javax.annotation.Nullable;
+import org.springframework.lang.Nullable;
 
 public interface ErrorType {
 

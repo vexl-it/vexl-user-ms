@@ -3,8 +3,8 @@ package com.cleevio.vexl.common.convertor;
 import com.cleevio.vexl.common.cryptolib.CLibrary;
 import com.cleevio.vexl.module.user.config.SecretKeyConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.Nullable;
 
-import javax.annotation.Nullable;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 

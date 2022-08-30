@@ -2,9 +2,9 @@ package com.cleevio.vexl.module.user.config;
 
 import com.cleevio.vexl.common.annotation.NullOrNotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 

@@ -2,8 +2,8 @@ package com.cleevio.vexl.module.user.validator;
 
 import com.cleevio.vexl.module.user.annotation.ValidAvatar;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 
-import javax.annotation.Nullable;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Base64;

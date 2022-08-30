@@ -25,3 +25,14 @@ spec:
           volumeMounts:
             - mountPath: "/var/www/static"
               name: static-files
+          env:
+            - name: TWILIO_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: twilio.token
+                  name: spring-profile-user-ms
+            - name: TWILIO_SID
+              valueFrom:
+                secretKeyRef:
+                  key: twilio.sid
+                  name: spring-profile-user-ms
