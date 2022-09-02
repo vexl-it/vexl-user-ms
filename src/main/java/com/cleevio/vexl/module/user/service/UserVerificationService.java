@@ -56,16 +56,11 @@ public class UserVerificationService {
     @Value("${environment.devel}")
     private final boolean isDevel;
 
-    @Value("${environment.prod}")
-    private final boolean isProd;
     private static final String DEVEL_CODE = "111111";
 
     /**
      * Generate a random code for phone verification. Store the unencrypted code and the phone encrypted with HMAC-SHA256 in the database
      * and create an entry in the USER_VERIFICATION table.
-     *
-     * @param phoneConfirmRequest
-     * @return
      */
     @Transactional
     public UserVerification requestConfirmPhone(@Valid PhoneConfirmRequest phoneConfirmRequest) {
@@ -84,8 +79,7 @@ public class UserVerificationService {
         final String codeToSend;
         if (isDevel) {
             codeToSend = DEVEL_CODE;
-        } else if (isProd && credentialConfig.phones() != null &&
-                credentialConfig.code() != null && credentialConfig.phones().contains(formattedNumber)) {
+        } else if (areCredentialsActiveAndDoesNumberMatch(formattedNumber)) {
             codeToSend = credentialConfig.code();
         } else {
             codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.codeDigitsLength);
@@ -114,12 +108,6 @@ public class UserVerificationService {
      * Check if there is a valid verification for the ID and code. If there is, we create a challenge that verifies
      * that the user is giving us a public key to which he owns a private key.
      * We store the public key and the challenge, thus creating the basis for the USER entity.
-     *
-     * @param codeConfirmRequest
-     * @return
-     * @throws UserAlreadyExistsException
-     * @throws ChallengeGenerationException
-     * @throws VerificationExpiredException
      */
     @Transactional
     public UserVerification requestConfirmCodeAndGenerateCodeChallenge(@Valid CodeConfirmRequest codeConfirmRequest)
@@ -174,5 +162,10 @@ public class UserVerificationService {
                 formattedNumber
         );
         return this.userVerificationRepository.doesPreviousVerificationExist(hmacNumber, ZonedDateTime.now());
+    }
+
+    private boolean areCredentialsActiveAndDoesNumberMatch(final String formattedNumber) {
+        return credentialConfig.active() && credentialConfig.phones() != null &&
+                credentialConfig.code() != null && credentialConfig.phones().contains(formattedNumber);
     }
 }
