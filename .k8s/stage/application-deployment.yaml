@@ -36,3 +36,13 @@ spec:
                 secretKeyRef:
                   key: twilio.sid
                   name: spring-profile-user-ms
+            - name: CREDENTIAL_PHONES
+              valueFrom:
+                secretKeyRef:
+                  key: credential.phones
+                  name: spring-profile-user-ms
+            - name: CREDENTIAL_CODE
+              valueFrom:
+                secretKeyRef:
+                  key: credential.code
+                  name: spring-profile-user-ms
