@@ -18,6 +18,10 @@ interface UserVerificationRepository extends JpaRepository<UserVerification, Lon
     @Query("delete from UserVerification uv where uv.expirationAt < :now ")
     void deleteExpiredVerifications(ZonedDateTime now);
 
-    @Query("select case when (count(uv) > 0) then true else false end from UserVerification uv where uv.phoneNumber = :formattedNumber and uv.expirationAt > :now ")
+    @Query("""
+            select case when (count(uv) > 0) then true else false end from UserVerification uv 
+            where uv.phoneNumber = :formattedNumber 
+            and uv.expirationAt > :now and uv.phoneVerified = false
+            """)
     boolean doesPreviousVerificationExist(String formattedNumber, ZonedDateTime now);
 }
