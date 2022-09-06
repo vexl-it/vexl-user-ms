@@ -9,13 +9,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-@Service
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class TwilioService implements SmsService {
 
-    private final static int INVALID_NUMBER = 21211;
-    private final static int NOT_NUMBER = 21614;
+    private static final int INVALID_NUMBER = 21211;
+    private static final int NOT_NUMBER = 21614;
+    private static final String SMS_TEXT = "Your verification code for Vexl is: ";
     private final TwilioConfig twilioConfig;
 
     @Override
@@ -25,7 +26,7 @@ public class TwilioService implements SmsService {
             Message.creator(
                             new PhoneNumber(phoneNumber),
                             new PhoneNumber(twilioConfig.getPhone()),
-                            codeToSend)
+                            SMS_TEXT + codeToSend)
                     .create();
 
             log.info("Sms successfully sent to " + phoneNumber);
