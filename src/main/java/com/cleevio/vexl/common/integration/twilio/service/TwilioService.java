@@ -1,7 +1,7 @@
 package com.cleevio.vexl.common.integration.twilio.service;
 
 import com.cleevio.vexl.common.integration.twilio.config.TwilioConfig;
-import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
+import com.cleevio.vexl.module.user.exception.InvalidPhoneNumberException;
 import com.twilio.exception.ApiException;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
@@ -20,8 +20,7 @@ public class TwilioService implements SmsService {
     private final TwilioConfig twilioConfig;
 
     @Override
-    public void sendMessage(String codeToSend, String phoneNumber)
-            throws UserPhoneInvalidException {
+    public void sendMessage(String codeToSend, String phoneNumber) {
         try {
             Message.creator(
                             new PhoneNumber(phoneNumber),
@@ -32,7 +31,7 @@ public class TwilioService implements SmsService {
             log.info("Sms successfully sent to " + phoneNumber);
         } catch (ApiException ex) {
             if (ex.getCode() == INVALID_NUMBER || ex.getCode() == NOT_NUMBER) {
-                throw new UserPhoneInvalidException();
+                throw new InvalidPhoneNumberException();
             }
             log.error("Failed to send sms to number {}", phoneNumber, ex);
 

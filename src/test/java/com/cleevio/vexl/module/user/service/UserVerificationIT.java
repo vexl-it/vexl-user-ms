@@ -5,6 +5,7 @@ import com.cleevio.vexl.common.cryptolib.CLibrary;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.entity.UserVerification;
+import com.cleevio.vexl.module.user.exception.InvalidPhoneNumberException;
 import com.cleevio.vexl.module.user.exception.PreviousVerificationCodeNotExpiredException;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.VerificationExpiredException;
@@ -12,8 +13,6 @@ import com.cleevio.vexl.util.CreateRequestUtilTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.validation.ConstraintViolationException;
 
 import java.time.ZonedDateTime;
 
@@ -66,7 +65,7 @@ class UserVerificationIT {
     @Test
     void testRequestConfirmPhone_invalidInput_shouldReturnException() {
         assertThrows(
-                ConstraintViolationException.class,
+                InvalidPhoneNumberException.class,
                 () -> userVerificationService.requestConfirmPhone(CreateRequestUtilTest.createPhoneConfirmRequest(PHONE_NUMBER_INVALID))
         );
     }

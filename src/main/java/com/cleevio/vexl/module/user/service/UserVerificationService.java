@@ -11,6 +11,7 @@ import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.entity.UserVerification;
 import com.cleevio.vexl.module.user.constant.VerificationAdvisoryLock;
 import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
+import com.cleevio.vexl.module.user.exception.InvalidPhoneNumberException;
 import com.cleevio.vexl.module.user.exception.PreviousVerificationCodeNotExpiredException;
 import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.VerificationExpiredException;
@@ -71,6 +72,10 @@ public class UserVerificationService {
         );
 
         final String formattedNumber = PhoneUtils.trimAndDeleteSpacesFromPhoneNumber(phoneConfirmRequest.phoneNumber());
+
+        if (!PhoneUtils.isValidPhoneNumber(formattedNumber)) {
+            throw new InvalidPhoneNumberException();
+        }
 
         if (doesPreviousVerificationValid(formattedNumber)) {
             throw new PreviousVerificationCodeNotExpiredException();
