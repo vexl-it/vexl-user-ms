@@ -13,11 +13,6 @@ import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
 import com.cleevio.vexl.module.user.dto.response.SignatureResponse;
 import com.cleevio.vexl.module.user.dto.response.UserResponse;
 import com.cleevio.vexl.module.user.entity.User;
-import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
-import com.cleevio.vexl.module.user.exception.UserPhoneInvalidException;
-import com.cleevio.vexl.module.user.exception.VerificationExpiredException;
-import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
-import com.cleevio.vexl.module.user.exception.UserNotFoundException;
 import com.cleevio.vexl.module.user.service.SignatureService;
 import com.cleevio.vexl.module.user.service.UserService;
 import com.cleevio.vexl.module.user.service.UserVerificationService;
@@ -58,8 +53,7 @@ public class UserController {
             @ApiResponse(responseCode = "400 (100110)", description = "User phone number is invalid", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @Operation(summary = "Phone number confirmation")
-    PhoneConfirmResponse requestConfirmPhone(@RequestBody PhoneConfirmRequest phoneConfirmRequest)
-            throws UserPhoneInvalidException {
+    PhoneConfirmResponse requestConfirmPhone(@RequestBody PhoneConfirmRequest phoneConfirmRequest) {
         return new PhoneConfirmResponse(this.userVerificationService.requestConfirmPhone(phoneConfirmRequest));
     }
 
@@ -74,8 +68,7 @@ public class UserController {
             summary = "Code number confirmation.",
             description = "If code number is valid, we will generate challenge for user. Challenge is used to verify that the public key is really his. "
     )
-    ConfirmCodeResponse confirmCodeAndGenerateCodeChallenge(@RequestBody CodeConfirmRequest codeConfirmRequest)
-            throws UserAlreadyExistsException, ChallengeGenerationException, VerificationExpiredException {
+    ConfirmCodeResponse confirmCodeAndGenerateCodeChallenge(@RequestBody CodeConfirmRequest codeConfirmRequest) {
         return new ConfirmCodeResponse(this.userVerificationService.requestConfirmCodeAndGenerateCodeChallenge(codeConfirmRequest));
     }
 
