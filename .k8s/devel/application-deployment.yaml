@@ -22,9 +22,24 @@ spec:
         - name: application
           imagePullPolicy: Always
           image: gitlab.cleevio.cz:4567/backend/vexl/vexl-user-ms/devel:latest
+          resources:
+            requests:
+              memory: "1024Mi"
+              cpu: "250m"
+            limits:
+              memory: "1024Mi"
+              cpu: "250m"
           volumeMounts:
             - mountPath: "/var/www/static"
               name: static-files
+          readinessProbe:
+            httpGet:
+              port: 8282
+              path: /actuator/health
+            initialDelaySeconds: 120
+            timeoutSeconds: 20
+            periodSeconds: 5
+            failureThreshold: 10
           env:
             - name: TWILIO_TOKEN
               valueFrom:
