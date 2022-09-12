@@ -11,7 +11,7 @@ public class EvictCacheTask {
 
     private final CacheManager cacheManager;
 
-    @Scheduled(fixedDelay = 360_000)
+    @Scheduled(fixedDelay = 900_000)
     public void evictAllCaches() {
         cacheManager.getCacheNames().forEach(c -> cacheManager.getCache(c).clear());
     }
