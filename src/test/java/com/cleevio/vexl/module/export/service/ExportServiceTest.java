@@ -17,12 +17,10 @@ class ExportServiceTest {
     private static final User USER;
     private static final User USER_WITH_VERIFICATION;
     private static final UserVerification USER_VERIFICATION;
-    private static final String USERNAME = "username";
     private static final String PUBLIC_KEY = "public_key";
     private static final String PHONE_NUMBER = "phone_number";
 
     private static final String MY_PUBLIC_KEY = "dummy_public_key";
-    private static final String MY_USERNAME = "dummy_username";
 
     private static final String MY_PHONE_NUMBER = "dummy_phone_number";
 
@@ -32,14 +30,12 @@ class ExportServiceTest {
     static {
         USER = new User();
         USER.setPublicKey(MY_PUBLIC_KEY);
-        USER.setUsername(MY_USERNAME);
 
         USER_VERIFICATION = new UserVerification();
         USER_VERIFICATION.setPhoneNumber(MY_PHONE_NUMBER);
 
         USER_WITH_VERIFICATION = new User();
         USER_WITH_VERIFICATION.setPublicKey(MY_PUBLIC_KEY);
-        USER_WITH_VERIFICATION.setUsername(MY_USERNAME);
         USER_WITH_VERIFICATION.setUserVerification(USER_VERIFICATION);
     }
 
@@ -56,9 +52,8 @@ class ExportServiceTest {
         final String lines[] = pdfFileInText.split("\\r?\\n");
 
         assertThat(lines[0]).isEqualTo(MY_DATA_EXPORT);
-        assertThat(lines[1]).isEqualTo(String.format("%s: %s", USERNAME, MY_USERNAME));
-        assertThat(lines[2]).isEqualTo(String.format("%s:", PUBLIC_KEY));
-        assertThat(lines[3]).isEqualTo(MY_PUBLIC_KEY);
+        assertThat(lines[1]).isEqualTo(String.format("%s:", PUBLIC_KEY));
+        assertThat(lines[2]).isEqualTo(MY_PUBLIC_KEY);
     }
 
     @Test
@@ -74,9 +69,8 @@ class ExportServiceTest {
         final String lines[] = pdfFileInText.split("\\r?\\n");
 
         assertThat(lines[0]).isEqualTo(MY_DATA_EXPORT);
-        assertThat(lines[1]).isEqualTo(String.format("%s: %s", USERNAME, MY_USERNAME));
-        assertThat(lines[2]).isEqualTo(String.format("%s:", PUBLIC_KEY));
-        assertThat(lines[3]).isEqualTo(MY_PUBLIC_KEY);
-        assertThat(lines[4]).isEqualTo(String.format("%s: %s", PHONE_NUMBER, MY_PHONE_NUMBER));
+        assertThat(lines[1]).isEqualTo(String.format("%s:", PUBLIC_KEY));
+        assertThat(lines[2]).isEqualTo(MY_PUBLIC_KEY);
+        assertThat(lines[3]).isEqualTo(String.format("%s: %s", PHONE_NUMBER, MY_PHONE_NUMBER));
     }
 }

@@ -19,6 +19,16 @@
         </createIndex>
     </changeSet>
 
+    <!-- ################################ V3 ################################# -->
+    <changeSet author="David Tilser" id="drop_username_avatar_colums">
+        <preConditions onSqlOutput="TEST" onFail="MARK_RAN">
+            <tableExists tableName="users" schemaName="public"/>
+        </preConditions>
+
+        <dropColumn tableName="users" columnName="avatar"/>
+        <dropColumn tableName="users" columnName="username"/>
+    </changeSet>
+
     <!-- ##################################################################### -->
     <!-- ###################### TABLE INSTALL CHANGESET ###################### -->
     <!-- ##################################################################### -->
@@ -33,16 +43,11 @@
             <column name="id" autoIncrement="true" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="PK_Users"/>
             </column>
-            <column name="username" type="varchar"/>
-            <column name="avatar" type="varchar"/>
             <column name="public_key" type="varchar">
                 <constraints nullable="false" unique="true"/>
             </column>
         </createTable>
 
-        <createIndex tableName="users" indexName="086cc4a8540b4d579438_ix">
-            <column name="username"/>
-        </createIndex>
         <createIndex tableName="users" indexName="88c6403cdcd7415d9c8c_ix">
             <column name="public_key"/>
         </createIndex>

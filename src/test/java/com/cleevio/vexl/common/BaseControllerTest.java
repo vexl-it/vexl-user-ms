@@ -56,8 +56,6 @@ public class BaseControllerTest {
     static {
         USER = new User();
         USER.setId(1L);
-        USER.setUsername(USER_NAME);
-        USER.setAvatar(USER_AVATAR);
         USER.setPublicKey(USER_PUBLIC_KEY);
 
         USER_VERIFICATION = new UserVerification();
