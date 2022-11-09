@@ -19,7 +19,7 @@ public class UserVerificationTask {
 
     @Scheduled(fixedDelay = 600_000)
     public void deleteExpiredVerifications() {
-        log.info("Deleting expired user verification");
+        log.info("Deleting expired user verifications");
         this.verificationService.deleteExpiredVerifications();
     }
 }

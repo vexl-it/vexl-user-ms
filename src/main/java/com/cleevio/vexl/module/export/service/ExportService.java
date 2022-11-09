@@ -23,7 +23,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ExportService {
-    private static final String USERNAME = "username";
     private static final String PUBLIC_KEY = "public_key";
     private static final String PHONE_NUMBER = "phone_number";
     private static final String MY_DATA_EXPORT = "My data export";
@@ -51,8 +50,6 @@ public class ExportService {
             contentStream.showText(MY_DATA_EXPORT);
             contentStream.newLine();
             contentStream.setFont(PDType1Font.COURIER, FONT_SIZE);
-            contentStream.showText(String.format("%s: %s", USERNAME, user.getUsername()));
-            contentStream.newLine();
             contentStream.showText(String.format("%s:", PUBLIC_KEY));
             contentStream.newLine();
             for (String line : lines) {

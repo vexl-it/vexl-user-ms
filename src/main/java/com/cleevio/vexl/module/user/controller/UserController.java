@@ -6,12 +6,9 @@ import com.cleevio.vexl.module.user.dto.UserData;
 import com.cleevio.vexl.module.user.dto.request.ChallengeRequest;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
-import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
-import com.cleevio.vexl.module.user.dto.request.UserUpdateRequest;
 import com.cleevio.vexl.module.user.dto.response.PhoneConfirmResponse;
 import com.cleevio.vexl.module.user.dto.response.ConfirmCodeResponse;
 import com.cleevio.vexl.module.user.dto.response.SignatureResponse;
-import com.cleevio.vexl.module.user.dto.response.UserResponse;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.service.SignatureService;
 import com.cleevio.vexl.module.user.service.UserService;
@@ -25,16 +22,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "User")
@@ -109,51 +103,6 @@ public class UserController {
         ));
     }
 
-    @PostMapping
-    @SecurityRequirements({
-            @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
-            @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
-            @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
-    })
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "User has been created"),
-            @ApiResponse(responseCode = "409 (100109)", description = "Username is not available. Choose different username.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Register as a new user")
-    UserResponse register(@RequestBody UserCreateRequest userCreateRequest,
-                          @AuthenticationPrincipal User user) {
-        return new UserResponse(this.userService.create(user, userCreateRequest));
-    }
-
-    @GetMapping("/me")
-    @SecurityRequirements({
-            @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
-            @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
-            @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
-    })
-    @ApiResponse(responseCode = "200")
-    @Operation(summary = "Get an user")
-    UserResponse getMe(@AuthenticationPrincipal User user) {
-        return new UserResponse(user);
-    }
-
-    @PutMapping("/me")
-    @SecurityRequirements({
-            @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
-            @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
-            @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
-    })
-    @ApiResponses({
-            @ApiResponse(responseCode = "200"),
-            @ApiResponse(responseCode = "409 (100109)", description = "Username is not available. Choose different username.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @Operation(summary = "Update an user")
-    UserResponse updateMe(@RequestBody UserUpdateRequest userCreateRequest,
-                          @AuthenticationPrincipal User user) {
-        return new UserResponse(this.userService.update(user, userCreateRequest));
-    }
-
     @DeleteMapping("/me")
     @SecurityRequirements({
             @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
@@ -164,18 +113,6 @@ public class UserController {
     @Operation(summary = "Remove an user")
     void removeMe(@AuthenticationPrincipal User user) {
         this.userService.remove(user);
-    }
-
-    @DeleteMapping("/me/avatar")
-    @SecurityRequirements({
-            @SecurityRequirement(name = SecurityFilter.HEADER_PUBLIC_KEY),
-            @SecurityRequirement(name = SecurityFilter.HEADER_HASH),
-            @SecurityRequirement(name = SecurityFilter.HEADER_SIGNATURE),
-    })
-    @ApiResponse(responseCode = "200")
-    @Operation(summary = "Remove my avatar")
-    void removeMyAvatar(@AuthenticationPrincipal User user) {
-        this.userService.removeAvatar(user);
     }
 
 }

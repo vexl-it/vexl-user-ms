@@ -2,11 +2,8 @@ package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.common.constant.ModuleLockNamespace;
 import com.cleevio.vexl.common.service.AdvisoryLockService;
-import com.cleevio.vexl.module.file.service.ImageService;
 import com.cleevio.vexl.module.user.dto.UserData;
 import com.cleevio.vexl.module.user.dto.request.ChallengeRequest;
-import com.cleevio.vexl.module.user.dto.request.UserCreateRequest;
-import com.cleevio.vexl.module.user.dto.request.UserUpdateRequest;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.constant.UserAdvisoryLock;
 import com.cleevio.vexl.module.user.event.UserRemovedEvent;
@@ -38,37 +35,11 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final ImageService imageService;
     private final AdvisoryLockService advisoryLockService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
-    public User create(User user, @Valid UserCreateRequest dto) {
-        advisoryLockService.lock(
-                ModuleLockNamespace.USER,
-                UserAdvisoryLock.CREATE_USER.name(),
-                dto.username()
-        );
-
-        log.info("Creating user [{}]", user);
-
-        if (dto.avatar() != null) {
-            final String destination = this.imageService.save(dto.avatar());
-            user.setAvatar(destination);
-        }
-
-        user.setUsername(dto.username());
-
-        final User savedUser = this.userRepository.save(user);
-        log.info("User [{}] has been successfully created.",
-                savedUser);
-
-        return savedUser;
-    }
-
-    @Transactional
-    public User prepareUser(String publicKey)
-            throws UserAlreadyExistsException {
+    public User prepareUser(String publicKey) {
         advisoryLockService.lock(
                 ModuleLockNamespace.USER,
                 UserAdvisoryLock.PREPARE_USER.name(),
@@ -90,35 +61,6 @@ public class UserService {
     }
 
     @Transactional
-    public User update(User user, @Valid UserUpdateRequest userUpdateRequest) {
-        advisoryLockService.lock(
-                ModuleLockNamespace.USER,
-                UserAdvisoryLock.MODIFYING_USER.name(),
-                user.getPublicKey()
-        );
-
-        log.info("Updating an user {}", user);
-
-        if (userUpdateRequest.username() != null && !userUpdateRequest.username().equals(user.getUsername())) {
-            user.setUsername(userUpdateRequest.username());
-        }
-
-        if (userUpdateRequest.avatar() != null) {
-            if (user.getAvatar() != null) {
-                this.imageService.removeAvatar(user.getAvatar());
-            }
-            final String destination = this.imageService.save(userUpdateRequest.avatar());
-            user.setAvatar(destination);
-        }
-
-        final User updatedUser = this.userRepository.save(user);
-        log.info("User {} was successfully updated.",
-                updatedUser);
-
-        return updatedUser;
-    }
-
-    @Transactional
     public void remove(User user) {
         advisoryLockService.lock(
                 ModuleLockNamespace.USER,
@@ -131,18 +73,11 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getById(long id)
-            throws UserNotFoundException {
-        return this.userRepository.findById(id)
-                .orElseThrow(UserNotFoundException::new);
-    }
-
-    @Transactional(readOnly = true)
     public Optional<User> findByPublicKey(String publicKey) {
         return this.userRepository.findByPublicKey(publicKey);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public User save(User user) {
         return this.userRepository.save(user);
     }
@@ -162,20 +97,5 @@ public class UserService {
                 user.getUserVerification().getChallenge(),
                 request.signature()
         );
-    }
-
-    @Transactional
-    public void removeAvatar(User user) {
-        advisoryLockService.lock(
-                ModuleLockNamespace.USER,
-                UserAdvisoryLock.MODIFYING_USER.name(),
-                user.getPublicKey()
-        );
-
-        if (user.getAvatar() != null) {
-            this.imageService.removeAvatar(user.getAvatar());
-            user.setAvatar(null);
-            this.userRepository.save(user);
-        }
     }
 }

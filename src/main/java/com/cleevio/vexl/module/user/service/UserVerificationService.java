@@ -115,8 +115,7 @@ public class UserVerificationService {
      * We store the public key and the challenge, thus creating the basis for the USER entity.
      */
     @Transactional
-    public UserVerification requestConfirmCodeAndGenerateCodeChallenge(@Valid CodeConfirmRequest codeConfirmRequest)
-            throws UserAlreadyExistsException, ChallengeGenerationException, VerificationExpiredException {
+    public UserVerification requestConfirmCodeAndGenerateCodeChallenge(@Valid CodeConfirmRequest codeConfirmRequest) {
         advisoryLockService.lock(
                 ModuleLockNamespace.VERIFICATION,
                 VerificationAdvisoryLock.CONFIRM_VERIFICATION_CODE.name(),
