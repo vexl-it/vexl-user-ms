@@ -13,7 +13,6 @@ import com.cleevio.vexl.module.user.constant.VerificationAdvisoryLock;
 import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
 import com.cleevio.vexl.module.user.exception.InvalidPhoneNumberException;
 import com.cleevio.vexl.module.user.exception.PreviousVerificationCodeNotExpiredException;
-import com.cleevio.vexl.module.user.exception.UserAlreadyExistsException;
 import com.cleevio.vexl.module.user.exception.VerificationExpiredException;
 import com.cleevio.vexl.common.util.PhoneUtils;
 import com.cleevio.vexl.common.util.RandomSecurityUtils;
@@ -77,7 +76,7 @@ public class UserVerificationService {
             throw new InvalidPhoneNumberException();
         }
 
-        if (doesPreviousVerificationValid(formattedNumber)) {
+        if (isPreviousVerificationValid(formattedNumber)) {
             throw new PreviousVerificationCodeNotExpiredException();
         }
 
@@ -160,7 +159,7 @@ public class UserVerificationService {
                 .build();
     }
 
-    private boolean doesPreviousVerificationValid(String formattedNumber) {
+    private boolean isPreviousVerificationValid(String formattedNumber) {
         final String hmacNumber = CLibrary.CRYPTO_LIB.hmac_digest(
                 this.secretKey.hmacKey(),
                 formattedNumber
