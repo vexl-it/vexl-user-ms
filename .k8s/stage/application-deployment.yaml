@@ -54,3 +54,23 @@ spec:
                 secretKeyRef:
                   key: credential.code
                   name: spring-profile-user-ms
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  key: spring.datasource.url
+                  name: spring-profile-user-ms
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  key: spring.datasource.username
+                  name: spring-profile-user-ms
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: spring.datasource.password
+                  name: spring-profile-user-ms
+            - name: SENTRY_DNS
+              valueFrom:
+                secretKeyRef:
+                  key: sentry.dsn
+                  name: spring-profile-user-ms
