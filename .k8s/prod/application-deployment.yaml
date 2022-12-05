@@ -106,3 +106,8 @@ spec:
                 secretKeyRef:
                   key: twilio.sid
                   name: spring-profile-user-ms
+            - name: SENTRY_DNS
+              valueFrom:
+                secretKeyRef:
+                  key: sentry.dsn
+                  name: spring-profile-user-ms
