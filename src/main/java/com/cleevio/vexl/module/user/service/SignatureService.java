@@ -31,19 +31,20 @@ public class SignatureService {
     private final SecretKeyConfig secretKey;
 
     @Transactional(readOnly = true)
-    public SignatureData createSignature(@Valid final UserData userData) {
-        if (!isSignedChallengeValid(userData)) {
+    public SignatureData createSignature(@Valid final UserData userData, final int cryptoVersion) {
+        if (!isSignedChallengeValid(userData, cryptoVersion)) {
             return new SignatureData(null, null, false);
         }
 
         return createSignature(
                 userData.publicKey(),
                 userData.phoneNumber(),
-                true
+                true,
+                cryptoVersion
         );
     }
 
-    public SignatureData createSignature(String publicKey, String hash, boolean alreadyHashed) {
+    public SignatureData createSignature(String publicKey, String hash, boolean alreadyHashed, final int cryptoVersion) {
 
         if (!alreadyHashed) {
             hash = CLibrary.CRYPTO_LIB.hmac_digest(
@@ -53,7 +54,11 @@ public class SignatureService {
         }
 
         final String input = String.join(StringUtils.EMPTY, publicKey, hash);
-        final String digitalSignature = CLibrary.CRYPTO_LIB.ecdsa_sign(
+        final String digitalSignature = cryptoVersion >= 2 ? CLibrary.CRYPTO_LIB.ecdsa_sign_v2(
+                this.secretKey.signaturePublicKey(),
+                this.secretKey.signaturePrivateKey(),
+                input,
+                input.length()) : CLibrary.CRYPTO_LIB.ecdsa_sign(
                 this.secretKey.signaturePublicKey(),
                 this.secretKey.signaturePrivateKey(),
                 input,
@@ -66,8 +71,12 @@ public class SignatureService {
         );
     }
 
-    public boolean isSignatureValid(String publicKey, String hash, String signature) {
+    public boolean isSignatureValid(String publicKey, String hash, String signature, final int cryptoVersion) {
         final String input = String.join(StringUtils.EMPTY, publicKey, hash);
+
+        if (cryptoVersion >= 2) {
+            return CLibrary.CRYPTO_LIB.ecdsa_verify_v2(this.secretKey.signaturePublicKey(), input, input.length(), signature);
+        }
         return CLibrary.CRYPTO_LIB.ecdsa_verify(this.secretKey.signaturePublicKey(), input, input.length(), signature);
     }
 

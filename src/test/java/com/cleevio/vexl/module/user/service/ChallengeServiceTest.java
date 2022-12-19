@@ -35,7 +35,7 @@ class ChallengeServiceTest {
         USER.setPublicKey(PUBLIC_KEY);
         USER.setUserVerification(USER_VERIFICATION);
 
-        final boolean signedChallengeValid = isSignedChallengeValid(new UserData(USER.getPublicKey(), PHONE_NUMBER, challenge, signedChallenge));
+        final boolean signedChallengeValid = isSignedChallengeValid(new UserData(USER.getPublicKey(), PHONE_NUMBER, challenge, signedChallenge), 1);
         assertThat(signedChallengeValid).isTrue();
     }
 
@@ -48,7 +48,34 @@ class ChallengeServiceTest {
         USER.setPublicKey(PUBLIC_KEY_2);
         USER.setUserVerification(USER_VERIFICATION);
 
-        final boolean signedChallengeValid = isSignedChallengeValid(new UserData(USER.getPublicKey(), PHONE_NUMBER, challenge, signedChallenge));
+        final boolean signedChallengeValid = isSignedChallengeValid(new UserData(USER.getPublicKey(), PHONE_NUMBER, challenge, signedChallenge), 1);
+        assertThat(signedChallengeValid).isFalse();
+    }
+
+
+    @Test
+    void testChallengeCreationAndValidation_V2_challengeShouldBeValid() throws Exception {
+        final String challenge = generateChallenge();
+        final String signedChallenge = CLibrary.CRYPTO_LIB.ecdsa_sign_v2(PUBLIC_KEY, PRIVATE_KEY, challenge, challenge.length());
+
+        USER_VERIFICATION.setChallenge(challenge);
+        USER.setPublicKey(PUBLIC_KEY);
+        USER.setUserVerification(USER_VERIFICATION);
+
+        final boolean signedChallengeValid = isSignedChallengeValid(new UserData(USER.getPublicKey(), PHONE_NUMBER, challenge, signedChallenge), 2);
+        assertThat(signedChallengeValid).isTrue();
+    }
+
+    @Test
+    void testChallengeCreationAndValidation_V2_challengeShouldBeInvalid() throws Exception {
+        final String challenge = generateChallenge();
+        final String signedChallenge = CLibrary.CRYPTO_LIB.ecdsa_sign_v2(PUBLIC_KEY, PRIVATE_KEY, challenge, challenge.length());
+
+        USER_VERIFICATION.setChallenge(challenge);
+        USER.setPublicKey(PUBLIC_KEY_2);
+        USER.setUserVerification(USER_VERIFICATION);
+
+        final boolean signedChallengeValid = isSignedChallengeValid(new UserData(USER.getPublicKey(), PHONE_NUMBER, challenge, signedChallenge), 2);
         assertThat(signedChallengeValid).isFalse();
     }
 
