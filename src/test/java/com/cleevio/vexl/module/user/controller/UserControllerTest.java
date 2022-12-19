@@ -14,7 +14,7 @@ import org.springframework.http.MediaType;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -76,7 +76,7 @@ class UserControllerTest extends BaseControllerTest {
     @Test
     void testVerifyChallengeAndGenerateSignature_validInput_shouldReturn200() throws Exception {
         when(userService.findValidUserWithChallenge(any())).thenReturn(USER_DATA);
-        when(signatureService.createSignature(any())).thenReturn(SIGNATURE_DATA);
+        when(signatureService.createSignature(any(), anyInt())).thenReturn(SIGNATURE_DATA);
 
         mvc.perform(post(CONFIRM_CHALLENGE)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -89,7 +89,7 @@ class UserControllerTest extends BaseControllerTest {
 
     @Test
     void testGenerateSignature_validInput_shouldReturn200() throws Exception {
-        when(signatureService.createSignature(USER.getPublicKey(), FACEBOOK_ID, false)).thenReturn(SIGNATURE_DATA);
+        when(signatureService.createSignature(eq(USER.getPublicKey()), eq(FACEBOOK_ID), eq(false), anyInt())).thenReturn(SIGNATURE_DATA);
 
         mvc.perform(get(FB_SIGNATURE_EP)
                         .header(SecurityFilter.HEADER_PUBLIC_KEY, PUBLIC_KEY)

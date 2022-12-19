@@ -34,19 +34,38 @@ class SignatureServiceTest {
     @Test
     void createSignatureAndVerify_shouldBeVerified() throws VerificationExpiredException {
         USER.setUserVerification(USER_VERIFICATION);
-        final var signature = signatureService.createSignature(PUBLIC_KEY, PHONE_HASH, false);
+        final var signature = signatureService.createSignature(PUBLIC_KEY, PHONE_HASH, false, 1);
 
-        final boolean result = signatureService.isSignatureValid(PUBLIC_KEY, signature.hash(), signature.signature());
+        final boolean result = signatureService.isSignatureValid(PUBLIC_KEY, signature.hash(), signature.signature(), 1);
         assertThat(result).isTrue();
     }
 
     @Test
     void createSignatureAndVerify_shouldNotBeVerified() throws VerificationExpiredException {
         USER.setUserVerification(USER_VERIFICATION);
-        final var signature = signatureService.createSignature(PUBLIC_KEY, PHONE_HASH, false);
+        final var signature = signatureService.createSignature(PUBLIC_KEY, PHONE_HASH, false, 1);
 
-        final boolean result = signatureService.isSignatureValid(PUBLIC_KEY_MS, signature.hash(), signature.signature());
+        final boolean result = signatureService.isSignatureValid(PUBLIC_KEY_MS, signature.hash(), signature.signature(), 1);
         assertThat(result).isFalse();
     }
 
+
+
+    @Test
+    void createSignatureAndVerify_v2_shouldBeVerified() throws VerificationExpiredException {
+        USER.setUserVerification(USER_VERIFICATION);
+        final var signature = signatureService.createSignature(PUBLIC_KEY, PHONE_HASH, false, 2);
+
+        final boolean result = signatureService.isSignatureValid(PUBLIC_KEY, signature.hash(), signature.signature(), 2);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void createSignatureAndVerify_v2_shouldNotBeVerified() throws VerificationExpiredException {
+        USER.setUserVerification(USER_VERIFICATION);
+        final var signature = signatureService.createSignature(PUBLIC_KEY, PHONE_HASH, false, 2);
+
+        final boolean result = signatureService.isSignatureValid(PUBLIC_KEY_MS, signature.hash(), signature.signature(), 2);
+        assertThat(result).isFalse();
+    }
 }

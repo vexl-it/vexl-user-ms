@@ -37,8 +37,18 @@ public final class ChallengeUtil {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(codeVerifier);
     }
 
-    public static boolean isSignedChallengeValid(final UserData userData)
+    public static boolean isSignedChallengeValid(final UserData userData, final int cryptoVersion)
             throws VerificationExpiredException {
+
+        if (cryptoVersion >= 2) {
+            return CLibrary.CRYPTO_LIB.ecdsa_verify_v2(
+                    userData.publicKey(),
+                    userData.challenge(),
+                    userData.challenge().length(),
+                    userData.signature()
+            );
+        }
+
         return CLibrary.CRYPTO_LIB.ecdsa_verify(
                 userData.publicKey(),
                 userData.challenge(),

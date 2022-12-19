@@ -2,6 +2,7 @@ package com.cleevio.vexl.module.user.controller;
 
 import com.cleevio.vexl.common.dto.ErrorResponse;
 import com.cleevio.vexl.common.security.filter.SecurityFilter;
+import com.cleevio.vexl.common.util.NumberUtils;
 import com.cleevio.vexl.module.user.dto.UserData;
 import com.cleevio.vexl.module.user.dto.request.ChallengeRequest;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
@@ -23,13 +24,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "User")
 @RestController
@@ -75,10 +70,12 @@ public class UserController {
             @ApiResponse(responseCode = "406 (100108)", description = "Server could not create message for signature. Public key or hash is invalid.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @Operation(summary = "Verify challenge.", description = "If challenge is verified successfully, we will create certificate for user.")
-    SignatureResponse verifyChallengeAndGenerateSignature(@RequestBody ChallengeRequest challengeRequest) {
+    SignatureResponse verifyChallengeAndGenerateSignature(@RequestBody ChallengeRequest challengeRequest,
+                                                          @RequestHeader(value = SecurityFilter.HEADER_CRYPTO_VERSION, defaultValue = "") final String clientVersionRaw) {
+        final int clientVersion = NumberUtils.parseIntOrFallback(clientVersionRaw, 1);
         final UserData userData = this.userService.findValidUserWithChallenge(challengeRequest);
 
-        return new SignatureResponse(this.signatureService.createSignature(userData));
+        return new SignatureResponse(this.signatureService.createSignature(userData, clientVersion));
     }
 
     @GetMapping("/signature/{facebookId}")
@@ -94,12 +91,15 @@ public class UserController {
     })
     @Operation(summary = "Generate signature for Facebook.")
     SignatureResponse generateSignature(@AuthenticationPrincipal User user,
-                                        @PathVariable String facebookId) {
+                                        @PathVariable String facebookId, @RequestHeader(value = SecurityFilter.HEADER_CRYPTO_VERSION,
+            defaultValue = "") final String cryptoVersionRaw) {
+        final int cryptoVersion = NumberUtils.parseIntOrFallback(cryptoVersionRaw, 1);
 
         return new SignatureResponse(this.signatureService.createSignature(
                 user.getPublicKey(),
                 facebookId,
-                false
+                false,
+                cryptoVersion
         ));
     }
 

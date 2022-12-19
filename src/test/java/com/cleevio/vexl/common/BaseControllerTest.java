@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 public class BaseControllerTest {
@@ -70,7 +70,7 @@ public class BaseControllerTest {
     public void setup() {
         when(userService.findByPublicKey(any())).thenReturn(Optional.of(USER));
 
-        when(signatureService.isSignatureValid(PUBLIC_KEY, PHONE_HASH, SIGNATURE)).thenReturn(true);
+        when(signatureService.isSignatureValid(eq(PUBLIC_KEY), eq(PHONE_HASH), eq(SIGNATURE), anyInt())).thenReturn(true);
     }
 
     /**

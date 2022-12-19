@@ -2,6 +2,7 @@ package com.cleevio.vexl.common.security.filter;
 
 import com.cleevio.vexl.common.dto.ErrorResponse;
 import com.cleevio.vexl.common.security.AuthenticationHolder;
+import com.cleevio.vexl.common.util.NumberUtils;
 import com.cleevio.vexl.module.user.service.SignatureService;
 import com.cleevio.vexl.module.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +24,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     public static final String HEADER_PUBLIC_KEY = "public-key";
     public static final String HEADER_HASH = "hash";
     public static final String HEADER_SIGNATURE = "signature";
+    public static final String HEADER_CRYPTO_VERSION = "crypto-version";
 
     private final SignatureService signatureService;
     private final UserService userService;
@@ -40,6 +42,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         final String publicKey = request.getHeader(HEADER_PUBLIC_KEY);
         final String phoneHash = request.getHeader(HEADER_HASH);
         final String signature = request.getHeader(HEADER_SIGNATURE);
+        final int cryptoVersion = NumberUtils.parseIntOrFallback(request.getHeader(HEADER_CRYPTO_VERSION), 1);
 
         if (signature == null || publicKey == null || phoneHash == null || !requestURI.contains("/api/v1")) {
             filterChain.doFilter(request, response);
@@ -47,7 +50,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         }
 
         try {
-            if (signatureService.isSignatureValid(publicKey, phoneHash, signature)) {
+            if (signatureService.isSignatureValid(publicKey, phoneHash, signature, cryptoVersion)) {
                 AuthenticationHolder authentication = userService
                         .findByPublicKey(publicKey)
                         .map(user -> {
