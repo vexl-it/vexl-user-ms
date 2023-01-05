@@ -13,12 +13,17 @@ public class TwilioConfig {
     @Getter
     private final String phone;
 
+    @Getter
+    private final String verifyServiceSid;
+
     public TwilioConfig(@Value("${twilio.sid}") String sid,
                         @Value("${twilio.token}") String token,
-                        @Value("${twilio.phone}") String phone) {
+                        @Value("${twilio.phone}") String phone,
+                        @Value("${twilio.verify-service-sid}") String verifyServiceSid) {
         this.phone = phone;
+        this.verifyServiceSid = verifyServiceSid;
 
-        if (!sid.isEmpty() && !token.isEmpty() && !phone.isEmpty()) {
+        if (!sid.isEmpty() && !token.isEmpty() && !phone.isEmpty() && !verifyServiceSid.isEmpty()) {
             Twilio.init(sid, token);
 
             log.info("Twilio initialized");
