@@ -2,20 +2,19 @@ package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.common.constant.ModuleLockNamespace;
 import com.cleevio.vexl.common.cryptolib.CLibrary;
-import com.cleevio.vexl.common.service.AdvisoryLockService;
 import com.cleevio.vexl.common.integration.twilio.service.SmsService;
+import com.cleevio.vexl.common.service.AdvisoryLockService;
+import com.cleevio.vexl.common.util.PhoneUtils;
 import com.cleevio.vexl.module.user.config.CredentialConfig;
 import com.cleevio.vexl.module.user.config.SecretKeyConfig;
+import com.cleevio.vexl.module.user.constant.VerificationAdvisoryLock;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.dto.request.PhoneConfirmRequest;
 import com.cleevio.vexl.module.user.entity.UserVerification;
-import com.cleevio.vexl.module.user.constant.VerificationAdvisoryLock;
 import com.cleevio.vexl.module.user.exception.ChallengeGenerationException;
 import com.cleevio.vexl.module.user.exception.InvalidPhoneNumberException;
 import com.cleevio.vexl.module.user.exception.PreviousVerificationCodeNotExpiredException;
 import com.cleevio.vexl.module.user.exception.VerificationExpiredException;
-import com.cleevio.vexl.common.util.PhoneUtils;
-import com.cleevio.vexl.common.util.RandomSecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,8 +85,8 @@ public class UserVerificationService {
         } else if (areCredentialsActiveAndDoesNumberMatch(formattedNumber)) {
             codeToSend = credentialConfig.code();
         } else {
-            codeToSend = RandomSecurityUtils.retrieveRandomDigits(this.codeDigitsLength);
-            smsService.sendMessage(codeToSend, formattedNumber);
+            // TODO rename column
+            codeToSend = smsService.sendMessage(formattedNumber);
         }
 
         log.info("Creating user verification for new request for phone number verification.");
@@ -127,6 +126,10 @@ public class UserVerificationService {
                         codeConfirmRequest.code(),
                         ZonedDateTime.now()
                 ).orElseThrow(VerificationExpiredException::new);
+
+        if(!smsService.verifyMessage(userVerification.getPhoneNumber(), codeConfirmRequest.code())) {
+            throw new VerificationExpiredException();
+        }
 
         log.info("Code is verified for verification: {}", userVerification.getId());
 
