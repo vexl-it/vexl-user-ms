@@ -14,6 +14,9 @@ interface UserVerificationRepository extends JpaRepository<UserVerification, Lon
     @Query("select uv from UserVerification uv where uv.expirationAt > :now AND uv.id = :id AND uv.verificationCode = :code ")
     Optional<UserVerification> findValidUserVerificationByIdAndCode(Long id, String code, ZonedDateTime now);
 
+    @Query("select uv from UserVerification uv where uv.expirationAt > :now AND uv.id = :id")
+    Optional<UserVerification> findValidUserVerificationById(Long id, ZonedDateTime now);
+
     @Modifying
     @Query("delete from UserVerification uv where uv.expirationAt < :now ")
     void deleteExpiredVerifications(ZonedDateTime now);
