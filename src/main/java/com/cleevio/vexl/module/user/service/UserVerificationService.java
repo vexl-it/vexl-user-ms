@@ -121,9 +121,8 @@ public class UserVerificationService {
         );
 
         UserVerification userVerification =
-                this.userVerificationRepository.findValidUserVerificationByIdAndCode(
+                this.userVerificationRepository.findValidUserVerificationById(
                         codeConfirmRequest.id(),
-                        codeConfirmRequest.code(),
                         ZonedDateTime.now()
                 ).orElseThrow(VerificationExpiredException::new);
 
