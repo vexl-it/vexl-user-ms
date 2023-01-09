@@ -1,7 +1,7 @@
 package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.common.constant.ModuleLockNamespace;
-import com.cleevio.vexl.common.cryptolib.CLibrary;
+import com.cleevio.vexl.common.cryptolib.CryptoLibrary;
 import com.cleevio.vexl.common.integration.twilio.service.SmsService;
 import com.cleevio.vexl.common.service.AdvisoryLockService;
 import com.cleevio.vexl.common.util.PhoneUtils;
@@ -80,7 +80,7 @@ public class UserVerificationService {
         }
 
         final String codeToSend;
-        if (isDevel) {
+        if (isDevel && false) {
             codeToSend = DEVEL_CODE;
         } else if (areCredentialsActiveAndDoesNumberMatch(formattedNumber)) {
             codeToSend = credentialConfig.code();
@@ -93,7 +93,7 @@ public class UserVerificationService {
         final UserVerification userVerification =
                 createUserVerification(
                         codeToSend,
-                        CLibrary.CRYPTO_LIB.hmac_digest(
+                        CryptoLibrary.getInstance().hmacDigest(
                                 this.secretKey.hmacKey(),
                                 formattedNumber
                         )
@@ -162,7 +162,7 @@ public class UserVerificationService {
     }
 
     private boolean isPreviousVerificationValid(String formattedNumber) {
-        final String hmacNumber = CLibrary.CRYPTO_LIB.hmac_digest(
+        final String hmacNumber = CryptoLibrary.getInstance().hmacDigest(
                 this.secretKey.hmacKey(),
                 formattedNumber
         );

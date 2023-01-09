@@ -1,6 +1,6 @@
 package com.cleevio.vexl.module.user.util;
 
-import com.cleevio.vexl.common.cryptolib.CLibrary;
+import com.cleevio.vexl.common.cryptolib.CryptoLibrary;
 import com.cleevio.vexl.module.user.dto.UserData;
 import com.cleevio.vexl.module.user.exception.VerificationExpiredException;
 import lombok.AccessLevel;
@@ -41,18 +41,16 @@ public final class ChallengeUtil {
             throws VerificationExpiredException {
 
         if (cryptoVersion >= 2) {
-            return CLibrary.CRYPTO_LIB.ecdsa_verify_v2(
+            return CryptoLibrary.getInstance().ecdsaVerifyV2(
                     userData.publicKey(),
                     userData.challenge(),
-                    userData.challenge().length(),
                     userData.signature()
             );
         }
 
-        return CLibrary.CRYPTO_LIB.ecdsa_verify(
+        return CryptoLibrary.getInstance().ecdsaVerifyV1(
                 userData.publicKey(),
                 userData.challenge(),
-                userData.challenge().length(),
                 userData.signature()
         );
     }

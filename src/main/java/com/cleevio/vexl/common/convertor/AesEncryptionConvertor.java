@@ -1,6 +1,6 @@
 package com.cleevio.vexl.common.convertor;
 
-import com.cleevio.vexl.common.cryptolib.CLibrary;
+import com.cleevio.vexl.common.cryptolib.CryptoLibrary;
 import com.cleevio.vexl.module.user.config.SecretKeyConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
@@ -18,13 +18,13 @@ public class AesEncryptionConvertor implements AttributeConverter<String, String
     @Nullable
     public String convertToDatabaseColumn(@Nullable String value) {
         if (value == null) return null;
-        return CLibrary.CRYPTO_LIB.aes_encrypt(secretKey.aesKey(), value);
+        return CryptoLibrary.getInstance().aesEncrypt(secretKey.aesKey(), value);
     }
 
     @Override
     @Nullable
     public String convertToEntityAttribute(@Nullable String value) {
         if (value == null) return null;
-        return CLibrary.CRYPTO_LIB.aes_decrypt(secretKey.aesKey(), value);
+        return CryptoLibrary.getInstance().aesDecrypt(secretKey.aesKey(), value);
     }
 }

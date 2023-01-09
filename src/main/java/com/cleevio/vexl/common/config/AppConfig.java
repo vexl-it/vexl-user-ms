@@ -1,7 +1,5 @@
 package com.cleevio.vexl.common.config;
 
-import com.cleevio.vexl.common.cryptolib.CLibrary;
-import com.sun.jna.NativeLibrary;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -21,11 +19,6 @@ import java.util.TimeZone;
 @EnableAsync
 @ComponentScan(basePackages = "com.cleevio")
 public class AppConfig {
-
-    static {
-        NativeLibrary.addSearchPath(CLibrary.FULL_NAME_WIN, CLibrary.PATH_LINUX);
-    }
-
 
     @Bean
     public CorsFilter corsFilter() {
