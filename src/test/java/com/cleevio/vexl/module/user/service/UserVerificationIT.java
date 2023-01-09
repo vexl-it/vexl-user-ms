@@ -1,7 +1,7 @@
 package com.cleevio.vexl.module.user.service;
 
 import com.cleevio.vexl.common.IntegrationTest;
-import com.cleevio.vexl.common.cryptolib.CLibrary;
+import com.cleevio.vexl.common.cryptolib.CryptoLibrary;
 import com.cleevio.vexl.module.user.dto.request.CodeConfirmRequest;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.entity.UserVerification;
@@ -40,7 +40,7 @@ class UserVerificationIT {
     @Test
     void testRequestConfirmPhone_shouldBeCreated() {
         userVerificationService.requestConfirmPhone(CreateRequestUtilTest.createPhoneConfirmRequest(PHONE_NUMBER));
-        final String hashedPhoneNumber = CLibrary.CRYPTO_LIB.hmac_digest(DEV_PASSWORD, PHONE_NUMBER);
+        final String hashedPhoneNumber = CryptoLibrary.getInstance().hmacDigest(DEV_PASSWORD, PHONE_NUMBER);
 
         final UserVerification userVerification = userVerificationRepository.findAll().get(0);
         assertThat(userVerification.getPhoneNumber()).isEqualTo(hashedPhoneNumber);
@@ -50,7 +50,7 @@ class UserVerificationIT {
     @Test
     void testRequestConfirmPhoneTwice_shouldReturnsPreviousVerificationCodeNotExpiredException() {
         userVerificationService.requestConfirmPhone(CreateRequestUtilTest.createPhoneConfirmRequest(PHONE_NUMBER));
-        final String hashedPhoneNumber = CLibrary.CRYPTO_LIB.hmac_digest(DEV_PASSWORD, PHONE_NUMBER);
+        final String hashedPhoneNumber = CryptoLibrary.getInstance().hmacDigest(DEV_PASSWORD, PHONE_NUMBER);
 
         final UserVerification userVerification = userVerificationRepository.findAll().get(0);
         assertThat(userVerification.getPhoneNumber()).isEqualTo(hashedPhoneNumber);

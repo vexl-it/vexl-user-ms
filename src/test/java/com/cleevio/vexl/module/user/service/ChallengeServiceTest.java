@@ -1,6 +1,6 @@
 package com.cleevio.vexl.module.user.service;
 
-import com.cleevio.vexl.common.cryptolib.CLibrary;
+import com.cleevio.vexl.common.cryptolib.CryptoLibrary;
 import com.cleevio.vexl.module.user.dto.UserData;
 import com.cleevio.vexl.module.user.entity.User;
 import com.cleevio.vexl.module.user.entity.UserVerification;
@@ -29,7 +29,7 @@ class ChallengeServiceTest {
     @Test
     void testChallengeCreationAndValidation_challengeShouldBeValid() throws Exception {
         final String challenge = generateChallenge();
-        final String signedChallenge = CLibrary.CRYPTO_LIB.ecdsa_sign(PUBLIC_KEY, PRIVATE_KEY, challenge, challenge.length());
+        final String signedChallenge = CryptoLibrary.getInstance().ecdsaSignV1(PRIVATE_KEY, challenge);
 
         USER_VERIFICATION.setChallenge(challenge);
         USER.setPublicKey(PUBLIC_KEY);
@@ -42,7 +42,7 @@ class ChallengeServiceTest {
     @Test
     void testChallengeCreationAndValidation_challengeShouldBeInvalid() throws Exception {
         final String challenge = generateChallenge();
-        final String signedChallenge = CLibrary.CRYPTO_LIB.ecdsa_sign(PUBLIC_KEY, PRIVATE_KEY, challenge, challenge.length());
+        final String signedChallenge = CryptoLibrary.getInstance().ecdsaSignV1(PRIVATE_KEY, challenge);
 
         USER_VERIFICATION.setChallenge(challenge);
         USER.setPublicKey(PUBLIC_KEY_2);
@@ -56,7 +56,7 @@ class ChallengeServiceTest {
     @Test
     void testChallengeCreationAndValidation_V2_challengeShouldBeValid() throws Exception {
         final String challenge = generateChallenge();
-        final String signedChallenge = CLibrary.CRYPTO_LIB.ecdsa_sign_v2(PUBLIC_KEY, PRIVATE_KEY, challenge, challenge.length());
+        final String signedChallenge = CryptoLibrary.getInstance().ecdsaSignV2(PRIVATE_KEY, challenge);
 
         USER_VERIFICATION.setChallenge(challenge);
         USER.setPublicKey(PUBLIC_KEY);
@@ -69,7 +69,7 @@ class ChallengeServiceTest {
     @Test
     void testChallengeCreationAndValidation_V2_challengeShouldBeInvalid() throws Exception {
         final String challenge = generateChallenge();
-        final String signedChallenge = CLibrary.CRYPTO_LIB.ecdsa_sign_v2(PUBLIC_KEY, PRIVATE_KEY, challenge, challenge.length());
+        final String signedChallenge = CryptoLibrary.getInstance().ecdsaSignV2(PRIVATE_KEY, challenge);
 
         USER_VERIFICATION.setChallenge(challenge);
         USER.setPublicKey(PUBLIC_KEY_2);
