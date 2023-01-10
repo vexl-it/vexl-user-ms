@@ -3,10 +3,8 @@ package com.cleevio.vexl.common.integration.twilio.service;
 import com.cleevio.vexl.common.integration.twilio.config.TwilioConfig;
 import com.cleevio.vexl.module.user.exception.InvalidPhoneNumberException;
 import com.twilio.exception.ApiException;
-import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.verify.v2.service.Verification;
 import com.twilio.rest.verify.v2.service.VerificationCheck;
-import com.twilio.type.PhoneNumber;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -46,10 +44,10 @@ public class TwilioService implements SmsService {
     }
 
     @Override
-    public Boolean verifyMessage(final String phoneNumber, final String code) {
+    public Boolean verifyMessage(final String verificationSid, final String code) {
         try {
             VerificationCheck check = VerificationCheck.creator(twilioConfig.getVerifyServiceSid())
-                    .setTo(phoneNumber)
+                    .setVerificationSid(verificationSid)
                     .setCode(code)
                     .create();
 
@@ -57,7 +55,7 @@ public class TwilioService implements SmsService {
                     Verification.Status.APPROVED.toString().toLowerCase(Locale.ROOT)
             );
         } catch (ApiException ex) {
-            log.error("Failed to verify sms to number {}", phoneNumber, ex);
+            log.error("Failed to verify sms to number {}", verificationSid, ex);
             throw ex;
         }
     }

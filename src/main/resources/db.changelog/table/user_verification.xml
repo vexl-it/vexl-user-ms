@@ -50,4 +50,10 @@
         </createIndex>
     </changeSet>
 
+    <changeSet id="add_verify_sid_instead_of_verification_code" author="davenov">
+        <addColumn tableName="user_verification">
+            <column name="verification_sid" type="varchar"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
