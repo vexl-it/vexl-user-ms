@@ -11,7 +11,7 @@
     <groupId>com.cleevio</groupId>
     <artifactId>vexl</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>vexl</name>
+    <name>vexl-user</name>
     <description>vexl</description>
 
     <properties>
@@ -149,11 +149,6 @@
             <artifactId>postgresql</artifactId>
             <version>1.17.3</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna-platform</artifactId>
-            <version>5.12.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
