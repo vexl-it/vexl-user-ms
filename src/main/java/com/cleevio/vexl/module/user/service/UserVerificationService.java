@@ -79,20 +79,22 @@ public class UserVerificationService {
             throw new PreviousVerificationCodeNotExpiredException();
         }
 
-        final String codeToSend;
-        if (isDevel && false) {
+        String codeToSend = null;
+        String verificationSid = null;
+        if (isDevel) {
             codeToSend = DEVEL_CODE;
         } else if (areCredentialsActiveAndDoesNumberMatch(formattedNumber)) {
             codeToSend = credentialConfig.code();
         } else {
             // TODO rename column
-            codeToSend = smsService.sendMessage(formattedNumber);
+            verificationSid = smsService.sendMessage(formattedNumber);
         }
 
         log.info("Creating user verification for new request for phone number verification.");
         final UserVerification userVerification =
                 createUserVerification(
                         codeToSend,
+                        verificationSid,
                         CryptoLibrary.getInstance().hmacDigest(
                                 this.secretKey.hmacKey(),
                                 formattedNumber
@@ -126,9 +128,10 @@ public class UserVerificationService {
                         ZonedDateTime.now()
                 ).orElseThrow(VerificationExpiredException::new);
 
-        if(!smsService.verifyMessage(userVerification.getPhoneNumber(), codeConfirmRequest.code())) {
+        if(!verifySmsCode(codeConfirmRequest, userVerification)) {
             throw new VerificationExpiredException();
         }
+
 
         log.info("Code is verified for verification: {}", userVerification.getId());
 
@@ -153,12 +156,22 @@ public class UserVerificationService {
         this.userVerificationRepository.deleteExpiredVerifications(ZonedDateTime.now().minusSeconds(10));
     }
 
-    private UserVerification createUserVerification(String codeToSend, String phoneNumber) {
+    private UserVerification createUserVerification(String codeToSend, String verificationSid, String phoneNumber) {
         return UserVerification.builder()
                 .verificationCode(codeToSend)
+                .verificationSid(verificationSid)
                 .expirationAt(ZonedDateTime.now().plusSeconds(this.expirationTime))
                 .phoneNumber(phoneNumber)
                 .build();
+    }
+
+    private boolean verifySmsCode(CodeConfirmRequest codeConfirmRequest, UserVerification userVerification) {
+        if(userVerification.getVerificationCode() != null) {
+            // if verification code is in the database, verify against it.
+            return codeConfirmRequest.code().equals(userVerification.getVerificationCode());
+        }
+        // Otherwise verify against Twilio
+        return smsService.verifyMessage(userVerification.getVerificationSid(), codeConfirmRequest.code());
     }
 
     private boolean isPreviousVerificationValid(String formattedNumber) {

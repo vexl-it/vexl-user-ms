@@ -57,7 +57,7 @@ public class SignatureService {
         final String digitalSignature = cryptoVersion >= 2 ? CryptoLibrary.getInstance().ecdsaSignV2(
                 this.secretKey.signaturePrivateKey(),
                 input) : CryptoLibrary.getInstance().ecdsaSignV1(
-                this.secretKey.signaturePublicKey(),
+                this.secretKey.signaturePrivateKey(),
                 input);
 
         return new SignatureData(

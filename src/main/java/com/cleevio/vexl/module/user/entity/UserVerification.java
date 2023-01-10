@@ -37,6 +37,8 @@ public class UserVerification {
     @Convert(converter = AesEncryptionConvertor.class)
     private String verificationCode;
 
+    private String verificationSid;
+
     private String phoneNumber;
 
     private ZonedDateTime expirationAt;
