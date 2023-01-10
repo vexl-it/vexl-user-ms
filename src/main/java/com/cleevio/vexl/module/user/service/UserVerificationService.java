@@ -46,9 +46,6 @@ public class UserVerificationService {
     private final SecretKeyConfig secretKey;
     private final CredentialConfig credentialConfig;
 
-    @Value("${verification.phone.digits}")
-    private final Integer codeDigitsLength;
-
     @Value("${verification.phone.expiration.time}")
     private final Integer expirationTime;
 
@@ -95,7 +92,7 @@ public class UserVerificationService {
                 createUserVerification(
                         codeToSend,
                         verificationSid,
-                        CryptoLibrary.getInstance().hmacDigest(
+                        CryptoLibrary.instance.hmacDigest(
                                 this.secretKey.hmacKey(),
                                 formattedNumber
                         )
@@ -175,7 +172,7 @@ public class UserVerificationService {
     }
 
     private boolean isPreviousVerificationValid(String formattedNumber) {
-        final String hmacNumber = CryptoLibrary.getInstance().hmacDigest(
+        final String hmacNumber = CryptoLibrary.instance.hmacDigest(
                 this.secretKey.hmacKey(),
                 formattedNumber
         );

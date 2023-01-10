@@ -47,16 +47,16 @@ public class SignatureService {
     public SignatureData createSignature(String publicKey, String hash, boolean alreadyHashed, final int cryptoVersion) {
 
         if (!alreadyHashed) {
-            hash = CryptoLibrary.getInstance().hmacDigest(
+            hash = CryptoLibrary.instance.hmacDigest(
                     this.secretKey.hmacKey(),
                     hash
             );
         }
 
         final String input = String.join(StringUtils.EMPTY, publicKey, hash);
-        final String digitalSignature = cryptoVersion >= 2 ? CryptoLibrary.getInstance().ecdsaSignV2(
+        final String digitalSignature = cryptoVersion >= 2 ? CryptoLibrary.instance.ecdsaSignV2(
                 this.secretKey.signaturePrivateKey(),
-                input) : CryptoLibrary.getInstance().ecdsaSignV1(
+                input) : CryptoLibrary.instance.ecdsaSignV1(
                 this.secretKey.signaturePrivateKey(),
                 input);
 
@@ -71,9 +71,9 @@ public class SignatureService {
         final String input = String.join(StringUtils.EMPTY, publicKey, hash);
 
         if (cryptoVersion >= 2) {
-            return CryptoLibrary.getInstance().ecdsaVerifyV2(this.secretKey.signaturePublicKey(), input, signature);
+            return CryptoLibrary.instance.ecdsaVerifyV2(this.secretKey.signaturePublicKey(), input, signature);
         }
-        return CryptoLibrary.getInstance().ecdsaVerifyV1(this.secretKey.signaturePublicKey(), input, signature);
+        return CryptoLibrary.instance.ecdsaVerifyV1(this.secretKey.signaturePublicKey(), input, signature);
     }
 
 }

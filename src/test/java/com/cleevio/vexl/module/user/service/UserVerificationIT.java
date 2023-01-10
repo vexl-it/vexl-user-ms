@@ -40,7 +40,7 @@ class UserVerificationIT {
     @Test
     void testRequestConfirmPhone_shouldBeCreated() {
         userVerificationService.requestConfirmPhone(CreateRequestUtilTest.createPhoneConfirmRequest(PHONE_NUMBER));
-        final String hashedPhoneNumber = CryptoLibrary.getInstance().hmacDigest(DEV_PASSWORD, PHONE_NUMBER);
+        final String hashedPhoneNumber = CryptoLibrary.instance.hmacDigest(DEV_PASSWORD, PHONE_NUMBER);
 
         final UserVerification userVerification = userVerificationRepository.findAll().get(0);
         assertThat(userVerification.getPhoneNumber()).isEqualTo(hashedPhoneNumber);
@@ -50,7 +50,7 @@ class UserVerificationIT {
     @Test
     void testRequestConfirmPhoneTwice_shouldReturnsPreviousVerificationCodeNotExpiredException() {
         userVerificationService.requestConfirmPhone(CreateRequestUtilTest.createPhoneConfirmRequest(PHONE_NUMBER));
-        final String hashedPhoneNumber = CryptoLibrary.getInstance().hmacDigest(DEV_PASSWORD, PHONE_NUMBER);
+        final String hashedPhoneNumber = CryptoLibrary.instance.hmacDigest(DEV_PASSWORD, PHONE_NUMBER);
 
         final UserVerification userVerification = userVerificationRepository.findAll().get(0);
         assertThat(userVerification.getPhoneNumber()).isEqualTo(hashedPhoneNumber);

@@ -18,13 +18,13 @@ public class AesEncryptionConvertor implements AttributeConverter<String, String
     @Nullable
     public String convertToDatabaseColumn(@Nullable String value) {
         if (value == null) return null;
-        return CryptoLibrary.getInstance().aesEncrypt(secretKey.aesKey(), value);
+        return CryptoLibrary.instance.aesEncryptIgnoreTag(secretKey.aesKey(), value);
     }
 
     @Override
     @Nullable
     public String convertToEntityAttribute(@Nullable String value) {
         if (value == null) return null;
-        return CryptoLibrary.getInstance().aesDecrypt(secretKey.aesKey(), value);
+        return CryptoLibrary.instance.aesDecryptIgnoreTag(secretKey.aesKey(), value);
     }
 }

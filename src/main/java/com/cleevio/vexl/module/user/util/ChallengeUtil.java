@@ -41,14 +41,14 @@ public final class ChallengeUtil {
             throws VerificationExpiredException {
 
         if (cryptoVersion >= 2) {
-            return CryptoLibrary.getInstance().ecdsaVerifyV2(
+            return CryptoLibrary.instance.ecdsaVerifyV2(
                     userData.publicKey(),
                     userData.challenge(),
                     userData.signature()
             );
         }
 
-        return CryptoLibrary.getInstance().ecdsaVerifyV1(
+        return CryptoLibrary.instance.ecdsaVerifyV1(
                 userData.publicKey(),
                 userData.challenge(),
                 userData.signature()

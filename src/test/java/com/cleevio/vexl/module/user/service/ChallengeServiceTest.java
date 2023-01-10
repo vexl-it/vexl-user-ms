@@ -18,7 +18,6 @@ class ChallengeServiceTest {
     private static final String PRIVATE_KEY = "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1IZ0NBUUF3RUFZSEtvWkl6ajBDQVFZRks0RUVBQ0VFWVRCZkFnRUJCQnlQZG1IQnF4OUxZOFVhc0FQdE1xOGoKbEdmRGRDQkM1UHNhcldwaW9Ud0RPZ0FFM0s4bFYydkFUNktsOVRQY20zUHR3MVdIRS9kU20yUnBEMElQaUU0ZQpacEE1T0IyUTFPWCthUmhKMmdIRUIxcnZHR3NwNm42TVB3bz0KLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLQo=";
     private static final String PUBLIC_KEY_2 = "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUU0d0VBWUhLb1pJemowQ0FRWUZLNEVFQUNFRE9nQUVyM3BienM3UVo1VVhPRXFlMlQ3eU4xQmxDVXZucWhVMQpSSVhzelY2SWlFYW1Mc2x5WWt2d3ZNVnFZRlhZSWRmY2J1VHlwWmtNMzJrPQotLS0tLUVORCBQVUJMSUMgS0VZLS0tLS0K";
     private static final String PHONE_NUMBER = "dummy_phone_number";
-    private static final String SIGNATURE = "dummy_signature";
 
     static {
         USER_VERIFICATION = new UserVerification();
@@ -29,7 +28,7 @@ class ChallengeServiceTest {
     @Test
     void testChallengeCreationAndValidation_challengeShouldBeValid() throws Exception {
         final String challenge = generateChallenge();
-        final String signedChallenge = CryptoLibrary.getInstance().ecdsaSignV1(PRIVATE_KEY, challenge);
+        final String signedChallenge = CryptoLibrary.instance.ecdsaSignV1(PRIVATE_KEY, challenge);
 
         USER_VERIFICATION.setChallenge(challenge);
         USER.setPublicKey(PUBLIC_KEY);
@@ -42,7 +41,7 @@ class ChallengeServiceTest {
     @Test
     void testChallengeCreationAndValidation_challengeShouldBeInvalid() throws Exception {
         final String challenge = generateChallenge();
-        final String signedChallenge = CryptoLibrary.getInstance().ecdsaSignV1(PRIVATE_KEY, challenge);
+        final String signedChallenge = CryptoLibrary.instance.ecdsaSignV1(PRIVATE_KEY, challenge);
 
         USER_VERIFICATION.setChallenge(challenge);
         USER.setPublicKey(PUBLIC_KEY_2);
@@ -56,7 +55,7 @@ class ChallengeServiceTest {
     @Test
     void testChallengeCreationAndValidation_V2_challengeShouldBeValid() throws Exception {
         final String challenge = generateChallenge();
-        final String signedChallenge = CryptoLibrary.getInstance().ecdsaSignV2(PRIVATE_KEY, challenge);
+        final String signedChallenge = CryptoLibrary.instance.ecdsaSignV2(PRIVATE_KEY, challenge);
 
         USER_VERIFICATION.setChallenge(challenge);
         USER.setPublicKey(PUBLIC_KEY);
@@ -69,7 +68,7 @@ class ChallengeServiceTest {
     @Test
     void testChallengeCreationAndValidation_V2_challengeShouldBeInvalid() throws Exception {
         final String challenge = generateChallenge();
-        final String signedChallenge = CryptoLibrary.getInstance().ecdsaSignV2(PRIVATE_KEY, challenge);
+        final String signedChallenge = CryptoLibrary.instance.ecdsaSignV2(PRIVATE_KEY, challenge);
 
         USER_VERIFICATION.setChallenge(challenge);
         USER.setPublicKey(PUBLIC_KEY_2);
