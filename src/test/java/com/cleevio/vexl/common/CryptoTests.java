@@ -98,10 +98,19 @@ public class CryptoTests {
 
     @Test
     void testAesIgnoreTag() {
-        String data = "asdfasdf this must be longer than long yes, sesakejaf lksdjlf kajs dlfkjalksd jflkasj dflkajskdlůfj aslkdjf klaůsjdfkl ajsdlkfj aklůsjdfk aůsjdf aklsdjf klajs dklfa";
-        String pass="asdfasdfa else aklsdj fklajskldfj klasjd klfj alksd jfklajs kldfj aklsjdflkajs kldfj alksjdf lkajslk djfklajsd kfkas jdfklaj skldfjakls jdflkaj slkdfjasl kdfjlkasjdf lkajsdf";
+        String data = "asdfasdf this must asdfasd fasdf asdf asdf asdf asdf asdfa sdf be longer than long yes, sesakejaf lksdjlf kajs dlfkjalksd jflkasj dflkajskdlůfj aslkdjf klaůsjdfkl ajsdlkfj aklůsjdfk aůsjdf aklsdjf klaasdf asdf asdf asdfas df asdf asdf asdf asdfas df asdf asdf asdf asdfas df asdf asdf asdf asdfas df asdf asdf asdf asdfas df asdf asdf asdf asdfas df asdf asdf asdf asdfas df asdf asdf asdf asdfas df asdf asdf asdf asdfas df js dklfa fkl asjdfklajs lkdfjakls djfkla sjdlkfj aslkdjf klasjd flkajskl djflkajsdkl fajlksdf fkl asjdfklajs lkdfjakls djfkla sjdlkfj aslkdjf klasjd flkajskl djflkajsdkl fajlksdf";
+        String pass="asdfasdfa else aklsdjasdf asdf asdf asdf asdfas df asdf asdf asdf asdfas df asdf asdf asdf asdfas df asdf asdf asdf asdfas df asdf asdf asdf asdfas df asdf asdf asdf asdfas df asdf asdf asdf asdfas df fklajskldfj klasjd klfj alksd jfklajs kldfj aklsjdflkajs kldfj alksjdf lkajslk djfklajsd kfkas jdfklaj skldfjakls jdflkaj slkdfjasl kdfjlkasjdf lkajsdffkl asjdfklajs lkdfjakls djfkla sjdlkfj aslkdjf klasjd flkajskl djflkajsdkl fajlksdf fkl asjdfklajs lkdfjakls djfkla sjdlkfj aslkdjf klasjd flkajskl djflkajsdkl fajlksdf fkl asjdfklajs lkdfjakls djfkla sjdlkfj aslkdjf klasjd flkajskl djflkajsdkl fajlksdf";
 
         String cipher = CryptoLibrary.instance.aesEncryptIgnoreTag(pass, data);
         assertThat(CryptoLibrary.instance.aesDecryptIgnoreTag(pass, cipher)).isEqualTo(data);
+    }
+
+    @Test
+    void testAESWithPreGeneratedCipher() {
+        String aesKey = "kasdjfklasjdklfj askldf";
+        String cipher = "/hjXkKDY4wE8zwu3Zw9iGk9eHLd5q63/RdNe1ZFNdv+ERdL/u/Tvg9uc0NxhXtTeXYSTeqJeffvkVF10NCtxOONCgO+PMweFT2y7WNMKoZOH0OmV8C9Iui94LqoHqNoi1cofWS6t6rHL84H8qhssrTOxqIYDzqiChRFMUDxFuL6Hv/N+QnniGo9F9Bnn0mbAvUISmHFHalca7vUltVmoRkbipnrD3dsMU6aSnemu6btiwj4QGfNWwADv1S6snuR8PMxu4q5GHnXyrnNorMFXvrUQqPtwbuv0tdokojvTLc+mCrgo0un5loKq1gPsZvFqKl0f3/FHa0J1NrJJMemdTg==";
+
+        String decrypted = CryptoLibrary.instance.aesDecryptIgnoreTag(aesKey, cipher);
+        assertThat(decrypted).isEqualTo("0klůasj dfaůksldjf lkasjdjklfj aslkdjf lkasj dflkajskl djfklasjd flkja slkdfj lkasjd flkajs dkf sdf lkjaskldfj alksjdfkl asjdfklajs lkdfjakls djfkla sjdlkfj aslkdjf klasjd flkajskl djflkajsdkl fajlksdf");
     }
 }
