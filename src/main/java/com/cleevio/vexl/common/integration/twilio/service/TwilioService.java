@@ -25,7 +25,6 @@ public class TwilioService implements SmsService {
     public String sendMessage(String phoneNumber) {
         try {
 
-            log.info("Twilio serviceSid: %s".formatted(twilioConfig.getVerifyServiceSid()));
             Verification v = Verification.creator(
                     twilioConfig.getVerifyServiceSid(),
                     phoneNumber,

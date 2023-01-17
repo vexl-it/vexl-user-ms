@@ -26,7 +26,7 @@ public class TwilioConfig {
         if (!sid.isEmpty() && !token.isEmpty() && !phone.isEmpty() && !verifyServiceSid.isEmpty()) {
             Twilio.init(sid, token);
 
-            log.info("Twilio initialized. sid: %s, token: %s".formatted(sid, token));
+            log.info("Twilio initialized.");
         } else {
             log.error("Twilio cannot be initialized");
         }
